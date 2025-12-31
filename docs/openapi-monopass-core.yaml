@@ -1,0 +1,150 @@
+openapi: 3.0.3
+info:
+  title: MonoPass Club - Core API
+  version: 1.0.0
+  description: Core API para gestión de centros nocturnos, eventos, RPs, accesos y cortes.
+
+servers:
+  - url: http://localhost:3000/api
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        role:
+          type: string
+
+    Club:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        capacity: { type: integer }
+        active: { type: boolean }
+
+    Event:
+      type: object
+      properties:
+        id: { type: string }
+        clubId: { type: string }
+        name: { type: string }
+        startsAt: { type: string, format: date-time }
+        endsAt: { type: string, format: date-time }
+        active: { type: boolean }
+
+    Rp:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        active: { type: boolean }
+
+    Ticket:
+      type: object
+      properties:
+        id: { type: string }
+        eventId: { type: string }
+        rpId: { type: string }
+        guestType:
+          type: string
+          enum: [GENERAL, VIP, OTHER]
+        note:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, SCANNED]
+
+    Cut:
+      type: object
+      properties:
+        rpId: { type: string }
+        total: { type: integer }
+        totalGeneral: { type: integer }
+        totalVip: { type: integer }
+        totalOther: { type: integer }
+
+paths:
+  /auth/login:
+    post:
+      summary: Login
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+
+  /clubs:
+    get:
+      summary: Listar centros
+      tags: [Clubs]
+      responses:
+        '200':
+          description: OK
+    post:
+      summary: Crear centro
+      tags: [Clubs]
+      responses:
+        '201':
+          description: Created
+
+  /events:
+    get:
+      summary: Listar eventos
+      tags: [Events]
+      responses:
+        '200':
+          description: OK
+    post:
+      summary: Crear evento
+      tags: [Events]
+      responses:
+        '201':
+          description: Created
+
+  /tickets:
+    post:
+      summary: Generar acceso (RP)
+      tags: [Tickets]
+      responses:
+        '201':
+          description: Created
+        '409':
+          description: Limite alcanzado
+
+  /cuts:
+    get:
+      summary: Consultar cortes
+      tags: [Cuts]
+      responses:
+        '200':
+          description: OK

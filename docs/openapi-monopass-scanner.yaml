@@ -1,0 +1,158 @@
+openapi: 3.0.3
+info:
+  title: MonoPass Club - Scanner API
+  version: 1.0.0
+  description: Microservicio aislado para validación y confirmación de accesos QR en puerta.
+
+servers:
+  - url: http://localhost:3001/scanner-api
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ScanValidateRequest:
+      type: object
+      required: [qrToken]
+      properties:
+        qrToken:
+          type: string
+
+    ScanConfirmRequest:
+      type: object
+      required: [qrToken, clientRequestId]
+      properties:
+        qrToken:
+          type: string
+        clientRequestId:
+          type: string
+          format: uuid
+
+    ScanTicket:
+      type: object
+      properties:
+        ticketId:
+          type: string
+        eventId:
+          type: string
+        guestType:
+          type: string
+          enum: [GENERAL, VIP, OTHER]
+        displayLabel:
+          type: string
+        note:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, SCANNED]
+        scannedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    ScanValidateResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        reason:
+          type: string
+          enum: [ALREADY_SCANNED, INVALID_TOKEN, null]
+          nullable: true
+        ticket:
+          $ref: '#/components/schemas/ScanTicket'
+          nullable: true
+
+    ScanConfirmResponse:
+      type: object
+      properties:
+        confirmed:
+          type: boolean
+        reason:
+          type: string
+          enum: [ALREADY_SCANNED, INVALID_TOKEN, null]
+          nullable: true
+        ticket:
+          $ref: '#/components/schemas/ScanTicket'
+          nullable: true
+
+paths:
+  /scan/validate:
+    post:
+      summary: Validar QR sin marcar entrada
+      tags: [Scanner]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScanValidateRequest'
+      responses:
+        '200':
+          description: Resultado de validación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanValidateResponse'
+        '401':
+          description: No autorizado
+        '403':
+          description: Prohibido
+        '429':
+          description: Rate limit
+        '500':
+          description: Error interno
+
+  /scan/confirm:
+    post:
+      summary: Confirmar entrada (no reversible)
+      tags: [Scanner]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScanConfirmRequest'
+      responses:
+        '200':
+          description: Confirmación exitosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanConfirmResponse'
+        '404':
+          description: Token inválido
+        '409':
+          description: Ya escaneado
+        '401':
+          description: No autorizado
+        '403':
+          description: Prohibido
+        '429':
+          description: Rate limit
+        '500':
+          description: Error interno
+
+  /health:
+    get:
+      summary: Healthcheck
+      tags: [Health]
+      security: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok

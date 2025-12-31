@@ -1,0 +1,22 @@
+{
+  "name": "monopass-club",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "workspaces": [
+    "core-api",
+    "scanner-service",
+    "frontend"
+  ],
+  "scripts": {
+    "lint": "npm run lint -w core-api && npm run lint -w scanner-service && npm run lint -w frontend",
+    "test": "npm run test -w core-api && npm run test -w scanner-service && npm run test -w frontend",
+    "dev:core": "npm run dev -w core-api",
+    "dev:scanner": "npm run dev -w scanner-service",
+    "dev:frontend": "npm run dev -w frontend",
+    "prisma:generate": "npm run prisma:generate -w core-api"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
