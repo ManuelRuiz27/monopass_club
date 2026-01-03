@@ -6,6 +6,7 @@ dotenv.config()
 const envSchema = z.object({
   CORE_API_BASE_URL: z.string().url(),
   SCANNER_API_KEY: z.string().min(12),
+  JWT_SECRET: z.string().min(12).optional(),
   DATABASE_URL: z.string().url(),
   PORT: z.coerce.number().default(4100),
 })

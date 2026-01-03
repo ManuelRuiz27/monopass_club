@@ -2,37 +2,56 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { managerApi, type EventDTO } from '../api'
 import { useToast } from '@/components/ToastProvider'
-
-const defaultEventForm = () => ({
-  clubId: '',
-  name: 'Evento especial',
-  startsAt: new Date().toISOString().slice(0, 16),
-  endsAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString().slice(0, 16),
-})
+import { Modal } from '@/components/Modal'
+import { TemplateEditor, type TemplateConfig } from '@/components/TemplateEditor'
+import { EventWizard, type EventFormData } from '../components/EventWizard'
 
 export function EventsPage() {
   const toast = useToast()
   const queryClient = useQueryClient()
-  const clubsQuery = useQuery({ queryKey: ['clubs'], queryFn: managerApi.getClubs })
   const eventsQuery = useQuery({ queryKey: ['events'], queryFn: managerApi.getEvents })
   const rpsQuery = useQuery({ queryKey: ['rps'], queryFn: managerApi.getRps })
-  const [form, setForm] = useState(defaultEventForm())
   const [assignForms, setAssignForms] = useState<Record<string, { rpId: string; limit: string }>>({})
 
-  const createEvent = useMutation({
-    mutationFn: () =>
-      managerApi.createEvent({
-        clubId: form.clubId,
-        name: form.name.trim(),
-        startsAt: new Date(form.startsAt).toISOString(),
-        endsAt: new Date(form.endsAt).toISOString(),
-      }),
-    onSuccess: () => {
-      toast.showToast({ title: 'Evento creado', variant: 'success' })
-      queryClient.invalidateQueries({ queryKey: ['events'] })
-      setForm(defaultEventForm())
-    },
-  })
+  // Estado para el modal de edición de plantilla
+  const [editingTemplateEvent, setEditingTemplateEvent] = useState<EventDTO | null>(null)
+
+  // Estado para el wizard de creación de evento
+  const [showWizard, setShowWizard] = useState(false)
+  const [wizardInitialData, setWizardInitialData] = useState<Partial<EventFormData> | undefined>(undefined)
+
+  const handleDuplicateEvent = (event: EventDTO) => {
+    // Configurar fechas para "mañana" a la misma hora
+    const now = new Date()
+    const tomorrowStart = new Date(now)
+    tomorrowStart.setDate(now.getDate() + 1)
+    tomorrowStart.setHours(22, 0, 0, 0) // Default 10 PM
+
+    const tomorrowEnd = new Date(tomorrowStart)
+    tomorrowEnd.setHours(tomorrowStart.getHours() + 6) // +6 horas
+
+    // Copiar datos del evento
+    setWizardInitialData({
+      clubId: event.club.id,
+      name: `${event.name} (Copia)`,
+      startsAt: tomorrowStart.toISOString().slice(0, 16),
+      endsAt: tomorrowEnd.toISOString().slice(0, 16),
+      template: {
+        templateImageUrl: event.templateImageUrl ?? '',
+        qrPositionX: event.qrPositionX ?? 0.5,
+        qrPositionY: event.qrPositionY ?? 0.5,
+        qrSize: event.qrSize ?? 0.35,
+      },
+      // También podríamos copiar asignaciones, pero mejor empezar limpio o dejarlo opcional
+      rpAssignments: [],
+    })
+    setShowWizard(true)
+    toast.showToast({ title: 'Datos copiados al wizard', variant: 'info' })
+    // Scroll al wizard
+    setTimeout(() => {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+    }, 100)
+  }
 
   const updateEventStatus = useMutation({
     mutationFn: (payload: { eventId: string; active: boolean }) => managerApi.updateEvent(payload.eventId, { active: payload.active }),
@@ -44,6 +63,7 @@ export function EventsPage() {
       queryClient.invalidateQueries({ queryKey: ['events'] })
     },
   })
+
 
   const assignMutation = useMutation({
     mutationFn: ({ eventId, rpId, limit }: { eventId: string; rpId: string; limit: number | null }) =>
@@ -71,6 +91,36 @@ export function EventsPage() {
       queryClient.invalidateQueries({ queryKey: ['events'] })
     },
   })
+
+  // Mutación para guardar la plantilla del evento
+  const updateTemplateMutation = useMutation({
+    mutationFn: ({ eventId, config }: { eventId: string; config: TemplateConfig }) =>
+      managerApi.updateTemplate(eventId, {
+        templateImageUrl: config.templateImageUrl || null,
+        qrPositionX: config.qrPositionX,
+        qrPositionY: config.qrPositionY,
+        qrSize: config.qrSize,
+      }),
+    onSuccess: () => {
+      toast.showToast({ title: 'Plantilla guardada', variant: 'success' })
+      queryClient.invalidateQueries({ queryKey: ['events'] })
+      setEditingTemplateEvent(null)
+    },
+    onError: (err: unknown) => {
+      toast.showToast({
+        title: 'Error al guardar plantilla',
+        description: err instanceof Error ? err.message : undefined,
+        variant: 'error',
+      })
+    },
+  })
+
+  const handleSaveTemplate = (config: TemplateConfig) => {
+    if (!editingTemplateEvent) return
+    updateTemplateMutation.mutate({ eventId: editingTemplateEvent.id, config })
+  }
+
+  const hasTemplate = (event: EventDTO) => Boolean(event.templateImageUrl)
 
   const handleAssignSubmit = (eventId: string) => {
     const current = assignForms[eventId]
@@ -101,59 +151,11 @@ export function EventsPage() {
 
   return (
     <div>
-      <h3>Eventos</h3>
-      <form
-        className="form-grid"
-        onSubmit={(event) => {
-          event.preventDefault()
-          if (!form.clubId) return
-          createEvent.mutate()
-        }}
-      >
-        <label>
-          Club
-          <select value={form.clubId} onChange={(e) => setForm((prev) => ({ ...prev, clubId: e.target.value }))} required>
-            <option value="" disabled>
-              Selecciona un club
-            </option>
-            {clubsQuery.data?.map((club) => (
-              <option key={club.id} value={club.id} disabled={!club.active}>
-                {club.name} {!club.active ? '(Inactivo)' : ''}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Nombre
-          <input value={form.name} onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))} required />
-        </label>
-        <label>
-          Inicio
-          <input
-            type="datetime-local"
-            value={form.startsAt}
-            onChange={(e) => setForm((prev) => ({ ...prev, startsAt: e.target.value }))}
-            required
-          />
-        </label>
-        <label>
-          Fin
-          <input
-            type="datetime-local"
-            value={form.endsAt}
-            onChange={(e) => setForm((prev) => ({ ...prev, endsAt: e.target.value }))}
-            required
-          />
-        </label>
-        <button type="submit" disabled={createEvent.isPending || !form.clubId}>
-          {createEvent.isPending ? 'Creando...' : 'Crear evento'}
-        </button>
-      </form>
-
+      <h3 style={{ marginTop: 0 }}>Eventos</h3>
       {eventsQuery.isLoading ? <p>Cargando eventos...</p> : null}
       {eventsQuery.error ? <p className="text-danger">No se pudieron cargar los eventos.</p> : null}
 
-      <div className="card-grid" style={{ marginTop: '1.5rem' }}>
+      <div className="card-grid" style={{ marginTop: '1rem' }}>
         {eventsQuery.data?.map((event) => (
           <article key={event.id} className="card">
             <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -164,14 +166,36 @@ export function EventsPage() {
                 </p>
                 <small>{new Date(event.startsAt).toLocaleString()} - {new Date(event.endsAt).toLocaleString()}</small>
               </div>
-              <span className={`badge ${event.active ? 'badge--success' : 'badge--danger'}`}>
-                {event.active ? 'Activo' : 'Cerrado'}
-              </span>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <button
+                  type="button"
+                  className="button--ghost"
+                  onClick={() => handleDuplicateEvent(event)}
+                  title="Duplicar evento"
+                  style={{ padding: '0.25rem 0.5rem', fontSize: '1rem' }}
+                >
+                  📄
+                </button>
+                <span className={`badge ${event.active ? 'badge--success' : 'badge--danger'}`}>
+                  {event.active ? 'Activo' : 'Cerrado'}
+                </span>
+              </div>
             </header>
             <div style={{ margin: '0.75rem 0', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               <button type="button" onClick={() => updateEventStatus.mutate({ eventId: event.id, active: !event.active })}>
                 {event.active ? 'Cerrar evento' : 'Reabrir'}
               </button>
+              <button type="button" className="button--ghost" onClick={() => setEditingTemplateEvent(event)}>
+                {hasTemplate(event) ? '📷 Editar plantilla' : '📷 Configurar plantilla'}
+              </button>
+            </div>
+            {/* Indicador de estado de plantilla */}
+            <div className={`event-card__template-status ${hasTemplate(event) ? 'event-card__template-status--configured' : 'event-card__template-status--pending'}`}>
+              {hasTemplate(event) ? (
+                <>✓ Plantilla configurada</>
+              ) : (
+                <>⚠ Sin plantilla - Los tickets no tendrán imagen de fondo</>
+              )}
             </div>
             <section>
               <h5 style={{ margin: '0.5rem 0' }}>RPs asignados</h5>
@@ -234,6 +258,62 @@ export function EventsPage() {
           </article>
         ))}
       </div>
+
+      {/* Modal de edición de plantilla */}
+      <Modal
+        isOpen={editingTemplateEvent !== null}
+        onClose={() => setEditingTemplateEvent(null)}
+        title={`Plantilla - ${editingTemplateEvent?.name ?? ''}`}
+        size="lg"
+      >
+        {editingTemplateEvent && (
+          <TemplateEditor
+            eventName={editingTemplateEvent.name}
+            initialConfig={{
+              templateImageUrl: editingTemplateEvent.templateImageUrl ?? '',
+              qrPositionX: editingTemplateEvent.qrPositionX ?? 0.5,
+              qrPositionY: editingTemplateEvent.qrPositionY ?? 0.5,
+              qrSize: editingTemplateEvent.qrSize ?? 0.35,
+            }}
+            onSave={handleSaveTemplate}
+            onCancel={() => setEditingTemplateEvent(null)}
+            isSaving={updateTemplateMutation.isPending}
+          />
+        )}
+      </Modal>
+
+      {/* Wizard de creación de evento inline */}
+      <section className="card" style={{ marginTop: '2rem' }}>
+        <h4 style={{ marginTop: 0, marginBottom: '1rem' }}>✨ Crear nuevo evento</h4>
+        {showWizard ? (
+          <EventWizard
+            key={wizardInitialData ? 'duplicate' : 'new'} // Force remount if type changes
+            initialData={wizardInitialData}
+            onComplete={() => {
+              setShowWizard(false)
+              setWizardInitialData(undefined)
+            }}
+            onCancel={() => {
+              setShowWizard(false)
+              setWizardInitialData(undefined)
+            }}
+          />
+        ) : (
+          <div style={{ textAlign: 'center', padding: '2rem 1rem' }}>
+            <p className="text-muted" style={{ margin: 0 }}>Crea un evento con plantilla y asignación de RPs en un flujo guiado.</p>
+            <button
+              type="button"
+              onClick={() => {
+                setWizardInitialData(undefined)
+                setShowWizard(true)
+              }}
+              style={{ marginTop: '1rem' }}
+            >
+              🚀 Iniciar wizard
+            </button>
+          </div>
+        )}
+      </section>
     </div>
   )
 }

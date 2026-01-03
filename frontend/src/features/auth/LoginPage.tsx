@@ -6,8 +6,8 @@ import { useAuth } from './AuthContext'
 export function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
-  const [username, setUsername] = useState('manager.demo')
-  const [password, setPassword] = useState('changeme123')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -36,7 +36,7 @@ export function LoginPage() {
       <form onSubmit={handleSubmit} className="form-grid">
         <label>
           Usuario
-          <input value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" />
+          <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" />
         </label>
         <label>
           Contrasena

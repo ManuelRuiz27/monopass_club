@@ -135,6 +135,17 @@ export type CutDetailResponse = {
   }>
 }
 
+export type RpGroupDTO = {
+  id: string
+  name: string
+  members: Array<{
+    id: string
+    user: {
+      name: string
+    }
+  }>
+}
+
 export const managerApi = {
   getClubs: () => coreHttpClient.get<ClubDTO[]>('/clubs'),
   createClub: (payload: { name: string; capacity: number }) => coreHttpClient.post<ClubDTO>('/clubs', payload),
@@ -187,4 +198,10 @@ export const managerApi = {
         to: params?.to ?? undefined,
       },
     }),
+  // Rp Groups
+  getRpGroups: () => coreHttpClient.get<RpGroupDTO[]>('/rp-groups'),
+  createRpGroup: (payload: { name: string; memberIds: string[] }) => coreHttpClient.post<RpGroupDTO>('/rp-groups', payload),
+  updateRpGroup: (groupId: string, payload: { name?: string; memberIds?: string[] }) =>
+    coreHttpClient.put<RpGroupDTO>(`/rp-groups/${groupId}`, payload),
+  deleteRpGroup: (groupId: string) => coreHttpClient.delete<void>(`/rp-groups/${groupId}`),
 }

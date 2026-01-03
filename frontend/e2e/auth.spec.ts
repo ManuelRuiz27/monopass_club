@@ -20,6 +20,6 @@ test.describe('Authentication', () => {
     await page.click('button[type="submit"]')
 
     await expect(page).toHaveURL(/\/login/)
-    await expect(page.locator('text=Error de autenticacion')).toBeVisible()
+    await expect(page.locator('text=Usuario o contrasena invalidos')).toBeVisible()
   })
 })

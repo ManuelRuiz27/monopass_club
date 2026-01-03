@@ -1,6 +1,6 @@
-﻿import { useEffect, useMemo, useRef, useState } from 'react'
+﻿import { useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { managerApi, type EventDTO } from '../api'
+import { managerApi } from '../api'
 import { useToast } from '@/components/ToastProvider'
 
 const MIN_QR_SIZE = 0.1
@@ -33,24 +33,21 @@ export function TemplatePage() {
     return clampValue(value, min, max)
   }
 
-  const selectedEvent = useMemo<EventDTO | undefined>(
-    () => eventsQuery.data?.find((event) => event.id === selectedEventId),
-    [eventsQuery.data, selectedEventId],
-  )
-
-  useEffect(() => {
-    if (selectedEvent) {
-      const size = selectedEvent.qrSize ?? 0.35
-      setTemplate({
-        templateImageUrl: selectedEvent.templateImageUrl ?? '',
-        qrPositionX: clampPosition(selectedEvent.qrPositionX ?? 0.5, size),
-        qrPositionY: clampPosition(selectedEvent.qrPositionY ?? 0.5, size),
-        qrSize: size,
-      })
-    } else {
+  const handleSelectEvent = (eventId: string) => {
+    setSelectedEventId(eventId)
+    const selected = eventsQuery.data?.find((event) => event.id === eventId)
+    if (!selected) {
       setTemplate(defaultTemplateState)
+      return
     }
-  }, [selectedEvent])
+    const size = selected.qrSize ?? 0.35
+    setTemplate({
+      templateImageUrl: selected.templateImageUrl ?? '',
+      qrPositionX: clampPosition(selected.qrPositionX ?? 0.5, size),
+      qrPositionY: clampPosition(selected.qrPositionY ?? 0.5, size),
+      qrSize: size,
+    })
+  }
 
   const updateTemplate = useMutation({
     mutationFn: () =>
@@ -160,7 +157,7 @@ export function TemplatePage() {
       >
         <label>
           Evento
-          <select value={selectedEventId} onChange={(e) => setSelectedEventId(e.target.value)} required>
+          <select value={selectedEventId} onChange={(e) => handleSelectEvent(e.target.value)} required>
             <option value="" disabled>
               Selecciona un evento
             </option>

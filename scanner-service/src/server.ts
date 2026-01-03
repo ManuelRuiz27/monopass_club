@@ -13,7 +13,8 @@ export async function buildServer() {
 
   await app.register(cors, { origin: true })
   await app.register(sensible)
-  await app.register(jwt, { secret: env.SCANNER_API_KEY })
+  const jwtSecret = env.JWT_SECRET ?? env.SCANNER_API_KEY
+  await app.register(jwt, { secret: jwtSecret })
   await app.register(authPlugin)
   await registerRoutes(app)
 

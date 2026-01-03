@@ -17,10 +17,26 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
-  },
+  webServer: [
+    {
+      command: 'npm run dev -w core-api',
+      url: 'http://localhost:4000/health',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
+      cwd: '..',
+    },
+    {
+      command: 'npm run dev -w scanner-service',
+      url: 'http://localhost:4100/health',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
+      cwd: '..',
+    },
+    {
+      command: 'npm run dev',
+      url: 'http://localhost:5173',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
+    },
+  ],
 });

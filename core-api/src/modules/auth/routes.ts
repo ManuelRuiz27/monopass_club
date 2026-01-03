@@ -19,13 +19,13 @@ export async function registerAuthRoutes(app: FastifyInstance) {
     })
 
     if (!user || !user.active) {
-      throw app.httpErrors.unauthorized('Usuario o contraseña inválidos')
+      throw app.httpErrors.unauthorized('Usuario o contrasena invalidos')
     }
 
     const isValid = await verifyPassword(body.password, user.password)
 
     if (!isValid) {
-      throw app.httpErrors.unauthorized('Usuario o contraseña inválidos')
+      throw app.httpErrors.unauthorized('Usuario o contrasena invalidos')
     }
 
     if (user.role === UserRole.MANAGER) {

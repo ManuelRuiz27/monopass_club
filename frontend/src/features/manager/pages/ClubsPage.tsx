@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react'
+﻿import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { managerApi, type ClubDTO } from '../api'
 import { useToast } from '@/components/ToastProvider'
@@ -13,14 +13,6 @@ export function ClubsPage() {
   const [editingClubId, setEditingClubId] = useState<string | null>(null)
 
   const editingClub = useMemo(() => clubsQuery.data?.find((club) => club.id === editingClubId) ?? null, [clubsQuery.data, editingClubId])
-
-  useEffect(() => {
-    if (editingClub) {
-      setForm({ name: editingClub.name, capacity: editingClub.capacity })
-    } else {
-      setForm(initialFormState)
-    }
-  }, [editingClub])
 
   const createMutation = useMutation({
     mutationFn: managerApi.createClub,
@@ -53,10 +45,22 @@ export function ClubsPage() {
     if (editingClub) {
       updateMutation.mutate({ clubId: editingClub.id, payload: { name: form.name.trim(), capacity: form.capacity } })
       setEditingClubId(null)
+      setForm(initialFormState)
     } else {
       createMutation.mutate({ name: form.name.trim(), capacity: form.capacity })
     }
   }
+
+  const handleStartEdit = (club: ClubDTO) => {
+    setEditingClubId(club.id)
+    setForm({ name: club.name, capacity: club.capacity })
+  }
+
+  const handleCancelEdit = () => {
+    setEditingClubId(null)
+    setForm(initialFormState)
+  }
+
 
   const handleToggleStatus = (club: ClubDTO) => {
     const confirmMessage = club.active
@@ -96,7 +100,7 @@ export function ClubsPage() {
             {isSubmitting ? 'Guardando...' : editingClub ? 'Guardar cambios' : 'Crear club'}
           </button>
           {editingClub ? (
-            <button type="button" className="button--ghost" onClick={() => setEditingClubId(null)}>
+            <button type="button" className="button--ghost" onClick={handleCancelEdit}>
               Cancelar edicion
             </button>
           ) : null}
@@ -127,7 +131,7 @@ export function ClubsPage() {
                   </span>
                 </td>
                 <td style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  <button type="button" onClick={() => setEditingClubId(club.id)}>
+                  <button type="button" onClick={() => handleStartEdit(club)}>
                     Editar
                   </button>
                   <button type="button" onClick={() => handleToggleStatus(club)}>

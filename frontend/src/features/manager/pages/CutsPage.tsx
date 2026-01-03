@@ -39,7 +39,7 @@ export function CutsPage() {
   })
 
   const summary = cutsQuery.data
-  const events = summary?.events ?? []
+  const events = useMemo(() => summary?.events ?? [], [summary])
 
   const resetFilters = () => {
     setEventFilter('')

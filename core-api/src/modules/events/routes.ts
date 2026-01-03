@@ -462,7 +462,8 @@ async function loadEventWithAssignments(app: FastifyInstance, managerId: string,
 }
 
 function serializeEvent(event: EventWithRelations) {
-  const { managerId: _ignored, ...club } = event.club
+  const { managerId, ...club } = event.club
+  void managerId
   return {
     id: event.id,
     club,

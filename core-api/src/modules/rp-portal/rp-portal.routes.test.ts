@@ -162,7 +162,7 @@ describe.sequential('RP portal endpoints', () => {
   test('POST /tickets respeta el limite y GET /tickets/:id/image responde PNG', async () => {
     const manager = await createManager()
     const { profile, token } = await createRp(manager.id)
-    const { event, assignment } = await createEventWithAssignment(manager.id, profile.id, 1)
+    const { event } = await createEventWithAssignment(manager.id, profile.id, 1)
 
     const createResponse = await request(app.server)
       .post('/tickets')
@@ -232,7 +232,7 @@ describe.sequential('RP portal endpoints', () => {
     expect(image.getPixelColor(5, 5)).toBe(templateReferenceColor)
   })
 
-  function binaryParser(res: any, callback: (err: Error | null, data?: Buffer) => void) {
+  function binaryParser(res: NodeJS.ReadableStream, callback: (err: Error | null, data?: Buffer) => void) {
     const chunks: Buffer[] = []
     res.on('data', (chunk: Buffer | string) => {
       chunks.push(typeof chunk === 'string' ? Buffer.from(chunk, 'binary') : chunk)

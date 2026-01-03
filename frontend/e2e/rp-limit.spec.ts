@@ -62,7 +62,7 @@ test.describe('RP Limit', () => {
     await expect(eventSelect).toBeVisible()
 
     const option = eventSelect.locator(`option:has-text("${eventName}")`)
-    await expect(option).toBeVisible()
+    await expect(option).toHaveCount(1)
     const assignmentId = await option.getAttribute('value')
     if (!assignmentId) {
       throw new Error('No se encontro el assignmentId del evento de limite')

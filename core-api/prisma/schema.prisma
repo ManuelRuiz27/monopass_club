@@ -26,98 +26,100 @@ enum TicketStatus {
 }
 
 model User {
-  id        String    @id
-  name      String
-  username  String    @unique
-  password  String
-  role      UserRole
-  active    Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id              String           @id
+  name            String
+  username        String           @unique
+  password        String
+  role            UserRole
+  active          Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   managerSetting  ManagerSetting?
   clubs           Club[]           @relation("ManagerClubs")
   managedRps      RpProfile[]      @relation("ManagerRpProfiles")
   managedScanners ScannerProfile[] @relation("ManagerScannerProfiles")
   rpProfile       RpProfile?       @relation("RpUser")
   scannerProfile  ScannerProfile?  @relation("ScannerUser")
+  rpGroups        RpGroup[]        @relation("ManagerRpGroups")
 }
 
 model ManagerSetting {
-  id         String  @id
-  manager    User    @relation(fields: [managerId], references: [id], onDelete: Cascade)
-  managerId  String  @unique
-  otherLabel String  @default("Otro")
+  id         String   @id
+  manager    User     @relation(fields: [managerId], references: [id], onDelete: Cascade)
+  managerId  String   @unique
+  otherLabel String   @default("Otro")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
 
 model Club {
-  id         String   @id
-  manager    User     @relation("ManagerClubs", fields: [managerId], references: [id], onDelete: Cascade)
-  managerId  String
-  name       String
-  capacity   Int
-  active     Boolean  @default(true)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  events     Event[]
+  id        String   @id
+  manager   User     @relation("ManagerClubs", fields: [managerId], references: [id], onDelete: Cascade)
+  managerId String
+  name      String
+  capacity  Int
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  events    Event[]
 }
 
 model Event {
-  id        String   @id
-  club      Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  clubId    String
-  name      String
-  startsAt  DateTime
-  endsAt    DateTime
-  active    Boolean @default(true)
+  id               String    @id
+  club             Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  clubId           String
+  name             String
+  startsAt         DateTime
+  endsAt           DateTime
+  active           Boolean   @default(true)
   templateImageUrl String?
-  qrPositionX Float?
-  qrPositionY Float?
-  qrSize Float?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  assignments EventRp[]
-  tickets     Ticket[]
-  cuts        Cut[]
+  qrPositionX      Float?
+  qrPositionY      Float?
+  qrSize           Float?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  assignments      EventRp[]
+  tickets          Ticket[]
+  cuts             Cut[]
 }
 
 model RpProfile {
-  id         String   @id
-  manager    User     @relation("ManagerRpProfiles", fields: [managerId], references: [id], onDelete: Cascade)
-  managerId  String
-  user       User     @relation("RpUser", fields: [userId], references: [id], onDelete: Cascade)
-  userId     String   @unique
-  active     Boolean  @default(true)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          String    @id
+  manager     User      @relation("ManagerRpProfiles", fields: [managerId], references: [id], onDelete: Cascade)
+  managerId   String
+  user        User      @relation("RpUser", fields: [userId], references: [id], onDelete: Cascade)
+  userId      String    @unique
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   assignments EventRp[]
   tickets     Ticket[]
   cuts        Cut[]
+  groups      RpGroup[]
 }
 
 model ScannerProfile {
-  id         String   @id
-  manager    User     @relation("ManagerScannerProfiles", fields: [managerId], references: [id], onDelete: Cascade)
-  managerId  String
-  user       User     @relation("ScannerUser", fields: [userId], references: [id], onDelete: Cascade)
-  userId     String   @unique
-  active     Boolean  @default(true)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  scans      TicketScan[]
+  id              String                  @id
+  manager         User                    @relation("ManagerScannerProfiles", fields: [managerId], references: [id], onDelete: Cascade)
+  managerId       String
+  user            User                    @relation("ScannerUser", fields: [userId], references: [id], onDelete: Cascade)
+  userId          String                  @unique
+  active          Boolean                 @default(true)
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  scans           TicketScan[]
   confirmRequests ScannerConfirmRequest[]
 }
 
 model EventRp {
-  id            String  @id
-  event         Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  id            String    @id
+  event         Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId       String
   rp            RpProfile @relation(fields: [rpId], references: [id], onDelete: Cascade)
   rpId          String
   limitAccesses Int?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   tickets       Ticket[]
   cuts          Cut[]
 
@@ -125,57 +127,67 @@ model EventRp {
 }
 
 model Ticket {
-  id           String   @id
-  event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  id              String                  @id
+  event           Event                   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId         String
+  rp              RpProfile               @relation(fields: [rpId], references: [id], onDelete: Cascade)
+  rpId            String
+  assignment      EventRp                 @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId    String
+  guestType       TicketType
+  note            String?
+  qrToken         String                  @unique
+  status          TicketStatus            @default(PENDING)
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  scan            TicketScan?
+  confirmRequests ScannerConfirmRequest[]
+}
+
+model TicketScan {
+  id        String          @id
+  ticket    Ticket          @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  ticketId  String          @unique
+  scanner   ScannerProfile? @relation(fields: [scannerId], references: [id], onDelete: SetNull)
+  scannerId String?
+  scannedAt DateTime        @default(now())
+}
+
+model ScannerConfirmRequest {
+  id              String         @id
+  clientRequestId String         @unique
+  scanner         ScannerProfile @relation(fields: [scannerId], references: [id], onDelete: Cascade)
+  scannerId       String
+  ticket          Ticket         @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  ticketId        String
+  responsePayload Json
+  statusCode      Int
+  createdAt       DateTime       @default(now())
+}
+
+model Cut {
+  id           String    @id
+  event        Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId      String
   rp           RpProfile @relation(fields: [rpId], references: [id], onDelete: Cascade)
   rpId         String
   assignment   EventRp   @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
   assignmentId String
-  guestType    TicketType
-  note         String?
-  qrToken      String   @unique
-  status       TicketStatus @default(PENDING)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  scan         TicketScan?
-  confirmRequests ScannerConfirmRequest[]
+  from         DateTime
+  to           DateTime
+  total        Int       @default(0)
+  totalGeneral Int       @default(0)
+  totalVip     Int       @default(0)
+  totalOther   Int       @default(0)
+  createdAt    DateTime  @default(now())
 }
 
-model TicketScan {
-  id         String   @id
-  ticket     Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  ticketId   String   @unique
-  scanner    ScannerProfile? @relation(fields: [scannerId], references: [id], onDelete: SetNull)
-  scannerId  String?
-  scannedAt  DateTime @default(now())
-}
-
-model ScannerConfirmRequest {
-  id               String   @id
-  clientRequestId  String   @unique
-  scanner          ScannerProfile @relation(fields: [scannerId], references: [id], onDelete: Cascade)
-  scannerId        String
-  ticket           Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  ticketId         String
-  responsePayload  Json
-  statusCode       Int
-  createdAt        DateTime @default(now())
-}
-
-model Cut {
-  id            String   @id
-  event         Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  eventId       String
-  rp            RpProfile @relation(fields: [rpId], references: [id], onDelete: Cascade)
-  rpId          String
-  assignment    EventRp  @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId  String
-  from          DateTime
-  to            DateTime
-  total         Int      @default(0)
-  totalGeneral  Int      @default(0)
-  totalVip      Int      @default(0)
-  totalOther    Int      @default(0)
-  createdAt     DateTime @default(now())
+model RpGroup {
+  id        String      @id @default(uuid())
+  name      String
+  manager   User        @relation("ManagerRpGroups", fields: [managerId], references: [id], onDelete: Cascade)
+  managerId String
+  members   RpProfile[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 }

@@ -1,7 +1,53 @@
-﻿import { test, expect } from '@playwright/test'
+﻿import { test, expect, request } from '@playwright/test'
+
+const coreApiBaseUrl =
+  process.env.VITE_CORE_API_BASE_URL ?? process.env.CORE_API_BASE_URL ?? 'http://localhost:4000'
 
 test.describe('RP & Scanner Flow', () => {
   test('E2E-001: RP genera -> Scanner confirma -> Manager visualiza corte', async ({ browser }) => {
+    const api = await request.newContext({ baseURL: coreApiBaseUrl })
+    const loginResponse = await api.post('/auth/login', {
+      data: { username: 'manager.demo', password: 'changeme123' },
+    })
+    expect(loginResponse.ok()).toBeTruthy()
+    const { token } = await loginResponse.json()
+    const headers = { Authorization: `Bearer ${token}` }
+
+    const clubsResponse = await api.get('/clubs', { headers })
+    const clubs = await clubsResponse.json()
+    if (!Array.isArray(clubs) || clubs.length === 0) {
+      throw new Error('No hay clubs disponibles para el manager demo')
+    }
+
+    const eventName = `E2E Scanner ${Date.now()}`
+    const startsAt = new Date(Date.now() + 60 * 60 * 1000).toISOString()
+    const endsAt = new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString()
+    const eventResponse = await api.post('/events', {
+      headers,
+      data: {
+        clubId: clubs[0].id,
+        name: eventName,
+        startsAt,
+        endsAt,
+      },
+    })
+    expect(eventResponse.ok()).toBeTruthy()
+    const event = await eventResponse.json()
+
+    const rpsResponse = await api.get('/rps', { headers })
+    const rps = await rpsResponse.json()
+    const rpDemo = Array.isArray(rps) ? rps.find((rp) => rp.user?.username === 'rp.demo') : null
+    if (!rpDemo) {
+      throw new Error('RP demo no encontrado')
+    }
+
+    const assignResponse = await api.post(`/events/${event.id}/rps`, {
+      headers,
+      data: { rpId: rpDemo.id, limitAccesses: 10 },
+    })
+    expect(assignResponse.ok()).toBeTruthy()
+    await api.dispose()
+
     // RP genera acceso
     const rpContext = await browser.newContext()
     const rpPage = await rpContext.newPage()
@@ -13,13 +59,13 @@ test.describe('RP & Scanner Flow', () => {
 
     await rpPage.click('a:has-text("Generar acceso")')
     const eventSelect = rpPage.locator('select').first()
-    const options = await eventSelect.locator('option').all()
-    if (options.length < 2) {
-      throw new Error('No hay eventos disponibles para RP demo')
+    const option = eventSelect.locator(`option:has-text("${eventName}")`)
+    await expect(option).toHaveCount(1)
+    const assignmentId = await option.getAttribute('value')
+    if (!assignmentId) {
+      throw new Error('No se encontro el assignmentId del evento')
     }
-    await eventSelect.selectOption({ index: 1 })
-    const fullEventLabel = (await eventSelect.locator('option:checked').textContent())?.trim() ?? ''
-    const eventName = fullEventLabel.split(' - ')[0]
+    await eventSelect.selectOption(assignmentId)
 
     await rpPage.click('[data-testid="generate-btn"]')
     const previewImage = rpPage.locator('[data-testid="ticket-preview"]')

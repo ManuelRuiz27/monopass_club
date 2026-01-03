@@ -8,6 +8,7 @@ import { TicketStatus, TicketType, UserRole } from '@prisma/client'
 
 describe.sequential('cuts routes', () => {
   let app: Awaited<ReturnType<typeof buildServer>>
+  type RpSummary = { rpName: string; total: number }
   const created = {
     users: new Set<string>(),
     clubs: new Set<string>(),
@@ -63,8 +64,8 @@ describe.sequential('cuts routes', () => {
     expect(summary.totalVip).toBe(1)
     expect(summary.totalOther).toBe(1)
     expect(summary.rps).toHaveLength(2)
-    const rpSummary = summary.rps.find((rpRow: any) => rpRow.rpName === 'RP Uno')
-    expect(rpSummary.total).toBe(2)
+    const rpSummary = summary.rps.find((rpRow: RpSummary) => rpRow.rpName === 'RP Uno')
+    expect(rpSummary?.total).toBe(2)
   })
 
   test('GET /cuts/:eventId/rps/:rpId devuelve detalle ordenado', async () => {

@@ -58,7 +58,7 @@ describe.sequential('scan routes', () => {
   })
 
   test('validate retorna ALREADY_SCANNED cuando el ticket ya tiene scan', async () => {
-    const { manager, ticket, scannerToken } = await createTicketFixture({ scanned: true })
+    const { ticket, scannerToken } = await createTicketFixture({ scanned: true })
 
     const response = await request(app.server)
       .post('/scan/validate')
