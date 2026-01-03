@@ -28,34 +28,26 @@ const sections: Section[] = [
 ]
 
 export const scannerRoutes: RouteObject[] = sections.map((section) => {
-  const route: RouteObject = {
-    element:
-      section.element ?? (
-        <PagePlaceholder
-          title={section.title}
-          description={section.description}
-          hint={<small>Modulo en construccion</small>}
-        />
-      ),
-  }
+  const element =
+    section.element ?? (
+      <PagePlaceholder
+        title={section.title}
+        description={section.description}
+        hint={<small>Modulo en construccion</small>}
+      />
+    )
 
-  if (section.path) {
-    route.path = section.path
-  } else {
-    route.index = true
-  }
-
-  return route
+  return section.path ? { path: section.path, element } : { index: true, element }
 })
 
 export function ScannerShell() {
   return (
     <div>
-      <header style={{ marginBottom: '1rem' }}>
-        <h2 style={{ margin: 0 }}>Scanner</h2>
-        <p style={{ margin: '0.25rem 0', color: '#475569' }}>
-          Microservicio y SPA dedicada a validate/confirm.
-        </p>
+      <header className="shell-header">
+        <div>
+          <h2>Scanner</h2>
+          <p className="text-muted">Microservicio y SPA dedicada a validate/confirm.</p>
+        </div>
       </header>
       <nav className="section-nav">
         {sections.map((section) => (

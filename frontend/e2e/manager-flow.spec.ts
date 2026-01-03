@@ -1,24 +1,20 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test'
 
 test.describe('Manager Flow', () => {
-    test.beforeEach(async ({ page }) => {
-        // Login as manager before each test
-        await page.goto('/login');
-        await page.fill('input[type="text"]', 'manager.demo');
-        await page.fill('input[type="password"]', 'changeme123');
-        await page.click('button[type="submit"]');
-        await expect(page).toHaveURL(/\/dashboard|clubs/);
-    });
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/login')
+    await page.fill('input[type="text"]', 'manager.demo')
+    await page.fill('input[type="password"]', 'changeme123')
+    await page.click('button[type="submit"]')
+    await expect(page).toHaveURL(/\/manager$/)
+  })
 
-    test('E2E-002: Manager ve corte clasificado', async ({ page }) => {
-        // Navigate to cuts
-        // Assuming there is a sidebar or validation to go to /cuts
-        await page.goto('/cuts');
+  test('E2E-002: Manager ve cortes con filtros', async ({ page }) => {
+    await page.click('a:has-text("Cortes")')
+    await expect(page).toHaveURL(/\/manager\/cuts$/)
 
-        // Check if cuts page loads
-        await expect(page.locator('h1')).toContainText(/Cortes|Cuts/i);
-
-        // Filter validation (just visual check for now)
-        await expect(page.locator('input[type="date"]')).toBeVisible();
-    });
-});
+    await expect(page.locator('h3')).toContainText('Cortes')
+    await expect(page.locator('select').first()).toBeVisible()
+    await expect(page.locator('button:has-text("Limpiar filtros")')).toBeVisible()
+  })
+})

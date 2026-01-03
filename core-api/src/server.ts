@@ -11,7 +11,10 @@ export async function buildServer() {
     logger: true,
   })
 
-  await app.register(cors, { origin: true })
+  await app.register(cors, {
+    origin: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  })
   await app.register(sensible)
   await app.register(jwt, { secret: env.JWT_SECRET })
   await app.register(authPlugin)

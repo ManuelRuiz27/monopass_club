@@ -29,6 +29,7 @@ describe.sequential('scan routes', () => {
   })
 
   afterEach(async () => {
+    await prisma.$executeRaw`DELETE FROM "ScannerConfirmRequest"`
     await prisma.ticketScan.deleteMany({ where: { id: { in: Array.from(created.ticketScans) } } })
     await prisma.ticket.deleteMany({ where: { id: { in: Array.from(created.tickets) } } })
     await prisma.eventRp.deleteMany({ where: { id: { in: Array.from(created.eventRps) } } })
@@ -103,6 +104,28 @@ describe.sequential('scan routes', () => {
 
     expect(duplicateResponse.status).toBe(409)
     expect(duplicateResponse.body.reason).toBe('ALREADY_SCANNED')
+  })
+
+  test('confirm responde igual cuando se reintenta con el mismo clientRequestId', async () => {
+    const { ticket, scannerToken } = await createTicketFixture()
+    const clientRequestId = randomUUID()
+
+    const firstResponse = await request(app.server)
+      .post('/scan/confirm')
+      .set('Authorization', `Bearer ${scannerToken}`)
+      .send({ qrToken: ticket.qrToken, clientRequestId })
+
+    expect(firstResponse.status).toBe(200)
+    expect(firstResponse.body.confirmed).toBe(true)
+
+    const retryResponse = await request(app.server)
+      .post('/scan/confirm')
+      .set('Authorization', `Bearer ${scannerToken}`)
+      .send({ qrToken: ticket.qrToken, clientRequestId })
+
+    expect(retryResponse.status).toBe(200)
+    expect(retryResponse.body.confirmed).toBe(true)
+    expect(retryResponse.body.ticket.ticketId).toBe(ticket.id)
   })
 
   async function createTicketFixture(options?: { scanned?: boolean }) {

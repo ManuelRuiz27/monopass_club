@@ -2,10 +2,12 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { coreHttpClient } from '@/lib/httpClient'
 import { tokenStore } from '@/lib/tokenStore'
 
+export type UserRole = 'MANAGER' | 'RP' | 'SCANNER'
+
 type Session = {
   token: string
   userId: string
-  role: string
+  role: UserRole
 }
 
 const SESSION_KEY = 'monopass_session'
@@ -13,7 +15,7 @@ const SESSION_KEY = 'monopass_session'
 type AuthContextValue = {
   session: Session | null
   isAuthenticated: boolean
-  login: (credentials: { username: string; password: string }) => Promise<void>
+  login: (credentials: { username: string; password: string }) => Promise<Session>
   logout: () => void
 }
 
@@ -45,6 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (credentials: { username: string; password: string }) => {
     const response = await coreHttpClient.post<Session>('/auth/login', credentials)
     setSession(response)
+    return response
   }
 
   const logout = () => {

@@ -11,7 +11,11 @@ type RequestOptions = {
 }
 
 export class HttpClient {
-  constructor(private readonly baseUrl: string) {}
+  private readonly baseUrl: string
+
+  constructor(baseUrl: string) {
+    this.baseUrl = baseUrl
+  }
 
   async request<T>(method: HttpMethod, path: string, options: RequestOptions = {}): Promise<T> {
     const url = new URL(path, this.baseUrl)
@@ -37,8 +41,21 @@ export class HttpClient {
     })
 
     if (!response.ok) {
-      const errorBody = await response.text()
-      throw new Error(`Request failed (${response.status}): ${errorBody}`)
+      const errorText = await response.text()
+      let message = `Error ${response.status}`
+      try {
+        const parsed = errorText ? JSON.parse(errorText) : null
+        if (parsed && typeof parsed.message === 'string') {
+          message = parsed.message
+        } else if (errorText) {
+          message = errorText
+        }
+      } catch {
+        if (errorText) {
+          message = errorText
+        }
+      }
+      throw new Error(message || 'Ocurrio un error inesperado')
     }
 
     if (response.status === 204) {

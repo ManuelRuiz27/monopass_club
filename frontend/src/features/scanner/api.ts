@@ -23,6 +23,6 @@ export type ScannerConfirmResponse = {
 export const scannerApi = {
   validate: (payload: { qrToken: string }) =>
     scannerHttpClient.post<ScannerValidateResponse>('/scan/validate', payload),
-  confirm: (payload: { qrToken: string; clientRequestId?: string }) =>
+  confirm: (payload: { qrToken: string; clientRequestId: string }) =>
     scannerHttpClient.post<ScannerConfirmResponse>('/scan/confirm', payload),
 }

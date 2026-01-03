@@ -13,13 +13,19 @@ const authPlugin: FastifyPluginAsync = async (app) => {
 
   app.decorate('authorizeManager', async function (request) {
     if (request.user?.role !== UserRole.MANAGER) {
-      throw app.httpErrors.forbidden('Only managers can access this resource')
+      throw app.httpErrors.forbidden('Solo managers pueden acceder a este recurso')
     }
   })
 
   app.decorate('authorizeRp', async function (request) {
     if (request.user?.role !== UserRole.RP) {
-      throw app.httpErrors.forbidden('Only RPs can access this resource')
+      throw app.httpErrors.forbidden('Solo RPs pueden acceder a este recurso')
+    }
+  })
+
+  app.decorate('authorizeScanner', async function (request) {
+    if (request.user?.role !== UserRole.SCANNER) {
+      throw app.httpErrors.forbidden('Solo scanners pueden acceder a este recurso')
     }
   })
 }

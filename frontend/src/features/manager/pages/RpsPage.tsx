@@ -1,38 +1,68 @@
+ï»¿import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
-import { managerApi } from '../api'
+import { managerApi, type RpDTO } from '../api'
+import { useToast } from '@/components/ToastProvider'
+
+const defaultRpForm = { name: 'Nuevo RP', username: '', password: 'changeme123' }
 
 export function RpsPage() {
+  const toast = useToast()
   const queryClient = useQueryClient()
   const rpsQuery = useQuery({ queryKey: ['rps'], queryFn: managerApi.getRps })
   const eventsQuery = useQuery({ queryKey: ['events'], queryFn: managerApi.getEvents })
-
-  const [rpForm, setRpForm] = useState({ name: 'Nuevo RP', username: '', password: 'changeme123' })
-  const [assignmentForm, setAssignmentForm] = useState({ eventId: '', rpId: '', limitAccesses: '' })
+  const [form, setForm] = useState(defaultRpForm)
 
   const createRp = useMutation({
-    mutationFn: () => managerApi.createRp(rpForm),
+    mutationFn: () => managerApi.createRp(form),
     onSuccess: () => {
-      setRpForm({ name: '', username: '', password: 'changeme123' })
+      toast.showToast({ title: 'RP creado', variant: 'success' })
+      queryClient.invalidateQueries({ queryKey: ['rps'] })
+      setForm(defaultRpForm)
+    },
+  })
+
+  const updateRp = useMutation({
+    mutationFn: ({ rpId, payload }: { rpId: string; payload: { active?: boolean; name?: string } }) =>
+      managerApi.updateRp(rpId, payload),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['rps'] })
     },
   })
 
-  const assignRp = useMutation({
-    mutationFn: () =>
-      managerApi.assignRpToEvent(assignmentForm.eventId, {
-        rpId: assignmentForm.rpId,
-        limitAccesses: assignmentForm.limitAccesses ? Number(assignmentForm.limitAccesses) : null,
-      }),
+  const updateLimitMutation = useMutation({
+    mutationFn: ({ eventId, rpId, limit }: { eventId: string; rpId: string; limit: number | null }) =>
+      managerApi.updateAssignmentLimit(eventId, rpId, limit),
     onSuccess: () => {
-      setAssignmentForm({ eventId: '', rpId: '', limitAccesses: '' })
-      queryClient.invalidateQueries({ queryKey: ['events', { eventId: assignmentForm.eventId }] })
+      toast.showToast({ title: 'Limite actualizado', variant: 'info' })
+      queryClient.invalidateQueries({ queryKey: ['rps'] })
+      queryClient.invalidateQueries({ queryKey: ['events'] })
     },
   })
 
+  const handleToggleStatus = (rp: RpDTO) => {
+    const message = rp.active ? 'Desactivar este RP impedira que genere accesos. Continuar?' : 'Reactivar RP?'
+    if (!window.confirm(message)) return
+    updateRp.mutate({ rpId: rp.id, payload: { active: !rp.active } })
+  }
+
+  const handleLimitUpdate = (rp: RpDTO, assignment: RpDTO['assignments'][number]) => {
+    const suggested = assignment.limitAccesses ?? ''
+    const raw = window.prompt(`Limite para ${assignment.event.name}`, suggested ? String(suggested) : '')
+    if (raw === null) return
+    const nextValue = raw.trim() === '' ? null : Number(raw)
+    if (nextValue !== null && Number.isNaN(nextValue)) {
+      toast.showToast({ title: 'Valor invalido', description: 'Ingresa un numero valido.', variant: 'error' })
+      return
+    }
+    updateLimitMutation.mutate({ eventId: assignment.event.id, rpId: rp.id, limit: nextValue })
+  }
+
+  const assignedEventNames = (rp: RpDTO) =>
+    rp.assignments.map((assignment) => assignment.event.name).join(', ') || 'Sin asignaciones'
+
   return (
     <div>
-      <h3>Relaciones Públicas</h3>
+      <h3>Relaciones Publicas</h3>
       <form
         className="form-grid"
         onSubmit={(event) => {
@@ -42,104 +72,69 @@ export function RpsPage() {
       >
         <label>
           Nombre
-          <input value={rpForm.name} onChange={(e) => setRpForm((prev) => ({ ...prev, name: e.target.value }))} required />
+          <input value={form.name} onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))} required />
         </label>
         <label>
           Username
-          <input value={rpForm.username} onChange={(e) => setRpForm((prev) => ({ ...prev, username: e.target.value }))} required />
+          <input value={form.username} onChange={(e) => setForm((prev) => ({ ...prev, username: e.target.value }))} required />
         </label>
         <label>
-          Password
+          Password temporal
           <input
             type="password"
-            value={rpForm.password}
-            onChange={(e) => setRpForm((prev) => ({ ...prev, password: e.target.value }))}
+            value={form.password}
+            onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
             required
           />
         </label>
         <button type="submit" disabled={createRp.isPending}>
-          {createRp.isPending ? 'Creando…' : 'Crear RP'}
+          {createRp.isPending ? 'Creando...' : 'Crear RP'}
         </button>
       </form>
 
-      {rpsQuery.data ? (
-        <table>
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Usuario</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rpsQuery.data.map((rp) => (
-              <tr key={rp.id}>
-                <td>{rp.user.name}</td>
-                <td>{rp.user.username}</td>
-                <td>
-                  <span className="badge">{rp.active ? 'Activo' : 'Inactivo'}</span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : null}
+      {rpsQuery.isLoading ? <p>Cargando RPs...</p> : null}
+      {rpsQuery.error ? <p className="text-danger">Error al consultar RPs</p> : null}
 
-      <h4>Asignar RP a evento</h4>
-      <form
-        className="form-grid"
-        onSubmit={(event) => {
-          event.preventDefault()
-          assignRp.mutate()
-        }}
-      >
-        <label>
-          Evento
-          <select
-            value={assignmentForm.eventId}
-            onChange={(e) => setAssignmentForm((prev) => ({ ...prev, eventId: e.target.value }))}
-            required
-          >
-            <option value="" disabled>
-              Selecciona evento
-            </option>
-            {eventsQuery.data?.map((event) => (
-              <option key={event.id} value={event.id}>
-                {event.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          RP
-          <select
-            value={assignmentForm.rpId}
-            onChange={(e) => setAssignmentForm((prev) => ({ ...prev, rpId: e.target.value }))}
-            required
-          >
-            <option value="" disabled>
-              Selecciona RP
-            </option>
-            {rpsQuery.data?.map((rp) => (
-              <option key={rp.id} value={rp.id}>
-                {rp.user.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Límite opcional
-          <input
-            type="number"
-            min={0}
-            value={assignmentForm.limitAccesses}
-            onChange={(e) => setAssignmentForm((prev) => ({ ...prev, limitAccesses: e.target.value }))}
-          />
-        </label>
-        <button type="submit" disabled={assignRp.isPending || !assignmentForm.eventId || !assignmentForm.rpId}>
-          {assignRp.isPending ? 'Asignando…' : 'Asignar'}
-        </button>
-      </form>
+      <div className="card-grid" style={{ marginTop: '1.5rem' }}>
+        {rpsQuery.data?.map((rp) => (
+          <article key={rp.id} className="card">
+            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h4 style={{ margin: 0 }}>{rp.user.name}</h4>
+                <p style={{ margin: 0 }} className="text-muted">{rp.user.username}</p>
+              </div>
+              <span className={`badge ${rp.active ? 'badge--success' : 'badge--danger'}`}>
+                {rp.active ? 'Activo' : 'Inactivo'}
+              </span>
+            </header>
+            <p className="text-muted" style={{ fontSize: '0.9rem' }}>Eventos: {assignedEventNames(rp)}</p>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <button type="button" onClick={() => handleToggleStatus(rp)}>
+                {rp.active ? 'Desactivar' : 'Activar'}
+              </button>
+            </div>
+            <section style={{ marginTop: '0.75rem' }}>
+              <h5 style={{ margin: '0.25rem 0' }}>Asignaciones</h5>
+              {rp.assignments.length === 0 ? <p className="text-muted">Aun no tiene eventos.</p> : null}
+              {rp.assignments.map((assignment) => (
+                <div key={assignment.id} className="panel">
+                  <strong>{assignment.event.name}</strong>
+                  <p style={{ margin: '0.25rem 0' }} className="text-muted">
+                    {new Date(assignment.event.startsAt).toLocaleDateString()} â€¢ {assignment.event.active ? 'Activo' : 'Cerrado'}
+                  </p>
+                  <p style={{ margin: 0 }}>Generados: {assignment.usedAccesses}</p>
+                  <p style={{ margin: 0 }}>Limite: {assignment.limitAccesses ?? 'Sin limite'}</p>
+                  <button type="button" onClick={() => handleLimitUpdate(rp, assignment)}>
+                    Ajustar limite
+                  </button>
+                </div>
+              ))}
+            </section>
+          </article>
+        ))}
+      </div>
+
+      {eventsQuery.data && eventsQuery.data.length === 0 ? <p>No hay eventos creados.</p> : null}
     </div>
   )
 }

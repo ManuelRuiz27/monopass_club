@@ -32,33 +32,26 @@ const sections: Section[] = [
 ]
 
 export const rpRoutes: RouteObject[] = sections.map((section) => {
-  const route: RouteObject = {
-    element: section.element ?? (
+  const element =
+    section.element ?? (
       <PagePlaceholder
-        title={section.title}
-        description={section.description}
+        title={section.title ?? section.label}
+        description={section.description ?? 'Modulo en construccion'}
         hint={<small>Modulo en construccion</small>}
       />
-    ),
-  }
+    )
 
-  if (section.path) {
-    route.path = section.path
-  } else {
-    route.index = true
-  }
-
-  return route
+  return section.path ? { path: section.path, element } : { index: true, element }
 })
 
 export function RpShell() {
   return (
     <div>
-      <header style={{ marginBottom: '1rem' }}>
-        <h2 style={{ margin: 0 }}>RP workspace</h2>
-        <p style={{ margin: '0.25rem 0', color: '#475569' }}>
-          Flujo completo de generacion de accesos segun Sprint 2.
-        </p>
+      <header className="shell-header">
+        <div>
+          <h2>RP workspace</h2>
+          <p className="text-muted">Flujo completo de generacion de accesos segun Sprint 2.</p>
+        </div>
       </header>
       <nav className="section-nav">
         {sections.map((section) => (

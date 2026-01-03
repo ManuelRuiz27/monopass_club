@@ -64,7 +64,7 @@ describe.sequential('cuts routes', () => {
     expect(summary.totalOther).toBe(1)
     expect(summary.rps).toHaveLength(2)
     const rpSummary = summary.rps.find((rpRow: any) => rpRow.rpName === 'RP Uno')
-    expect(rpSummary.totalScanned).toBe(2)
+    expect(rpSummary.total).toBe(2)
   })
 
   test('GET /cuts/:eventId/rps/:rpId devuelve detalle ordenado', async () => {

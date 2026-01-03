@@ -1,9 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+ï»¿import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { managerApi } from '../api'
+import { useToast } from '@/components/ToastProvider'
 
 export function SettingsPage() {
   const queryClient = useQueryClient()
+  const toast = useToast()
   const settingsQuery = useQuery({ queryKey: ['settings', 'otherLabel'], queryFn: managerApi.getOtherLabel })
   const [label, setLabel] = useState('')
 
@@ -16,6 +18,7 @@ export function SettingsPage() {
   const updateLabel = useMutation({
     mutationFn: () => managerApi.updateOtherLabel(label),
     onSuccess: () => {
+      toast.showToast({ title: 'Etiqueta actualizada', variant: 'success' })
       queryClient.invalidateQueries({ queryKey: ['settings', 'otherLabel'] })
     },
   })
@@ -36,7 +39,7 @@ export function SettingsPage() {
           <input value={label} onChange={(e) => setLabel(e.target.value)} required />
         </label>
         <button type="submit" disabled={updateLabel.isPending}>
-          {updateLabel.isPending ? 'Guardando…' : 'Actualizar'}
+          {updateLabel.isPending ? 'Guardando...' : 'Actualizar'}
         </button>
       </form>
       {settingsQuery.data ? (

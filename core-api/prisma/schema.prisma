@@ -106,6 +106,7 @@ model ScannerProfile {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   scans      TicketScan[]
+  confirmRequests ScannerConfirmRequest[]
 }
 
 model EventRp {
@@ -138,6 +139,7 @@ model Ticket {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   scan         TicketScan?
+  confirmRequests ScannerConfirmRequest[]
 }
 
 model TicketScan {
@@ -147,6 +149,18 @@ model TicketScan {
   scanner    ScannerProfile? @relation(fields: [scannerId], references: [id], onDelete: SetNull)
   scannerId  String?
   scannedAt  DateTime @default(now())
+}
+
+model ScannerConfirmRequest {
+  id               String   @id
+  clientRequestId  String   @unique
+  scanner          ScannerProfile @relation(fields: [scannerId], references: [id], onDelete: Cascade)
+  scannerId        String
+  ticket           Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  ticketId         String
+  responsePayload  Json
+  statusCode       Int
+  createdAt        DateTime @default(now())
 }
 
 model Cut {

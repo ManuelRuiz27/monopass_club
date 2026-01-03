@@ -1,10 +1,13 @@
-import { FormEvent, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
+import type { FormEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRpAssignments } from '../hooks'
 import { rpApi, type GuestType } from '../api'
 import { PagePlaceholder } from '@/components/PagePlaceholder'
+import { useToast } from '@/components/ToastProvider'
 
 export function GenerateAccessPage() {
+  const toast = useToast()
   const { data, isLoading, error } = useRpAssignments()
   const queryClient = useQueryClient()
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>('')
@@ -19,10 +22,12 @@ export function GenerateAccessPage() {
     onSuccess: (ticket) => {
       setLastTicketId(ticket.id)
       setLastGuestType(ticket.guestType)
-      setShareCopy(
-        `Acceso ${ticket.guestType} generado para ${ticket.event.name} (${new Date(ticket.event.startsAt).toLocaleDateString()}).`,
-      )
+      setShareCopy(`Acceso ${ticket.guestType} generado para ${ticket.event.name} (${new Date(ticket.event.startsAt).toLocaleDateString()}).`)
+      toast.showToast({ title: 'Acceso generado', variant: 'success' })
       queryClient.invalidateQueries({ queryKey: ['rp-events'] })
+    },
+    onError: (err: unknown) => {
+      toast.showToast({ title: 'No se pudo generar el acceso', description: err instanceof Error ? err.message : undefined, variant: 'error' })
     },
   })
 
@@ -53,9 +58,9 @@ export function GenerateAccessPage() {
     )
   }
 
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (!selectedAssignment) return
+    if (!selectedAssignment || !selectedAssignment.eventActive) return
     mutation.mutate({
       eventId: selectedAssignment.eventId,
       guestType,
@@ -64,7 +69,16 @@ export function GenerateAccessPage() {
   }
 
   const previewUrl = lastTicketId ? `${rpApi.getTicketImageUrl(lastTicketId)}?t=${Date.now()}` : null
-  const shareUrl = lastTicketId ? `https://wa.me/?text=${encodeURIComponent(`${shareCopy} ${rpApi.getTicketImageUrl(lastTicketId)}`)}` : null
+  const shareUrl = lastTicketId
+    ? `https://wa.me/?text=${encodeURIComponent(`${shareCopy} ${rpApi.getTicketImageUrl(lastTicketId)}`)}`
+    : null
+  const limitReached = selectedAssignment?.remainingAccesses === 0
+  const mutationErrorMessage =
+    mutation.error instanceof Error
+      ? mutation.error.message ?? 'No se pudo crear el ticket'
+      : mutation.error
+        ? 'No se pudo crear el ticket'
+        : null
 
   return (
     <div>
@@ -82,7 +96,7 @@ export function GenerateAccessPage() {
             <option value="">Selecciona un evento</option>
             {data.events.map((event) => (
               <option key={event.assignmentId} value={event.assignmentId}>
-                {event.eventName} — {new Date(event.startsAt).toLocaleDateString()}
+                {event.eventName} - {new Date(event.startsAt).toLocaleDateString()} {event.eventActive ? '' : '(Cerrado)'}
               </option>
             ))}
           </select>
@@ -92,14 +106,12 @@ export function GenerateAccessPage() {
           <div className="badge-group">
             <span className="badge">Limite: {selectedAssignment.limitAccesses ?? 'Sin limite'}</span>
             <span className="badge">Generados: {selectedAssignment.usedAccesses}</span>
-            <span className="badge">
-              Restantes: {selectedAssignment.remainingAccesses ?? 'Sin limite'}
-            </span>
+            <span className="badge">Restantes: {selectedAssignment.remainingAccesses ?? 'Inf'}</span>
           </div>
         )}
 
         <div>
-          <span style={{ display: 'block', marginBottom: '0.25rem', color: '#475569', fontSize: '0.9rem' }}>
+          <span className="form-caption" style={{ display: 'block', marginBottom: '0.25rem' }}>
             Tipo de invitado
           </span>
           <div className="badge-group">
@@ -122,16 +134,18 @@ export function GenerateAccessPage() {
           <textarea rows={3} value={note} placeholder="Mesa 4, cumpleanos, etc." onChange={(e) => setNote(e.target.value)} />
         </label>
 
-        <button type="submit" disabled={!selectedAssignment || mutation.isPending} data-testid="generate-btn">
+        {!selectedAssignment?.eventActive ? (
+          <p className="text-warning">Este evento esta cerrado. Solo puedes consultar historial.</p>
+        ) : limitReached ? (
+          <p className="text-danger">Limite alcanzado. Solicita mas accesos a tu gerente.</p>
+        ) : null}
+
+        <button type="submit" disabled={!selectedAssignment || !selectedAssignment.eventActive || limitReached || mutation.isPending}>
           {mutation.isPending ? 'Generando...' : 'Generar ticket'}
         </button>
       </form>
 
-      {mutation.error && (
-        <p style={{ color: '#b91c1c', marginTop: '0.75rem' }}>
-          {(mutation.error as Error).message ?? 'No se pudo crear el ticket'}
-        </p>
-      )}
+      {mutationErrorMessage ? <p className="text-danger" style={{ marginTop: '0.75rem' }}>{mutationErrorMessage}</p> : null}
 
       {lastTicketId && (
         <section className="card" style={{ marginTop: '1.5rem' }}>
@@ -141,12 +155,15 @@ export function GenerateAccessPage() {
               <img
                 src={previewUrl}
                 alt="Preview del ticket"
-                style={{ width: 220, borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}
+                className="media-frame"
+                style={{ width: 220 }}
                 data-testid="ticket-preview"
               />
             )}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <span data-testid="ticket-token" style={{ display: 'none' }}>{lastTicketId}</span>
+              <span data-testid="ticket-token" style={{ display: 'none' }}>
+                {lastTicketId}
+              </span>
               <a href={rpApi.getTicketImageUrl(lastTicketId)} target="_blank" rel="noreferrer">
                 Descargar PNG
               </a>

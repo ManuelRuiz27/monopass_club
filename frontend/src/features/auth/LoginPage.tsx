@@ -1,4 +1,5 @@
-import { FormEvent, useState } from 'react'
+import { useState } from 'react'
+import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from './AuthContext'
 
@@ -15,26 +16,30 @@ export function LoginPage() {
     setIsSubmitting(true)
     setError(null)
     try {
-      await login({ username, password })
-      navigate('/manager', { replace: true })
+      const session = await login({ username, password })
+      const destination = session.role === 'MANAGER' ? '/manager' : session.role === 'RP' ? '/rp' : '/scanner'
+      navigate(destination, { replace: true })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error de autenticación')
+      setError(err instanceof Error ? err.message : 'Error de autenticacion')
     } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
-    <div style={{ maxWidth: 360, margin: '3rem auto', padding: '2rem', border: '1px solid #e2e8f0', borderRadius: 12 }}>
-      <h2 style={{ marginTop: 0 }}>Ingreso Manager</h2>
-      <p style={{ color: '#475569' }}>Usa las credenciales demo (`manager.demo` / `changeme123`).</p>
+    <div className="auth-card">
+      <h2>MonoPass Club</h2>
+      <p className="text-muted">
+        Usa cualquiera de las credenciales demo segun el rol disponible: <strong>manager.demo</strong>,{' '}
+        <strong>rp.demo</strong> o <strong>scanner.demo</strong> (password <code>changeme123</code>).
+      </p>
       <form onSubmit={handleSubmit} className="form-grid">
         <label>
           Usuario
           <input value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" />
         </label>
         <label>
-          Contraseña
+          Contrasena
           <input
             type="password"
             value={password}
@@ -42,11 +47,9 @@ export function LoginPage() {
             autoComplete="current-password"
           />
         </label>
-        {error ? (
-          <p style={{ color: '#dc2626' }}>{error}</p>
-        ) : null}
+        {error ? <p className="text-danger">{error}</p> : null}
         <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Ingresando…' : 'Entrar'}
+          {isSubmitting ? 'Ingresando...' : 'Entrar'}
         </button>
       </form>
     </div>

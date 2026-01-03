@@ -18,14 +18,35 @@ const updateRpSchema = z.object({
 
 const rpParamsSchema = z.object({ rpId: z.string().uuid() })
 
+type RpProfileWithAssignments = Prisma.RpProfileGetPayload<{
+  include: {
+    user: true
+    assignments: {
+      include: {
+        event: { select: { id: true, name: true, startsAt: true, endsAt: true, active: true } }
+        _count: { select: { tickets: true } }
+      }
+    }
+  }
+}>
+
 export async function registerRpRoutes(app: FastifyInstance) {
   app.get('/rps', { preHandler: [app.authenticate, app.authorizeManager] }, async (request) => {
     const managerId = request.user!.userId
     return prisma.rpProfile.findMany({
       where: { managerId },
-      include: { user: true },
+      include: {
+        user: true,
+        assignments: {
+          include: {
+            event: { select: { id: true, name: true, startsAt: true, endsAt: true, active: true } },
+            _count: { select: { tickets: true } },
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
       orderBy: { createdAt: 'desc' },
-    })
+    }).then((profiles) => profiles.map(serializeRpProfile))
   })
 
   app.post('/rps', { preHandler: [app.authenticate, app.authorizeManager] }, async (request) => {
@@ -49,10 +70,18 @@ export async function registerRpRoutes(app: FastifyInstance) {
           managerId,
           userId: user.id,
         },
-        include: { user: true },
+        include: {
+          user: true,
+          assignments: {
+            include: {
+              event: { select: { id: true, name: true, startsAt: true, endsAt: true, active: true } },
+              _count: { select: { tickets: true } },
+            },
+          },
+        },
       })
 
-      return profile
+      return serializeRpProfile(profile as RpProfileWithAssignments)
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         throw app.httpErrors.conflict('El username ya existe')
@@ -83,7 +112,38 @@ export async function registerRpRoutes(app: FastifyInstance) {
         await prisma.user.update({ where: { id: rp.userId }, data: { name: body.name } })
       }
 
-      return prisma.rpProfile.findUnique({ where: { id: params.rpId }, include: { user: true } })
+      const updated = await prisma.rpProfile.findUnique({
+        where: { id: params.rpId },
+        include: {
+          user: true,
+          assignments: {
+            include: {
+              event: { select: { id: true, name: true, startsAt: true, endsAt: true, active: true } },
+              _count: { select: { tickets: true } },
+            },
+          },
+        },
+      })
+
+      if (!updated) {
+        throw app.httpErrors.notFound('RP no encontrado')
+      }
+
+      return serializeRpProfile(updated as RpProfileWithAssignments)
     },
   )
+}
+
+function serializeRpProfile(profile: RpProfileWithAssignments) {
+  return {
+    id: profile.id,
+    active: profile.active,
+    user: profile.user,
+    assignments: profile.assignments.map((assignment) => ({
+      id: assignment.id,
+      event: assignment.event,
+      limitAccesses: assignment.limitAccesses,
+      usedAccesses: assignment._count.tickets,
+    })),
+  }
 }

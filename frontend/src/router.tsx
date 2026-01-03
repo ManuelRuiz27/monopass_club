@@ -6,6 +6,7 @@ import { ScannerShell, scannerRoutes } from './shells/ScannerShell'
 import { PagePlaceholder } from './components/PagePlaceholder'
 import { RequireAuth } from '@/features/auth/RequireAuth'
 import { LoginPage } from '@/features/auth/LoginPage'
+import { RoleGate } from '@/features/auth/RoleGate'
 
 export const router = createBrowserRouter([
   {
@@ -18,17 +19,29 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="/manager" replace /> },
       {
         path: '/manager',
-        element: <ManagerShell />,
+        element: (
+          <RoleGate allow={['MANAGER']}>
+            <ManagerShell />
+          </RoleGate>
+        ),
         children: managerRoutes,
       },
       {
         path: '/rp',
-        element: <RpShell />,
+        element: (
+          <RoleGate allow={['RP']}>
+            <RpShell />
+          </RoleGate>
+        ),
         children: rpRoutes,
       },
       {
         path: '/scanner',
-        element: <ScannerShell />,
+        element: (
+          <RoleGate allow={['SCANNER']}>
+            <ScannerShell />
+          </RoleGate>
+        ),
         children: scannerRoutes,
       },
       {

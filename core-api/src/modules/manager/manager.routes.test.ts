@@ -133,8 +133,8 @@ describe.sequential('Manager contract routes', () => {
         endsAt: new Date(Date.now() + 3600000).toISOString(),
       })
 
-    expect(response.status).toBe(404)
-    expect(response.body?.message).toMatch(/Club no encontrado/i)
+    expect(response.status).toBe(403)
+    expect(response.body?.message).toMatch(/No puedes acceder a este club/i)
   })
 
   test('POST /events/:eventId/rps responde 409 al duplicar asignacion', async () => {

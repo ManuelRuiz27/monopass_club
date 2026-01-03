@@ -21,11 +21,34 @@ const scannerParamsSchema = z.object({ scannerId: z.string().uuid() })
 export async function registerScannerRoutes(app: FastifyInstance) {
   app.get('/scanners', { preHandler: [app.authenticate, app.authorizeManager] }, async (request) => {
     const managerId = request.user!.userId
-    return prisma.scannerProfile.findMany({
+    const scanners = await prisma.scannerProfile.findMany({
       where: { managerId },
       include: { user: true },
       orderBy: { createdAt: 'desc' },
     })
+
+    const scannerIds = scanners.map((scanner) => scanner.id)
+    const lastScans = scannerIds.length
+      ? await prisma.ticketScan.groupBy({
+          by: ['scannerId'],
+          where: { scannerId: { in: scannerIds } },
+          _max: { scannedAt: true },
+        })
+      : []
+
+    const lastScanMap = new Map<string, Date>()
+    for (const scan of lastScans) {
+      if (scan.scannerId) {
+        lastScanMap.set(scan.scannerId, scan._max.scannedAt!)
+      }
+    }
+
+    return scanners.map((scanner) => ({
+      id: scanner.id,
+      active: scanner.active,
+      user: scanner.user,
+      lastScanAt: lastScanMap.get(scanner.id) ?? null,
+    }))
   })
 
   app.post('/scanners', { preHandler: [app.authenticate, app.authorizeManager] }, async (request) => {
@@ -52,7 +75,12 @@ export async function registerScannerRoutes(app: FastifyInstance) {
         include: { user: true },
       })
 
-      return profile
+      return {
+        id: profile.id,
+        active: profile.active,
+        user: profile.user,
+        lastScanAt: null,
+      }
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         throw app.httpErrors.conflict('El username ya existe')
@@ -86,7 +114,24 @@ export async function registerScannerRoutes(app: FastifyInstance) {
         await prisma.user.update({ where: { id: scanner.userId }, data: { name: body.name } })
       }
 
-      return prisma.scannerProfile.findUnique({ where: { id: params.scannerId }, include: { user: true } })
+      const updated = await prisma.scannerProfile.findUnique({ where: { id: params.scannerId }, include: { user: true } })
+
+      if (!updated) {
+        throw app.httpErrors.notFound('Scanner no encontrado')
+      }
+
+      const lastScan = await prisma.ticketScan.findFirst({
+        where: { scannerId: params.scannerId },
+        orderBy: { scannedAt: 'desc' },
+        select: { scannedAt: true },
+      })
+
+      return {
+        id: updated.id,
+        active: updated.active,
+        user: updated.user,
+        lastScanAt: lastScan?.scannedAt ?? null,
+      }
     },
   )
 }

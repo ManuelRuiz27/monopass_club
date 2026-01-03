@@ -10,7 +10,7 @@ const validateBodySchema = z.object({
 
 const confirmBodySchema = z.object({
   qrToken: z.string().min(16),
-  clientRequestId: z.string().uuid().optional(),
+  clientRequestId: z.string().uuid(),
 })
 
 type TicketSummary = {
@@ -89,6 +89,16 @@ export async function registerScanRoutes(app: FastifyInstance) {
     async (request, reply) => {
       const payload = confirmBodySchema.parse(request.body)
       const scanner = await resolveScannerProfile(app, request.user?.userId)
+
+      const existingRequest = await fetchStoredConfirmRequest(payload.clientRequestId)
+
+      if (existingRequest) {
+        if (existingRequest.scannerId !== scanner.id) {
+          throw app.httpErrors.forbidden('clientRequestId pertenece a otro scanner')
+        }
+        return reply.status(existingRequest.statusCode).send(existingRequest.responsePayload as ConfirmResponse)
+      }
+
       const managerSetting = await prisma.managerSetting.findUnique({
         where: { managerId: scanner.managerId },
       })
@@ -121,7 +131,7 @@ export async function registerScanRoutes(app: FastifyInstance) {
       }
 
       try {
-        const scanRecord = await prisma.$transaction(async (tx) => {
+        const responsePayload = await prisma.$transaction(async (tx) => {
           const createdScan = await tx.ticketScan.create({
             data: {
               id: randomUUID(),
@@ -135,30 +145,36 @@ export async function registerScanRoutes(app: FastifyInstance) {
             data: { status: TicketStatus.SCANNED },
           })
 
-          return createdScan
-        })
-
-        const response: ConfirmResponse = {
-          confirmed: true,
-          reason: null,
-          ticket: buildTicketSummary(ticket, otherLabel, {
-            status: TicketStatus.SCANNED,
-            scannedAt: scanRecord.scannedAt,
-          }),
-        }
-
-        return reply.status(200).send(response)
-      } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-          const alreadyScanned: ConfirmResponse = {
-            confirmed: false,
-            reason: 'ALREADY_SCANNED',
+          const response: ConfirmResponse = {
+            confirmed: true,
+            reason: null,
             ticket: buildTicketSummary(ticket, otherLabel, {
               status: TicketStatus.SCANNED,
-              scannedAt: ticket.scan?.scannedAt ?? new Date(),
+              scannedAt: createdScan.scannedAt,
             }),
           }
-          return reply.status(409).send(alreadyScanned)
+
+          await persistStoredConfirmRequest(tx, {
+            clientRequestId: payload.clientRequestId,
+            scannerId: scanner.id,
+            ticketId: ticket.id,
+            responsePayload: response,
+            statusCode: 200,
+          })
+
+          return response
+        })
+
+        return reply.status(200).send(responsePayload)
+      } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+          const stored = await fetchStoredConfirmRequest(payload.clientRequestId)
+
+          if (stored && stored.scannerId === scanner.id) {
+            return reply.status(stored.statusCode).send(stored.responsePayload as ConfirmResponse)
+          }
+
+          throw app.httpErrors.conflict('clientRequestId ya utilizado')
         }
 
         throw error
@@ -200,4 +216,50 @@ function buildTicketSummary(
     status,
     scannedAt: scannedAt ? scannedAt.toISOString() : null,
   }
+}
+
+type StoredConfirmRequest = {
+  id: string
+  clientRequestId: string
+  scannerId: string
+  ticketId: string
+  responsePayload: unknown
+  statusCode: number
+  createdAt: Date
+}
+
+type PersistConfirmRequestInput = {
+  clientRequestId: string
+  scannerId: string
+  ticketId: string
+  responsePayload: ConfirmResponse
+  statusCode: number
+}
+
+async function fetchStoredConfirmRequest(clientRequestId: string): Promise<StoredConfirmRequest | null> {
+  const rows = await prisma.$queryRaw<StoredConfirmRequest[]>(
+    Prisma.sql`
+      SELECT "id", "clientRequestId", "scannerId", "ticketId", "responsePayload", "statusCode", "createdAt"
+      FROM "ScannerConfirmRequest"
+      WHERE "clientRequestId" = ${clientRequestId}
+      LIMIT 1
+    `,
+  )
+
+  return rows[0] ?? null
+}
+
+async function persistStoredConfirmRequest(
+  tx: Prisma.TransactionClient,
+  data: PersistConfirmRequestInput,
+): Promise<void> {
+  const serializedPayload = JSON.stringify(data.responsePayload)
+
+  await tx.$executeRaw(
+    Prisma.sql`
+      INSERT INTO "ScannerConfirmRequest"
+        ("id", "clientRequestId", "scannerId", "ticketId", "responsePayload", "statusCode")
+      VALUES (${randomUUID()}, ${data.clientRequestId}, ${data.scannerId}, ${data.ticketId}, ${serializedPayload}::jsonb, ${data.statusCode})
+    `,
+  )
 }

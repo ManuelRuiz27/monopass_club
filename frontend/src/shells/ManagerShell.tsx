@@ -61,32 +61,22 @@ const sections: Section[] = [
 ]
 
 export const managerRoutes: RouteObject[] = sections.map((section) => {
-  const route: RouteObject = section.element
-    ? { element: section.element }
-    : {
-        element: (
-          <PagePlaceholder
-            title={section.label}
-            description={section.description ?? 'Modulo en construccion'}
-          />
-        ),
-      }
+  const element =
+    section.element ?? (
+      <PagePlaceholder title={section.label} description={section.description ?? 'Modulo en construccion'} />
+    )
 
-  if (section.path) {
-    route.path = section.path
-  } else {
-    route.index = true
-  }
-
-  return route
+  return section.path ? { path: section.path, element } : { index: true, element }
 })
 
 export function ManagerShell() {
   return (
     <div>
-      <header style={{ marginBottom: '1rem' }}>
-        <h2 style={{ margin: 0 }}>Manager</h2>
-        <p style={{ margin: '0.25rem 0', color: '#475569' }}>Gestiona clubs, eventos y staff.</p>
+      <header className="shell-header">
+        <div>
+          <h2>Manager</h2>
+          <p className="text-muted">Gestiona clubs, eventos y staff.</p>
+        </div>
       </header>
       <nav className="section-nav">
         {sections.map((section) => (

@@ -27,7 +27,20 @@ export async function registerClubRoutes(app: FastifyInstance) {
     })
   })
 
-  app.post('/clubs', { preHandler: [app.authenticate, app.authorizeManager] }, async (request) => {
+  app.get(
+    '/clubs/:clubId',
+    { preHandler: [app.authenticate, app.authorizeManager] },
+    async (request) => {
+      const managerId = request.user!.userId
+      const params = clubParamsSchema.parse(request.params)
+
+      const club = await ensureClubAccess(app, managerId, params.clubId)
+
+      return club
+    },
+  )
+
+  app.post('/clubs', { preHandler: [app.authenticate, app.authorizeManager] }, async (request, reply) => {
     const managerId = request.user!.userId
     const body = createClubSchema.parse(request.body)
 
@@ -39,10 +52,11 @@ export async function registerClubRoutes(app: FastifyInstance) {
       },
     })
 
+    reply.code(201)
     return club
   })
 
-  app.patch<{ Params: { clubId: string } }>(
+  app.patch(
     '/clubs/:clubId',
     { preHandler: [app.authenticate, app.authorizeManager] },
     async (request) => {
@@ -50,18 +64,36 @@ export async function registerClubRoutes(app: FastifyInstance) {
       const params = clubParamsSchema.parse(request.params)
       const body = updateClubSchema.parse(request.body ?? {})
 
-      const existing = await prisma.club.findFirst({
-        where: { id: params.clubId, managerId },
-      })
-
-      if (!existing) {
-        throw app.httpErrors.notFound('Club no encontrado')
-      }
-
+      await ensureClubAccess(app, managerId, params.clubId)
       return prisma.club.update({
         where: { id: params.clubId },
         data: body,
       })
     },
   )
+
+  app.delete(
+    '/clubs/:clubId',
+    { preHandler: [app.authenticate, app.authorizeManager] },
+    async (request, reply) => {
+      const managerId = request.user!.userId
+      const params = clubParamsSchema.parse(request.params)
+
+      await ensureClubAccess(app, managerId, params.clubId)
+
+      await prisma.club.delete({ where: { id: params.clubId } })
+      reply.code(204).send()
+    },
+  )
+}
+
+async function ensureClubAccess(app: FastifyInstance, managerId: string, clubId: string) {
+  const club = await prisma.club.findUnique({ where: { id: clubId } })
+  if (!club) {
+    throw app.httpErrors.notFound('Club no encontrado')
+  }
+  if (club.managerId !== managerId) {
+    throw app.httpErrors.forbidden('No puedes acceder a este club')
+  }
+  return club
 }

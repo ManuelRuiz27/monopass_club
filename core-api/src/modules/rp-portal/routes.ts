@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify'
 import { prisma } from '../../lib/prisma'
 import { TicketType } from '@prisma/client'
+import { z } from 'zod'
 
 type GuestTypeCounter = Record<TicketType, number>
 
@@ -21,7 +22,7 @@ export async function registerRpPortalRoutes(app: FastifyInstance) {
     }
 
     const assignments = await prisma.eventRp.findMany({
-      where: { rpId: rpProfile.id, event: { active: true } },
+      where: { rpId: rpProfile.id, event: { club: { managerId: rpProfile.managerId } } },
       include: {
         event: {
           include: {
@@ -62,6 +63,7 @@ export async function registerRpPortalRoutes(app: FastifyInstance) {
           assignmentId: assignment.id,
           eventId: assignment.eventId,
           eventName: assignment.event.name,
+          eventActive: assignment.event.active,
           clubName: assignment.event.club.name,
           startsAt: assignment.event.startsAt,
           endsAt: assignment.event.endsAt,
@@ -73,4 +75,61 @@ export async function registerRpPortalRoutes(app: FastifyInstance) {
       }),
     }
   })
+
+  const historyQuerySchema = z.object({
+    guestType: z.nativeEnum(TicketType).optional(),
+  })
+
+  app.get(
+    '/rp/tickets/history',
+    { preHandler: [app.authenticate, app.authorizeRp] },
+    async (request) => {
+      const rpProfile = await prisma.rpProfile.findFirst({
+        where: { userId: request.user!.userId, active: true },
+      })
+
+      if (!rpProfile) {
+        throw app.httpErrors.forbidden('RP no autorizado o inactivo')
+      }
+
+      const query = historyQuerySchema.parse(request.query ?? {})
+
+      const managerSetting = await prisma.managerSetting.findUnique({
+        where: { managerId: rpProfile.managerId },
+      })
+      const otherLabel = managerSetting?.otherLabel ?? 'Otro'
+
+      const tickets = await prisma.ticket.findMany({
+        where: {
+          rpId: rpProfile.id,
+          ...(query.guestType ? { guestType: query.guestType } : {}),
+        },
+        include: {
+          event: { select: { id: true, name: true, startsAt: true, active: true } },
+          scan: { select: { scannedAt: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 200,
+      })
+
+      return {
+        otherLabel,
+        tickets: tickets.map((ticket) => ({
+          id: ticket.id,
+          guestType: ticket.guestType,
+          displayLabel: ticket.guestType === 'OTHER' ? otherLabel : ticket.guestType,
+          status: ticket.status,
+          note: ticket.note,
+          createdAt: ticket.createdAt,
+          scannedAt: ticket.scan?.scannedAt ?? null,
+          event: {
+            id: ticket.event.id,
+            name: ticket.event.name,
+            startsAt: ticket.event.startsAt,
+            active: ticket.event.active,
+          },
+        })),
+      }
+    },
+  )
 }

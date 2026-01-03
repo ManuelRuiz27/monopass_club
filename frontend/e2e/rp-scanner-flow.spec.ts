@@ -1,71 +1,69 @@
-import { test, expect } from '@playwright/test';
+﻿import { test, expect } from '@playwright/test'
 
 test.describe('RP & Scanner Flow', () => {
-    test('E2E-001: Flujo completo RP -> Scanner', async ({ page, browser }) => {
-        // 1. RP Context
-        const rpContext = await browser.newContext();
-        const rpPage = await rpContext.newPage();
+  test('E2E-001: RP genera -> Scanner confirma -> Manager visualiza corte', async ({ browser }) => {
+    // RP genera acceso
+    const rpContext = await browser.newContext()
+    const rpPage = await rpContext.newPage()
+    await rpPage.goto('/login')
+    await rpPage.fill('input[type="text"]', 'rp.demo')
+    await rpPage.fill('input[type="password"]', 'changeme123')
+    await rpPage.click('button[type="submit"]')
+    await expect(rpPage).toHaveURL(/\/rp$/)
 
-        // Login as RP
-        await rpPage.goto('/login');
-        await rpPage.fill('input[type="text"]', 'rp.demo');
-        await rpPage.fill('input[type="password"]', 'changeme123');
-        await rpPage.click('button[type="submit"]');
-        await expect(rpPage).toHaveURL(/\/events/);
+    await rpPage.click('a:has-text("Generar acceso")')
+    const eventSelect = rpPage.locator('select').first()
+    const options = await eventSelect.locator('option').all()
+    if (options.length < 2) {
+      throw new Error('No hay eventos disponibles para RP demo')
+    }
+    await eventSelect.selectOption({ index: 1 })
+    const fullEventLabel = (await eventSelect.locator('option:checked').textContent())?.trim() ?? ''
+    const eventName = fullEventLabel.split(' - ')[0]
 
-        // Generate Ticket
-        // Assume first event card has a button or link
-        await rpPage.click('text=Ver asignación'); // Adjust selector if needed
-        await rpPage.click('text=Generar acceso'); // Adjust selector if needed
+    await rpPage.click('[data-testid="generate-btn"]')
+    const tokenLocator = rpPage.locator('[data-testid="ticket-token"]')
+    await expect(tokenLocator).toBeVisible()
+    const qrToken = (await tokenLocator.innerText()).trim()
+    expect(qrToken).not.toEqual('')
 
-        // Fill guest details
-        // Note: Check if select logic changed to radio buttons based on GenerateAccessPage source
-        // In previous view_file, it was radio buttons! 
-        // <input type="radio" value={option.value} ... />
-        // So we click the label or input.
-        await rpPage.click('label:has-text("General")');
-        await rpPage.click('[data-testid="generate-btn"]');
+    // Scanner valida y confirma
+    const scannerContext = await browser.newContext()
+    const scannerPage = await scannerContext.newPage()
+    await scannerPage.goto('/login')
+    await scannerPage.fill('input[type="text"]', 'scanner.demo')
+    await scannerPage.fill('input[type="password"]', 'changeme123')
+    await scannerPage.click('button[type="submit"]')
+    await expect(scannerPage).toHaveURL(/\/scanner$/)
 
-        // Wait for QR/Token
-        const tokenLocator = rpPage.locator('[data-testid="ticket-token"]');
-        await expect(tokenLocator).toBeVisible();
-        const tokenText = await tokenLocator.innerText();
+    await scannerPage.fill('[data-testid="scanner-input"]', qrToken)
+    await scannerPage.click('[data-testid="validate-btn"]')
+    await expect(scannerPage.locator('.scanner-result')).toContainText('Estado: Pendiente')
 
-        // 2. Scanner Context
-        const scannerContext = await browser.newContext();
-        const scannerPage = await scannerContext.newPage();
+    await scannerPage.click('[data-testid="confirm-btn"]')
+    await expect(scannerPage.locator('.scanner-result')).toContainText('Estado: Escaneado')
 
-        // Login as Scanner
-        await scannerPage.goto('/login');
-        await scannerPage.fill('input[type="text"]', 'scanner.demo');
-        await scannerPage.fill('input[type="password"]', 'changeme123');
-        await scannerPage.click('button[type="submit"]');
+    await scannerPage.fill('[data-testid="scanner-input"]', qrToken)
+    await scannerPage.click('[data-testid="validate-btn"]')
+    await expect(scannerPage.locator('.scanner-result')).toContainText('Ya escaneado')
 
-        // Go to scanner page (simulated via dashboard button or direct URL if protected)
-        // Assuming dashboard has a link or we just go there.
-        // await scannerPage.goto('/scanner'); // If needed
+    // Manager revisa cortes
+    const managerContext = await browser.newContext()
+    const managerPage = await managerContext.newPage()
+    await managerPage.goto('/login')
+    await managerPage.fill('input[type="text"]', 'manager.demo')
+    await managerPage.fill('input[type="password"]', 'changeme123')
+    await managerPage.click('button[type="submit"]')
+    await expect(managerPage).toHaveURL(/\/manager$/)
 
-        // Simulate Scan
-        await scannerPage.fill('[data-testid="scanner-input"]', tokenText);
-        await scannerPage.click('[data-testid="validate-btn"]');
+    await managerPage.click('a:has-text("Cortes")')
+    await expect(managerPage).toHaveURL(/\/manager\/cuts$/)
+    const eventCard = managerPage.locator('.card').filter({ hasText: eventName })
+    await expect(eventCard).toBeVisible()
+    await expect(eventCard).toContainText('Total')
 
-        // Expect Valid
-        // Checking for "Tipo: General" or ticket details
-        await expect(scannerPage.locator('.card')).toContainText('Tipo: General');
-        await expect(scannerPage.locator('.card')).toContainText('Estado: Pendiente');
-
-        // Confirm
-        await scannerPage.click('[data-testid="confirm-btn"]');
-        await expect(scannerPage.locator('.card')).toContainText('Estado: Escaneado');
-
-        // Re-validate (E2E-004)
-        await scannerPage.fill('[data-testid="scanner-input"]', tokenText);
-        await scannerPage.click('[data-testid="validate-btn"]');
-
-        // Expect Invalid/Used
-        await expect(scannerPage.locator('text=Ya escaneado')).toBeVisible();
-
-        await rpContext.close();
-        await scannerContext.close();
-    });
-});
+    await rpContext.close()
+    await scannerContext.close()
+    await managerContext.close()
+  })
+})

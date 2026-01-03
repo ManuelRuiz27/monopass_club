@@ -5,6 +5,7 @@ import { TicketType } from '@prisma/client'
 
 const aggregateQuerySchema = z.object({
   eventId: z.string().uuid().optional(),
+  rpId: z.string().uuid().optional(),
   from: z.string().datetime().optional(),
   to: z.string().datetime().optional(),
 })
@@ -36,14 +37,23 @@ export async function registerCutRoutes(app: FastifyInstance) {
     async (request) => {
       const managerId = request.user!.userId
       const query = aggregateQuerySchema.parse(request.query)
+      const range = normalizeRange(app, query.from, query.to)
+
+      if (query.eventId) {
+        await ensureEventBelongsToManager(app, managerId, query.eventId)
+      }
+
+      if (query.rpId) {
+        await ensureRpBelongsToManager(app, managerId, query.rpId)
+      }
 
       const events = await prisma.event.findMany({
         where: {
-          ...(query.eventId ? { id: query.eventId } : {}),
           club: { managerId },
+          ...(query.eventId ? { id: query.eventId } : {}),
         },
         include: {
-          club: { select: { name: true } },
+          club: { select: { id: true, name: true } },
           assignments: {
             include: {
               rp: { include: { user: true } },
@@ -54,91 +64,71 @@ export async function registerCutRoutes(app: FastifyInstance) {
       })
 
       if (events.length === 0) {
-        return { events: [] }
+        return {
+          filters: buildFilterMetadata(query),
+          total: 0,
+          totalGeneral: 0,
+          totalVip: 0,
+          totalOther: 0,
+          events: [],
+        }
       }
 
-      const eventIds = events.map((event) => event.id)
       const scans = await prisma.ticketScan.findMany({
         where: {
+          ...(range.scannedAt ? { scannedAt: range.scannedAt } : {}),
           ticket: {
-            eventId: { in: eventIds },
+            eventId: { in: events.map((event) => event.id) },
+            ...(query.rpId ? { rpId: query.rpId } : {}),
           },
-          ...(query.from
-            ? {
-                scannedAt: {
-                  gte: new Date(query.from),
-                  lte: query.to ? new Date(query.to) : undefined,
-                },
-              }
-            : query.to
-              ? { scannedAt: { lte: new Date(query.to) } }
-              : {}),
         },
         include: {
           ticket: {
             select: {
               id: true,
               guestType: true,
-              note: true,
               eventId: true,
               rpId: true,
             },
           },
         },
-        orderBy: { scannedAt: 'desc' },
       })
 
-      const eventsMap = new Map<
-        string,
-        {
-          totals: GuestCounters
-          rps: Map<string, GuestCounters>
-        }
-      >()
+      const aggregated = aggregateScans(scans)
 
-      for (const scan of scans) {
-        const eventTotals = eventsMap.get(scan.ticket.eventId) ?? {
-          totals: createEmptyCounters(),
-          rps: new Map(),
-        }
-        eventTotals.totals[scan.ticket.guestType] += 1
+      const eventsResponse = events
+        .map((event) => {
+          const aggregates = aggregated.events.get(event.id) ?? { totals: createEmptyCounters(), rps: new Map<string, GuestCounters>() }
+          const eventTotals = aggregates.totals
 
-        const rpTotals = eventTotals.rps.get(scan.ticket.rpId) ?? createEmptyCounters()
-        rpTotals[scan.ticket.guestType] += 1
-        eventTotals.rps.set(scan.ticket.rpId, rpTotals)
-
-        eventsMap.set(scan.ticket.eventId, eventTotals)
-      }
-
-      return {
-        events: events.map((event) => {
-          const aggregates = eventsMap.get(event.id) ?? {
-            totals: createEmptyCounters(),
-            rps: new Map<string, GuestCounters>(),
-          }
-
-          const rpRows = new Map<string, GuestCounters>(aggregates.rps)
+          const rpTotalsWithAssignments = new Map(aggregates.rps)
           for (const assignment of event.assignments) {
-            if (!rpRows.has(assignment.rpId)) {
-              rpRows.set(assignment.rpId, createEmptyCounters())
+            if (!rpTotalsWithAssignments.has(assignment.rpId)) {
+              rpTotalsWithAssignments.set(assignment.rpId, createEmptyCounters())
             }
           }
 
-          const rpSummaries = Array.from(rpRows.entries()).map(([rpId, counters]) => {
-            const rpName =
-              event.assignments.find((assignment) => assignment.rpId === rpId)?.rp.user.name ?? 'RP removido'
-            const totalScanned = counters.GENERAL + counters.VIP + counters.OTHER
-            return {
-              rpId,
-              rpName,
-              totalGeneral: counters.GENERAL,
-              totalVip: counters.VIP,
-              totalOther: counters.OTHER,
-              totalScanned,
-            }
-          })
+          const rpSummaries = Array.from(rpTotalsWithAssignments.entries())
+            .map(([rpId, counters]) => {
+              const rpName = event.assignments.find((assignment) => assignment.rpId === rpId)?.rp.user.name ?? 'RP removido'
+              const total = counters.GENERAL + counters.VIP + counters.OTHER
+              return {
+                rpId,
+                rpName,
+                totalGeneral: counters.GENERAL,
+                totalVip: counters.VIP,
+                totalOther: counters.OTHER,
+                total,
+              }
+            })
+            .filter((rpSummary) => (query.rpId ? rpSummary.rpId === query.rpId : true))
+            .sort((a, b) => b.total - a.total)
 
-          const totalScanned = aggregates.totals.GENERAL + aggregates.totals.VIP + aggregates.totals.OTHER
+          if (query.rpId && rpSummaries.length === 0) {
+            return null
+          }
+
+          const total = eventTotals.GENERAL + eventTotals.VIP + eventTotals.OTHER
 
           return {
             eventId: event.id,
@@ -146,13 +136,27 @@ export async function registerCutRoutes(app: FastifyInstance) {
             startsAt: event.startsAt,
             endsAt: event.endsAt,
             clubName: event.club.name,
-            totalGeneral: aggregates.totals.GENERAL,
-            totalVip: aggregates.totals.VIP,
-            totalOther: aggregates.totals.OTHER,
-            totalScanned,
-            rps: rpSummaries.sort((a, b) => b.totalScanned - a.totalScanned),
+            totalGeneral: eventTotals.GENERAL,
+            totalVip: eventTotals.VIP,
+            totalOther: eventTotals.OTHER,
+            total,
+            rps: rpSummaries,
           }
-        }),
+        })
+        .filter((eventSummary): eventSummary is NonNullable<typeof eventSummary> => Boolean(eventSummary))
+
+      const globalTotalGeneral = aggregated.totals.GENERAL
+      const globalTotalVip = aggregated.totals.VIP
+      const globalTotalOther = aggregated.totals.OTHER
+      const globalTotal = globalTotalGeneral + globalTotalVip + globalTotalOther
+
+      return {
+        filters: buildFilterMetadata(query),
+        total: globalTotal,
+        totalGeneral: globalTotalGeneral,
+        totalVip: globalTotalVip,
+        totalOther: globalTotalOther,
+        events: eventsResponse,
       }
     },
   )
@@ -164,23 +168,32 @@ export async function registerCutRoutes(app: FastifyInstance) {
       const managerId = request.user!.userId
       const params = detailParamsSchema.parse(request.params)
       const query = detailQuerySchema.parse(request.query)
+      const range = normalizeRange(app, query.from, query.to)
 
-      const event = await prisma.event.findFirst({
-        where: { id: params.eventId, club: { managerId } },
-        select: { id: true, name: true, startsAt: true, endsAt: true },
+      const event = await prisma.event.findUnique({
+        where: { id: params.eventId },
+        select: { id: true, name: true, startsAt: true, endsAt: true, club: { select: { managerId: true } } },
       })
 
       if (!event) {
         throw app.httpErrors.notFound('Evento no encontrado')
       }
 
-      const rp = await prisma.rpProfile.findFirst({
-        where: { id: params.rpId, managerId },
+      if (event.club.managerId !== managerId) {
+        throw app.httpErrors.forbidden('No puedes acceder a este evento')
+      }
+
+      const rp = await prisma.rpProfile.findUnique({
+        where: { id: params.rpId },
         include: { user: true },
       })
 
       if (!rp) {
         throw app.httpErrors.notFound('RP no encontrado')
+      }
+
+      if (rp.managerId !== managerId) {
+        throw app.httpErrors.forbidden('No puedes acceder al RP indicado')
       }
 
       const managerSetting = await prisma.managerSetting.findUnique({ where: { managerId } })
@@ -192,16 +205,7 @@ export async function registerCutRoutes(app: FastifyInstance) {
             eventId: params.eventId,
             rpId: params.rpId,
           },
-          ...(query.from
-            ? {
-                scannedAt: {
-                  gte: new Date(query.from),
-                  lte: query.to ? new Date(query.to) : undefined,
-                },
-              }
-            : query.to
-              ? { scannedAt: { lte: new Date(query.to) } }
-              : {}),
+          ...(range.scannedAt ? { scannedAt: range.scannedAt } : {}),
         },
         include: {
           ticket: {
@@ -221,7 +225,12 @@ export async function registerCutRoutes(app: FastifyInstance) {
       })
 
       return {
-        event,
+        event: {
+          id: event.id,
+          name: event.name,
+          startsAt: event.startsAt,
+          endsAt: event.endsAt,
+        },
         rp: { id: rp.id, name: rp.user.name },
         total: scans.length,
         scans: scans.map((scan) => ({
@@ -235,4 +244,104 @@ export async function registerCutRoutes(app: FastifyInstance) {
       }
     },
   )
+}
+
+function aggregateScans(
+  scans: Array<{
+    ticket: {
+      guestType: TicketType
+      eventId: string
+      rpId: string
+    }
+  }>,
+) {
+  const totals = createEmptyCounters()
+  const events = new Map<string, { totals: GuestCounters; rps: Map<string, GuestCounters> }>()
+
+  for (const scan of scans) {
+    totals[scan.ticket.guestType] += 1
+
+    const eventEntry = events.get(scan.ticket.eventId) ?? {
+      totals: createEmptyCounters(),
+      rps: new Map<string, GuestCounters>(),
+    }
+    eventEntry.totals[scan.ticket.guestType] += 1
+
+    const rpEntry = eventEntry.rps.get(scan.ticket.rpId) ?? createEmptyCounters()
+    rpEntry[scan.ticket.guestType] += 1
+    eventEntry.rps.set(scan.ticket.rpId, rpEntry)
+
+    events.set(scan.ticket.eventId, eventEntry)
+  }
+
+  return { totals, events }
+}
+
+function normalizeRange(app: FastifyInstance, from?: string, to?: string) {
+  const result: { scannedAt?: { gte?: Date; lte?: Date } } = {}
+  const fromDate = from ? new Date(from) : undefined
+  const toDate = to ? new Date(to) : undefined
+
+  if (fromDate && Number.isNaN(fromDate.getTime())) {
+    throw app.httpErrors.badRequest('El parametro "from" es invalido')
+  }
+
+  if (toDate && Number.isNaN(toDate.getTime())) {
+    throw app.httpErrors.badRequest('El parametro "to" es invalido')
+  }
+
+  if (fromDate && toDate && toDate < fromDate) {
+    throw app.httpErrors.badRequest('El rango de fechas es invalido')
+  }
+
+  if (fromDate || toDate) {
+    result.scannedAt = {}
+    if (fromDate) {
+      result.scannedAt.gte = fromDate
+    }
+    if (toDate) {
+      result.scannedAt.lte = toDate
+    }
+  }
+
+  return result
+}
+
+async function ensureEventBelongsToManager(app: FastifyInstance, managerId: string, eventId: string) {
+  const event = await prisma.event.findUnique({
+    where: { id: eventId },
+    select: { id: true, club: { select: { managerId: true } } },
+  })
+
+  if (!event) {
+    throw app.httpErrors.notFound('Evento no encontrado')
+  }
+
+  if (event.club.managerId !== managerId) {
+    throw app.httpErrors.forbidden('No puedes consultar eventos de otro manager')
+  }
+}
+
+async function ensureRpBelongsToManager(app: FastifyInstance, managerId: string, rpId: string) {
+  const rp = await prisma.rpProfile.findUnique({
+    where: { id: rpId },
+    select: { id: true, managerId: true },
+  })
+
+  if (!rp) {
+    throw app.httpErrors.notFound('RP no encontrado')
+  }
+
+  if (rp.managerId !== managerId) {
+    throw app.httpErrors.forbidden('No puedes consultar datos de otro manager')
+  }
+}
+
+function buildFilterMetadata(query: z.infer<typeof aggregateQuerySchema>) {
+  return {
+    eventId: query.eventId ?? null,
+    rpId: query.rpId ?? null,
+    from: query.from ?? null,
+    to: query.to ?? null,
+  }
 }

@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react'
+﻿import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { managerApi } from '../api'
 
-function toIsoOrUndefined(value: string) {
+function toIso(value: string) {
   if (!value) return undefined
   const date = new Date(value)
   return Number.isNaN(date.getTime()) ? undefined : date.toISOString()
@@ -10,17 +10,21 @@ function toIsoOrUndefined(value: string) {
 
 export function CutsPage() {
   const [eventFilter, setEventFilter] = useState('')
+  const [rpFilter, setRpFilter] = useState('')
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
   const [detailSelection, setDetailSelection] = useState<{ eventId: string; rpId: string } | null>(null)
 
+  const rpsQuery = useQuery({ queryKey: ['rps'], queryFn: managerApi.getRps })
+
   const cutsQuery = useQuery({
-    queryKey: ['cuts', eventFilter, from, to],
+    queryKey: ['cuts', eventFilter, rpFilter, from, to],
     queryFn: () =>
       managerApi.getCuts({
         eventId: eventFilter || undefined,
-        from: toIsoOrUndefined(from),
-        to: toIsoOrUndefined(to),
+        rpId: rpFilter || undefined,
+        from: toIso(from) ?? null,
+        to: toIso(to) ?? null,
       }),
   })
 
@@ -28,52 +32,57 @@ export function CutsPage() {
     queryKey: ['cut-detail', detailSelection?.eventId, detailSelection?.rpId, from, to],
     queryFn: () =>
       managerApi.getCutDetail(detailSelection!.eventId, detailSelection!.rpId, {
-        from: toIsoOrUndefined(from),
-        to: toIsoOrUndefined(to),
+        from: toIso(from) ?? null,
+        to: toIso(to) ?? null,
       }),
     enabled: Boolean(detailSelection),
   })
 
-  const availableEvents = cutsQuery.data?.events ?? []
+  const summary = cutsQuery.data
+  const events = summary?.events ?? []
 
   const resetFilters = () => {
     setEventFilter('')
+    setRpFilter('')
     setFrom('')
     setTo('')
   }
 
+  const availableEvents = useMemo(() => events.map((event) => ({ id: event.eventId, name: event.eventName })), [events])
+
   return (
     <div>
-      <h3 style={{ marginTop: 0 }}>Cortes en tiempo real</h3>
-      <div className="form-grid" style={{ marginBottom: '1.5rem', maxWidth: 480 }}>
+      <h3 style={{ marginTop: 0 }}>Cortes en vivo</h3>
+      <div className="form-grid" style={{ marginBottom: '1.5rem', maxWidth: 600 }}>
         <label>
           Evento
           <select value={eventFilter} onChange={(e) => setEventFilter(e.target.value)}>
             <option value="">Todos</option>
             {availableEvents.map((event) => (
-              <option key={event.eventId} value={event.eventId}>
-                {event.eventName} - {new Date(event.startsAt).toLocaleDateString()}
+              <option key={event.id} value={event.id}>
+                {event.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          RP
+          <select value={rpFilter} onChange={(e) => setRpFilter(e.target.value)}>
+            <option value="">Todos</option>
+            {rpsQuery.data?.map((rp) => (
+              <option key={rp.id} value={rp.id}>
+                {rp.user.name}
               </option>
             ))}
           </select>
         </label>
         <label>
           Desde
-          <input
-            type="datetime-local"
-            value={from}
-            onChange={(e) => setFrom(e.target.value)}
-            max={to || undefined}
-          />
+          <input type="datetime-local" value={from} onChange={(e) => setFrom(e.target.value)} max={to || undefined} />
         </label>
         <label>
           Hasta
-          <input
-            type="datetime-local"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-            min={from || undefined}
-          />
+          <input type="datetime-local" value={to} onChange={(e) => setTo(e.target.value)} min={from || undefined} />
         </label>
         <button type="button" onClick={resetFilters}>
           Limpiar filtros
@@ -81,29 +90,42 @@ export function CutsPage() {
       </div>
 
       {cutsQuery.isLoading ? <p>Cargando cortes...</p> : null}
-      {cutsQuery.error ? (
-        <p style={{ color: '#b91c1c' }}>
-          {(cutsQuery.error as Error).message || 'No se pudieron cargar los cortes'}
-        </p>
-      ) : null}
+      {cutsQuery.error ? <p className="text-danger">No se pudieron obtener los cortes.</p> : null}
 
-      {availableEvents.length === 0 && cutsQuery.isSuccess ? (
-        <p>No hay escaneos registrados en este rango.</p>
+      {summary ? (
+        <div className="card-grid" style={{ marginBottom: '1.5rem' }}>
+          <div className="card">
+            <strong style={{ fontSize: '1.5rem' }}>{summary.total}</strong>
+            <p>Total escaneados</p>
+          </div>
+          <div className="card">
+            <strong>{summary.totalGeneral}</strong>
+            <p>General</p>
+          </div>
+          <div className="card">
+            <strong>{summary.totalVip}</strong>
+            <p>VIP</p>
+          </div>
+          <div className="card">
+            <strong>{summary.totalOther}</strong>
+            <p>Otros</p>
+          </div>
+        </div>
       ) : null}
 
       <div className="card-grid">
-        {availableEvents.map((event) => (
+        {events.map((event) => (
           <article key={event.eventId} className="card">
             <header style={{ marginBottom: '0.5rem' }}>
               <strong>{event.eventName}</strong>
-              <p style={{ margin: 0, color: '#475569' }}>
-                {event.clubName} - {new Date(event.startsAt).toLocaleString()}
+              <p style={{ margin: 0 }} className="text-muted">
+                {event.clubName}
               </p>
             </header>
             <div className="stats-row">
               <div>
-                <strong>{event.totalScanned}</strong>
-                <span>Total escaneados</span>
+                <strong>{event.total}</strong>
+                <span>Total</span>
               </div>
               <div>
                 <strong>{event.totalGeneral}</strong>
@@ -126,14 +148,14 @@ export function CutsPage() {
                   <th>General</th>
                   <th>VIP</th>
                   <th>Other</th>
-                  <th />
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
                 {event.rps.map((rp) => (
                   <tr key={rp.rpId}>
                     <td>{rp.rpName}</td>
-                    <td>{rp.totalScanned}</td>
+                    <td>{rp.total}</td>
                     <td>{rp.totalGeneral}</td>
                     <td>{rp.totalVip}</td>
                     <td>{rp.totalOther}</td>
@@ -155,18 +177,16 @@ export function CutsPage() {
           <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <h4 style={{ margin: 0 }}>Detalle por RP</h4>
-              <p style={{ margin: 0, color: '#475569' }}>
-                Evento seleccionado y escaneos en el rango actual.
+              <p style={{ margin: 0 }} className="text-muted">
+                Escaneos en el rango seleccionado.
               </p>
             </div>
-            <button type="button" onClick={() => setDetailSelection(null)}>
+            <button type="button" className="button--ghost" onClick={() => setDetailSelection(null)}>
               Cerrar
             </button>
           </header>
           {detailQuery.isLoading ? <p>Cargando detalle...</p> : null}
-          {detailQuery.error ? (
-            <p style={{ color: '#b91c1c' }}>No se pudo cargar el detalle seleccionado.</p>
-          ) : null}
+          {detailQuery.error ? <p className="text-danger">No se pudo cargar el detalle.</p> : null}
           {detailQuery.data ? (
             <table>
               <thead>
@@ -180,7 +200,7 @@ export function CutsPage() {
               </thead>
               <tbody>
                 {detailQuery.data.scans.map((scan) => (
-                  <tr key={scan.ticketId + scan.scannedAt}>
+                  <tr key={`${scan.ticketId}-${scan.scannedAt}`}>
                     <td>{scan.ticketId.slice(0, 6)}</td>
                     <td>
                       <span className="badge">{scan.displayLabel}</span>

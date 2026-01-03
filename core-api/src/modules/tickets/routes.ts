@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify'
+import { FastifyInstance, FastifyReply } from 'fastify'
 import { z } from 'zod'
 import { TicketType } from '@prisma/client'
 import { prisma } from '../../lib/prisma'
@@ -17,7 +17,7 @@ const ticketParamsSchema = z.object({
 })
 
 export async function registerTicketRoutes(app: FastifyInstance) {
-  app.post('/tickets', { preHandler: [app.authenticate, app.authorizeRp] }, async (request) => {
+  app.post('/tickets', { preHandler: [app.authenticate, app.authorizeRp] }, async (request, reply) => {
     const body = createTicketSchema.parse(request.body)
     const rpProfile = await prisma.rpProfile.findFirst({
       where: { userId: request.user!.userId, active: true },
@@ -66,10 +66,13 @@ export async function registerTicketRoutes(app: FastifyInstance) {
 
     generated += 1
 
+    reply.code(201)
+
     return {
       id: ticket.id,
       guestType: ticket.guestType,
       note: ticket.note,
+      status: ticket.status,
       event: {
         id: assignment.event.id,
         name: assignment.event.name,
@@ -82,39 +85,36 @@ export async function registerTicketRoutes(app: FastifyInstance) {
     }
   })
 
-  app.get(
-    '/tickets/:ticketId/image',
-    { preHandler: [app.authenticate, app.authorizeRp] },
-    async (request, reply) => {
-      const params = ticketParamsSchema.parse(request.params)
+  const sendTicketPng = async (ticketId: string, reply: FastifyReply) => {
+    const ticket = await prisma.ticket.findFirst({
+      where: { id: ticketId },
+      include: {
+        event: true,
+      },
+    })
 
-      const rpProfile = await prisma.rpProfile.findFirst({
-        where: { userId: request.user!.userId, active: true },
-      })
+    if (!ticket) {
+      throw app.httpErrors.notFound('Ticket no encontrado')
+    }
 
-      if (!rpProfile) {
-        throw app.httpErrors.forbidden('RP no autorizado o inactivo')
-      }
+    const pngBuffer = await buildTicketImage(ticket.qrToken, ticket.event)
 
-      const ticket = await prisma.ticket.findFirst({
-        where: { id: params.ticketId, rpId: rpProfile.id },
-        include: {
-          event: true,
-        },
-      })
+    reply
+      .header('Content-Type', 'image/png')
+      .header('Content-Disposition', `inline; filename="ticket-${ticket.id}.png"`)
+      .send(pngBuffer)
+  }
 
-      if (!ticket) {
-        throw app.httpErrors.notFound('Ticket no encontrado')
-      }
+  app.get('/tickets/:ticketId/png', async (request, reply) => {
+    const params = ticketParamsSchema.parse(request.params)
+    await sendTicketPng(params.ticketId, reply)
+  })
 
-      const pngBuffer = await buildTicketImage(ticket.qrToken, ticket.event)
-
-      reply
-        .header('Content-Type', 'image/png')
-        .header('Content-Disposition', `inline; filename="ticket-${ticket.id}.png"`)
-        .send(pngBuffer)
-    },
-  )
+  // Legacy alias until frontend actualiza consumos
+  app.get('/tickets/:ticketId/image', async (request, reply) => {
+    const params = ticketParamsSchema.parse(request.params)
+    await sendTicketPng(params.ticketId, reply)
+  })
 }
 
 async function buildTicketImage(
@@ -139,14 +139,25 @@ async function buildTicketImage(
 
 async function loadBaseImage(templateUrl: string | null) {
   if (templateUrl) {
-    try {
-      const response = await fetch(templateUrl)
-      if (response.ok) {
-        const arrayBuffer = await response.arrayBuffer()
-        return await Jimp.read(Buffer.from(arrayBuffer))
+    if (templateUrl.startsWith('data:')) {
+      const base64 = templateUrl.split(',')[1]
+      if (base64) {
+        try {
+          return await Jimp.read(Buffer.from(base64, 'base64'))
+        } catch {
+          // fallback to fetch/default below
+        }
       }
-    } catch {
-      // fallback to default background if fetch fails
+    } else {
+      try {
+        const response = await fetch(templateUrl)
+        if (response.ok) {
+          const arrayBuffer = await response.arrayBuffer()
+          return await Jimp.read(Buffer.from(arrayBuffer))
+        }
+      } catch {
+        // fallback to default background if fetch fails
+      }
     }
   }
 
