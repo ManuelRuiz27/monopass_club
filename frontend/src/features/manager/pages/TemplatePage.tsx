@@ -25,6 +25,14 @@ export function TemplatePage() {
   const pointerPositions = useRef(new Map<number, { x: number; y: number }>())
   const pinchState = useRef<{ distance: number; size: number } | null>(null)
 
+  const clampValue = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max)
+  const clampPosition = (value: number, size: number) => {
+    const half = size / 2
+    const min = clampValue(half, 0, 0.5)
+    const max = 1 - min
+    return clampValue(value, min, max)
+  }
+
   const selectedEvent = useMemo<EventDTO | undefined>(
     () => eventsQuery.data?.find((event) => event.id === selectedEventId),
     [eventsQuery.data, selectedEventId],
@@ -32,11 +40,12 @@ export function TemplatePage() {
 
   useEffect(() => {
     if (selectedEvent) {
+      const size = selectedEvent.qrSize ?? 0.35
       setTemplate({
         templateImageUrl: selectedEvent.templateImageUrl ?? '',
-        qrPositionX: selectedEvent.qrPositionX ?? 0.5,
-        qrPositionY: selectedEvent.qrPositionY ?? 0.5,
-        qrSize: selectedEvent.qrSize ?? 0.35,
+        qrPositionX: clampPosition(selectedEvent.qrPositionX ?? 0.5, size),
+        qrPositionY: clampPosition(selectedEvent.qrPositionY ?? 0.5, size),
+        qrSize: size,
       })
     } else {
       setTemplate(defaultTemplateState)
@@ -73,8 +82,6 @@ export function TemplatePage() {
     reader.readAsDataURL(file)
   }
 
-  const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max)
-
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     if (!selectedEventId || !canvasRef.current) return
     const rect = canvasRef.current.getBoundingClientRect()
@@ -105,14 +112,19 @@ export function TemplatePage() {
       const [first, second] = Array.from(pointerPositions.current.values())
       const distance = Math.hypot(second.x - first.x, second.y - first.y)
       const ratio = distance / pinchState.current.distance
-      const nextSize = clamp(pinchState.current.size * ratio, MIN_QR_SIZE, MAX_QR_SIZE)
-      setTemplate((prev) => ({ ...prev, qrSize: Number(nextSize.toFixed(3)) }))
+      const nextSize = clampValue(pinchState.current.size * ratio, MIN_QR_SIZE, MAX_QR_SIZE)
+      setTemplate((prev) => ({
+        ...prev,
+        qrSize: Number(nextSize.toFixed(3)),
+        qrPositionX: clampPosition(prev.qrPositionX, nextSize),
+        qrPositionY: clampPosition(prev.qrPositionY, nextSize),
+      }))
       return
     }
 
     if (!isDragging || dragPointerId.current !== event.pointerId) return
-    const nextX = clamp((event.clientX - rect.left) / rect.width, 0, 1)
-    const nextY = clamp((event.clientY - rect.top) / rect.height, 0, 1)
+    const nextX = clampPosition((event.clientX - rect.left) / rect.width, template.qrSize)
+    const nextY = clampPosition((event.clientY - rect.top) / rect.height, template.qrSize)
     setTemplate((prev) => ({ ...prev, qrPositionX: Number(nextX.toFixed(3)), qrPositionY: Number(nextY.toFixed(3)) }))
   }
 
@@ -176,7 +188,15 @@ export function TemplatePage() {
             max={MAX_QR_SIZE}
             step={0.01}
             value={template.qrSize}
-            onChange={(e) => setTemplate((prev) => ({ ...prev, qrSize: Number(e.target.value) }))}
+            onChange={(e) => {
+              const nextSize = Number(e.target.value)
+              setTemplate((prev) => ({
+                ...prev,
+                qrSize: nextSize,
+                qrPositionX: clampPosition(prev.qrPositionX, nextSize),
+                qrPositionY: clampPosition(prev.qrPositionY, nextSize),
+              }))
+            }}
             disabled={!selectedEventId}
           />
         </label>

@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyReply } from 'fastify'
 import { z } from 'zod'
 import { TicketType } from '@prisma/client'
 import { prisma } from '../../lib/prisma'
-import { createHash, randomUUID } from 'crypto'
+import { randomUUID } from 'crypto'
 import QRCode from 'qrcode'
 import { Jimp, JimpMime } from 'jimp'
 
@@ -50,11 +50,12 @@ export async function registerTicketRoutes(app: FastifyInstance) {
       throw app.httpErrors.conflict('Limite de accesos alcanzado')
     }
 
-    const qrToken = createHash('sha256').update(`${randomUUID()}-${Date.now()}`).digest('hex')
+    const ticketId = randomUUID()
+    const qrToken = ticketId
 
     const ticket = await prisma.ticket.create({
       data: {
-        id: randomUUID(),
+        id: ticketId,
         eventId: assignment.eventId,
         rpId: rpProfile.id,
         assignmentId: assignment.id,
@@ -190,9 +191,10 @@ function calculateQrPosition(
 
   const maxX = Math.max(base.width - qr.width, 0)
   const maxY = Math.max(base.height - qr.height, 0)
-
+  const centerX = base.width * ratioX
+  const centerY = base.height * ratioY
   return {
-    x: Math.round(maxX * ratioX),
-    y: Math.round(maxY * ratioY),
+    x: clamp(Math.round(centerX - qr.width / 2), 0, maxX),
+    y: clamp(Math.round(centerY - qr.height / 2), 0, maxY),
   }
 }

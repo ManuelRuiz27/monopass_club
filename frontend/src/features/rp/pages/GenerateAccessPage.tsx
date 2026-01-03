@@ -140,7 +140,11 @@ export function GenerateAccessPage() {
           <p className="text-danger">Limite alcanzado. Solicita mas accesos a tu gerente.</p>
         ) : null}
 
-        <button type="submit" disabled={!selectedAssignment || !selectedAssignment.eventActive || limitReached || mutation.isPending}>
+        <button
+          type="submit"
+          data-testid="generate-btn"
+          disabled={!selectedAssignment || !selectedAssignment.eventActive || limitReached || mutation.isPending}
+        >
           {mutation.isPending ? 'Generando...' : 'Generar ticket'}
         </button>
       </form>

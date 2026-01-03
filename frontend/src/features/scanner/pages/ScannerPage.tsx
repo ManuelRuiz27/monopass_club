@@ -10,8 +10,10 @@ export function ScannerPage() {
   const [isValidating, setIsValidating] = useState(false)
   const [isConfirming, setIsConfirming] = useState(false)
 
-  const canConfirm =
-    state.validation?.ticket && state.validation.valid && state.validation.ticket.status === 'PENDING' && !isConfirming
+  const showConfirm = Boolean(
+    state.validation?.ticket && state.validation.valid && state.validation.ticket.status === 'PENDING',
+  )
+  const canConfirm = showConfirm && !isConfirming
 
   const handleValidate = async () => {
     if (!qrToken.trim()) return
@@ -78,9 +80,11 @@ export function ScannerPage() {
         <button type="button" onClick={handleValidate} disabled={isValidating || !qrToken.trim()} data-testid="validate-btn">
           {isValidating ? 'Validando...' : 'Validar'}
         </button>
-        <button type="button" onClick={handleConfirm} disabled={!canConfirm} data-testid="confirm-btn">
-          {isConfirming ? 'Confirmando...' : 'Confirmar'}
-        </button>
+        {showConfirm ? (
+          <button type="button" onClick={handleConfirm} disabled={!canConfirm} data-testid="confirm-btn">
+            {isConfirming ? 'Confirmando...' : 'Confirmar'}
+          </button>
+        ) : null}
       </div>
 
       {state.error ? <p className="text-danger">{state.error}</p> : null}

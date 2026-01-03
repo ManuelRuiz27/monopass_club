@@ -22,9 +22,11 @@ test.describe('RP & Scanner Flow', () => {
     const eventName = fullEventLabel.split(' - ')[0]
 
     await rpPage.click('[data-testid="generate-btn"]')
-    const tokenLocator = rpPage.locator('[data-testid="ticket-token"]')
-    await expect(tokenLocator).toBeVisible()
-    const qrToken = (await tokenLocator.innerText()).trim()
+    const previewImage = rpPage.locator('[data-testid="ticket-preview"]')
+    await expect(previewImage).toBeVisible()
+    const previewSrc = await previewImage.getAttribute('src')
+    const tokenMatch = previewSrc?.match(/tickets\/([^/]+)\/png/i)
+    const qrToken = tokenMatch?.[1]?.trim() ?? ''
     expect(qrToken).not.toEqual('')
 
     // Scanner valida y confirma
