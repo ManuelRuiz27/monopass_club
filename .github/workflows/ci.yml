@@ -8,6 +8,23 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: monopass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/monopass?schema=public
     strategy:
       matrix:
         project: [core-api, scanner-service, frontend]
@@ -35,5 +52,14 @@ jobs:
       - name: Prisma generate
         if: matrix.project == 'core-api'
         run: npm run prisma:generate
+      - name: Prisma generate (scanner-service)
+        if: matrix.project == 'scanner-service'
+        run: npx prisma generate --schema ../core-api/prisma/schema.prisma
       - run: npm run lint
+      - name: Prisma migrate
+        if: matrix.project == 'core-api'
+        run: npm run prisma:migrate
+      - name: Prisma migrate (scanner-service)
+        if: matrix.project == 'scanner-service'
+        run: npx prisma migrate deploy --schema ../core-api/prisma/schema.prisma
       - run: npm run test
