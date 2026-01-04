@@ -21,6 +21,9 @@ jobs:
           node-version: 22
           cache: 'npm'
           cache-dependency-path: ${{ matrix.project }}/package-lock.json
+      - name: Clean node_modules and lockfile (npm optional deps workaround)
+        run: |
+          rm -rf node_modules package-lock.json
       - run: npm install
       - name: Prisma generate
         if: matrix.project == 'core-api'
