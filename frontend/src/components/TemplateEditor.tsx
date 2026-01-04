@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState } from 'react'
 
 const MIN_QR_SIZE = 0.1
 const MAX_QR_SIZE = 0.8
@@ -44,17 +44,7 @@ export function TemplateEditor({ initialConfig, onSave, onCancel, isSaving, even
     const pointerPositions = useRef(new Map<number, { x: number; y: number }>())
     const pinchState = useRef<{ distance: number; size: number } | null>(null)
 
-    useEffect(() => {
-        if (initialConfig) {
-            const size = initialConfig.qrSize ?? 0.35
-            setTemplate({
-                templateImageUrl: initialConfig.templateImageUrl ?? '',
-                qrPositionX: clampPosition(initialConfig.qrPositionX ?? 0.5, size),
-                qrPositionY: clampPosition(initialConfig.qrPositionY ?? 0.5, size),
-                qrSize: size,
-            })
-        }
-    }, [initialConfig])
+
 
     const handleImageUpload = (file: File | null) => {
         if (!file) return

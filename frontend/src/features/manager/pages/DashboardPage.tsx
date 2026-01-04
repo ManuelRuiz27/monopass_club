@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { managerApi } from '../api'
 
@@ -24,59 +25,68 @@ function useDashboardStats(): { data: DashboardStats | null; isLoading: boolean;
   const isLoading = eventsQuery.isLoading || rpsQuery.isLoading || scannersQuery.isLoading || cutsQuery.isLoading
   const error = eventsQuery.error || rpsQuery.error || scannersQuery.error || cutsQuery.error
 
-  if (isLoading || error) {
-    return { data: null, isLoading, error }
-  }
+  return useMemo(() => {
+    if (isLoading || error) {
+      return { data: null, isLoading, error }
+    }
 
-  const now = new Date()
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000)
+    const now = new Date()
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000)
 
-  const activeEventsToday =
-    eventsQuery.data?.filter((event) => {
-      const start = new Date(event.startsAt)
-      const end = new Date(event.endsAt)
-      return event.active && start < todayEnd && end > todayStart
-    }).length ?? 0
+    const activeEventsToday =
+      eventsQuery.data?.filter((event) => {
+        const start = new Date(event.startsAt)
+        const end = new Date(event.endsAt)
+        return event.active && start < todayEnd && end > todayStart
+      }).length ?? 0
 
-  const activeRps = rpsQuery.data?.filter((rp) => rp.active).length ?? 0
-  const activeScanners = scannersQuery.data?.filter((scanner) => scanner.active).length ?? 0
+    const activeRps = rpsQuery.data?.filter((rp) => rp.active).length ?? 0
+    const activeScanners = scannersQuery.data?.filter((scanner) => scanner.active).length ?? 0
 
-  // Top RPs calculation
-  const topRps = rpsQuery.data
-    ?.map((rp) => ({
-      name: rp.user.name,
-      Generated: rp.assignments.reduce((sum, a) => sum + a.usedAccesses, 0),
-      // Simulating attendance as aprox 60-80% of generated for this demo since we don't have per-rp scan data easily accessible
-      Attendance: Math.round(rp.assignments.reduce((sum, a) => sum + a.usedAccesses, 0) * (0.6 + Math.random() * 0.2)),
+    // Top RPs calculation
+    const topRps = rpsQuery.data
+      ?.map((rp) => ({
+        name: rp.user.name,
+        Generated: rp.assignments.reduce((sum, a) => sum + a.usedAccesses, 0),
+        // Simulating attendance as aprox 60-80% of generated for this demo
+        Attendance: Math.round(rp.assignments.reduce((sum, a) => sum + a.usedAccesses, 0) * 0.7),
+      }))
+      .sort((a, b) => b.Generated - a.Generated)
+      .slice(0, 5) ?? []
+
+    // Total tickets
+    const totalTicketsGenerated = topRps.reduce((sum, rp) => sum + rp.Generated, 0)
+    const totalTicketsScanned = cutsQuery.data?.total ?? 0
+
+    // Simulated Weekly Activity (last 7 days)
+    const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
+    const weeklyActivity = Array.from({ length: 7 }, (_, i) => ({
+      day: days[i],
+      value: 100 + i * 10, // Deterministic for now to avoid randomness lint error
     }))
-    .sort((a, b) => b.Generated - a.Generated)
-    .slice(0, 5) ?? []
 
-  // Total tickets
-  const totalTicketsGenerated = topRps.reduce((sum, rp) => sum + rp.Generated, 0) // Approximation using top RPs for demo
-  const totalTicketsScanned = cutsQuery.data?.total ?? 0
-
-  // Simulated Weekly Activity (last 7 days)
-  const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
-  const weeklyActivity = Array.from({ length: 7 }, (_, i) => ({
-    day: days[i],
-    value: Math.floor(Math.random() * 150) + 50, // Simulated data
-  }))
-
-  return {
-    data: {
-      activeEventsToday,
-      totalTicketsGenerated,
-      totalTicketsScanned,
-      activeRps,
-      activeScanners,
-      topRps,
-      weeklyActivity,
-    },
-    isLoading: false,
-    error: null,
-  }
+    return {
+      data: {
+        activeEventsToday,
+        totalTicketsGenerated,
+        totalTicketsScanned,
+        activeRps,
+        activeScanners,
+        topRps,
+        weeklyActivity,
+      },
+      isLoading: false,
+      error: null,
+    }
+  }, [
+    isLoading,
+    error,
+    eventsQuery.data,
+    rpsQuery.data,
+    scannersQuery.data,
+    cutsQuery.data,
+  ])
 }
 
 export function DashboardPage() {

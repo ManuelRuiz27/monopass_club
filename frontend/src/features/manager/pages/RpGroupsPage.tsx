@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { managerApi } from '../api'
+import { managerApi, type RpGroupDTO } from '../api'
 import { useToast } from '@/components/ToastProvider'
 import { Modal } from '@/components/Modal'
 
@@ -53,10 +53,10 @@ export function RpGroupsPage() {
         setIsModalOpen(true)
     }
 
-    const openEditModal = (group: any) => {
+    const openEditModal = (group: RpGroupDTO) => {
         setEditingGroupId(group.id)
         setGroupName(group.name)
-        setSelectedRpIds(new Set(group.members.map((m: any) => m.id)))
+        setSelectedRpIds(new Set(group.members.map((m) => m.id)))
         setIsModalOpen(true)
     }
 
