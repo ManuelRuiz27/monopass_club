@@ -24,7 +24,7 @@ jobs:
       - name: Clean node_modules and lockfile (npm optional deps workaround)
         run: |
           rm -rf node_modules package-lock.json
-      - run: npm install
+      - run: npm install --include=optional
       - name: Prisma generate
         if: matrix.project == 'core-api'
         run: npm run prisma:generate
