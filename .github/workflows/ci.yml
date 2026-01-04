@@ -25,6 +25,13 @@ jobs:
         run: |
           rm -rf node_modules package-lock.json
       - run: npm install --include=optional
+      - name: Ensure rollup native binary (npm optional deps workaround)
+        if: runner.os == 'Linux'
+        run: |
+          if [ -f node_modules/rollup/package.json ]; then
+            ROLLUP_VERSION=$(node -p "require('./node_modules/rollup/package.json').version")
+            npm install --no-save @rollup/rollup-linux-x64-gnu@${ROLLUP_VERSION}
+          fi
       - name: Prisma generate
         if: matrix.project == 'core-api'
         run: npm run prisma:generate
