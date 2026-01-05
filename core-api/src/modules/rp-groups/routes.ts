@@ -119,10 +119,10 @@ export async function registerRpGroupRoutes(app: FastifyInstance) {
             const updated = await prisma.rpGroup.update({
                 where: { id: params.groupId },
                 data: {
-                    name: body.name,
-                    members: body.memberIds ? {
-                        set: body.memberIds.map((id) => ({ id })),
-                    } : undefined,
+                    ...(body.name !== undefined ? { name: body.name } : {}),
+                    ...(body.memberIds !== undefined
+                        ? { members: { set: body.memberIds.map((id) => ({ id })) } }
+                        : {}),
                 },
                 include: { members: true },
             })

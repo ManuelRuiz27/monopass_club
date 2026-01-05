@@ -6,6 +6,8 @@ import { randomUUID } from 'crypto'
 import QRCode from 'qrcode'
 import { Jimp, JimpMime } from 'jimp'
 
+type JimpImage = Awaited<ReturnType<typeof Jimp.read>>
+
 const createTicketSchema = z.object({
   eventId: z.string().uuid(),
   guestType: z.nativeEnum(TicketType),
@@ -138,7 +140,7 @@ async function buildTicketImage(
   return baseImage.getBuffer(JimpMime.png)
 }
 
-async function loadBaseImage(templateUrl: string | null) {
+async function loadBaseImage(templateUrl: string | null): Promise<JimpImage> {
   if (templateUrl) {
     if (templateUrl.startsWith('data:')) {
       const base64 = templateUrl.split(',')[1]
@@ -162,10 +164,10 @@ async function loadBaseImage(templateUrl: string | null) {
     }
   }
 
-  return new Jimp({ width: 1024, height: 1024, color: 0x0f172aff })
+  return new Jimp({ width: 1024, height: 1024, color: 0x0f172aff }) as JimpImage
 }
 
-function calculateQrSize(image: Jimp, desiredSize: number | null) {
+function calculateQrSize(image: JimpImage, desiredSize: number | null) {
   const baseSize = Math.min(image.width, image.height)
 
   if (desiredSize && desiredSize > 0) {
@@ -179,8 +181,8 @@ function calculateQrSize(image: Jimp, desiredSize: number | null) {
 }
 
 function calculateQrPosition(
-  base: Jimp,
-  qr: Jimp,
+  base: JimpImage,
+  qr: JimpImage,
   relativeX: number | null,
   relativeY: number | null,
 ) {

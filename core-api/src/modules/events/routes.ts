@@ -250,9 +250,16 @@ export async function registerEventRoutes(app: FastifyInstance) {
 
       await ensureEventForManager(app, managerId, params.eventId)
 
+      const data = {
+        ...(body.templateImageUrl !== undefined ? { templateImageUrl: body.templateImageUrl } : {}),
+        ...(body.qrPositionX !== undefined ? { qrPositionX: body.qrPositionX } : {}),
+        ...(body.qrPositionY !== undefined ? { qrPositionY: body.qrPositionY } : {}),
+        ...(body.qrSize !== undefined ? { qrSize: body.qrSize } : {}),
+      }
+
       return prisma.event.update({
         where: { id: params.eventId },
-        data: body,
+        data,
       })
     },
   )

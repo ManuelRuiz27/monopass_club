@@ -65,9 +65,14 @@ export async function registerClubRoutes(app: FastifyInstance) {
       const body = updateClubSchema.parse(request.body ?? {})
 
       await ensureClubAccess(app, managerId, params.clubId)
+      const data = {
+        ...(body.name !== undefined ? { name: body.name } : {}),
+        ...(body.capacity !== undefined ? { capacity: body.capacity } : {}),
+        ...(body.active !== undefined ? { active: body.active } : {}),
+      }
       return prisma.club.update({
         where: { id: params.clubId },
-        data: body,
+        data,
       })
     },
   )

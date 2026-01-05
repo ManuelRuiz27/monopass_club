@@ -17,7 +17,7 @@
     "exactOptionalPropertyTypes": true,
     "strict": true,
     "jsx": "react-jsx",
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
@@ -33,6 +33,7 @@
     "node_modules",
     "dist",
     "prisma",
+    "src/**/*.test.ts",
     "*.config.ts"
   ]
 }

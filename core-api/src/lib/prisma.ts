@@ -7,9 +7,9 @@ if (!process.env.PRISMA_CLIENT_ENGINE_TYPE) {
   process.env.PRISMA_CLIENT_ENGINE_TYPE = 'library'
 }
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-})
+const pool = new Pool(
+  process.env.DATABASE_URL ? { connectionString: process.env.DATABASE_URL } : undefined,
+)
 
 const adapter = new PrismaPg(pool)
 export const prisma = new PrismaClient({ adapter })
