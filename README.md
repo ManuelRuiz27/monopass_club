@@ -35,6 +35,19 @@ Credenciales demo sembradas (`changeme123` como password):
 - `npm run dev -w scanner-service`
 - `npm run dev -w frontend`
 
+## Deploy Render + Supabase (sin Docker)
+Usa el blueprint `render.yaml` o configura el servicio manualmente con estos comandos:
+- Build: `npm install && npm run prisma:generate -w core-api && npm run build -w core-api`
+- Start: `npm run prisma:migrate -w core-api && npm run start -w core-api`
+
+Variables en Render:
+- `DATABASE_URL=postgresql://postgres:<password>@db.<ref>.supabase.co:5432/postgres?sslmode=require`
+- `JWT_SECRET=<min-16-chars>`
+- `CORE_API_BASE_URL=https://<tu-servicio>.onrender.com`
+- `SCANNER_API_BASE_URL=https://<tu-scanner>.onrender.com` (si aplica)
+
+Render provee `PORT`. Verifica `GET /health` luego del deploy.
+
 ## Storybook + pruebas
 Instala los navegadores una sola vez:
 ```bash
