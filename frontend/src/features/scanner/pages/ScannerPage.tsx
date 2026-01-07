@@ -18,6 +18,7 @@ export function ScannerPage() {
 
   const scannerRef = useRef<Html5QrcodeScanner | null>(null)
   const isProcessingRef = useRef(false) // To prevent double scans while processing
+  const isPausedRef = useRef(false) // Track if we explicitly paused the scanner
 
   // Audio refs for feedback (simple beep approach using browser Audio if available, or just visual)
   // implementing visual primarily as requested.
@@ -28,8 +29,16 @@ export function ScannerPage() {
     setTicketData(null)
     setQrToken('')
     isProcessingRef.current = false
-    if (scannerRef.current) {
-      scannerRef.current.resume()
+
+    if (scannerRef.current && isPausedRef.current) {
+      try {
+        scannerRef.current.resume()
+        isPausedRef.current = false
+      } catch (err) {
+        console.warn('Failed to resume scanner:', err)
+        // Ensure we reset the flag even if resume fails (e.g. if it wasn't paused really)
+        isPausedRef.current = false
+      }
     }
   }, [])
 
@@ -79,7 +88,12 @@ export function ScannerPage() {
     setStatus('VALIDATING')
     setFeedback({ message: 'Validando...', type: 'info' })
     if (scannerRef.current) {
-      scannerRef.current.pause()
+      try {
+        scannerRef.current.pause()
+        isPausedRef.current = true
+      } catch (err) {
+        console.warn('Failed to pause scanner:', err)
+      }
     }
 
     try {
@@ -160,6 +174,7 @@ export function ScannerPage() {
       scanner.clear().catch(error => {
         console.error("Failed to clear html5-qrcode scanner. ", error)
       })
+      scannerRef.current = null
     }
   }, [handleScan])
 

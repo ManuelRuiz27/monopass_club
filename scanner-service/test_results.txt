@@ -1,0 +1,27 @@
+﻿
+> scanner-service@0.1.0 test
+> vitest run
+
+
+[1m[46m RUN [49m[22m [36mv4.0.16 [39m[90mC:/Users/ruiz_/Music/monopass-club/scanner-service[39m
+
+[90mstdout[2m | src/server.test.ts
+[22m[39m[dotenv@17.2.3] injecting env (6) from .env -- tip: Γ£à audit secrets and track compliance: https://dotenvx.com/ops
+
+[90mstdout[2m | src/http/routes/scan.test.ts
+[22m[39m[dotenv@17.2.3] injecting env (6) from .env -- tip: ΓÜÖ∩╕Å  specify custom .env file path with { path: '/custom/path/.env' }
+
+{"level":30,"time":1767800488828,"pid":39392,"hostname":"Participacion","reqId":"req-1","req":{"method":"GET","url":"/health","host":"localhost:80","remoteAddress":"127.0.0.1"},"msg":"incoming request"}
+{"level":30,"time":1767800488833,"pid":39392,"hostname":"Participacion","reqId":"req-1","res":{"statusCode":200},"responseTime":3.7440998554229736,"msg":"request completed"}
+ [32mΓ£ô[39m src/server.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 55[2mms[22m[39m
+ [31mΓ¥»[39m src/http/routes/scan.test.ts [2m([22m[2m4 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[33m 9388[2mms[22m[39m
+[31m     [31m├ù[31m validate returns invalid when qr token no existe[39m[33m 2471[2mms[22m[39m
+[31m     [31m├ù[31m validate retorna ALREADY_SCANNED cuando el ticket ya tiene scan[39m[33m 2300[2mms[22m[39m
+[31m     [31m├ù[31m confirm marca ticket como SCANNED e impide reuso[39m[33m 2291[2mms[22m[39m
+[31m     [31m├ù[31m confirm responde igual cuando se reintenta con el mismo clientRequestId[39m[33m 2290[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (5)[39m
+[2m   Start at [22m 09:41:27
+[2m   Duration [22m 10.26s[2m (transform 233ms, setup 0ms, import 1.36s, tests 9.44s, environment 0ms)[22m
+
