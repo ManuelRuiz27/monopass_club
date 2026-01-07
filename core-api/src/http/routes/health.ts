@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify'
 import { prisma } from '../../lib/prisma'
+import { seedDatabase } from '../../lib/seeder'
 
 export async function registerHealthRoutes(app: FastifyInstance) {
   app.get('/health', async () => ({ status: 'ok', service: 'core-api' }))
@@ -22,5 +23,10 @@ export async function registerHealthRoutes(app: FastifyInstance) {
       },
       timestamp: new Date().toISOString(),
     }
+  })
+
+  app.post('/health/seed', async () => {
+    await seedDatabase(prisma)
+    return { status: 'seeded', message: 'Database seeded successfully' }
   })
 }
