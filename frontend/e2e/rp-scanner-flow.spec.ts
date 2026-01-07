@@ -86,14 +86,16 @@ test.describe('RP & Scanner Flow', () => {
 
     await scannerPage.fill('[data-testid="scanner-input"]', qrToken)
     await scannerPage.click('[data-testid="validate-btn"]')
-    await expect(scannerPage.locator('.scanner-result')).toContainText('Estado: Pendiente')
+    // Auto-confirm should happen for standard tickets
+    await expect(scannerPage.locator('.feedback-success')).toContainText('Acceso Permitido')
+    await expect(scannerPage.locator('.ticket-info')).toContainText('Estado: Escaneado')
 
-    await scannerPage.click('[data-testid="confirm-btn"]')
-    await expect(scannerPage.locator('.scanner-result')).toContainText('Estado: Escaneado')
+    // await scannerPage.click('[data-testid="confirm-btn"]') // Removed as it is now auto-confirm
+    // await expect(scannerPage.locator('.scanner-result')).toContainText('Estado: Escaneado')
 
     await scannerPage.fill('[data-testid="scanner-input"]', qrToken)
     await scannerPage.click('[data-testid="validate-btn"]')
-    await expect(scannerPage.locator('.scanner-result')).toContainText('Ya escaneado')
+    await expect(scannerPage.locator('.feedback-warning')).toContainText('Este ticket YA fue escaneado')
 
     // Manager revisa cortes
     const managerContext = await browser.newContext()
