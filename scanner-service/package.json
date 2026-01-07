@@ -9,7 +9,8 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "lint": "eslint \"src/**/*.ts\"",
-    "test": "vitest run"
+    "test": "vitest run",
+    "prisma:generate": "prisma generate"
   },
   "keywords": [
     "monopass",
@@ -26,6 +27,7 @@
     "@fastify/sensible": "^6.0.4",
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
+    "@types/pg": "^8.16.0",
     "dotenv": "^17.2.3",
     "fastify": "^5.6.2",
     "pg": "^8.16.3",

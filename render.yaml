@@ -16,3 +16,21 @@ services:
         sync: false
       - key: SCANNER_API_BASE_URL
         sync: false
+
+  - type: web
+    name: scanner-service
+    runtime: node
+    buildCommand: npm install && npm run prisma:generate -w scanner-service && npm run build -w scanner-service
+    startCommand: npm run start -w scanner-service
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORE_API_BASE_URL
+        sync: false
+      - key: SCANNER_API_KEY
+        sync: false

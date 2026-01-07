@@ -26,6 +26,14 @@ export async function seedDatabase(prismaInstance?: PrismaClient) {
     }
 
     try {
+        await prisma.ticketScan.deleteMany()
+        await prisma.ticket.deleteMany()
+        await prisma.eventRp.deleteMany()
+        await prisma.event.deleteMany()
+        await prisma.club.deleteMany()
+        await prisma.rpProfile.deleteMany()
+        await prisma.scannerProfile.deleteMany()
+        await prisma.managerSetting.deleteMany()
         await prisma.user.deleteMany()
 
         const managerId = randomUUID()
