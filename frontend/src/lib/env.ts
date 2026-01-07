@@ -9,9 +9,9 @@ const envSchema = z.object({
 const fallback =
   import.meta.env?.MODE === 'test'
     ? {
-        VITE_CORE_API_BASE_URL: 'http://localhost:4000',
-        VITE_SCANNER_API_BASE_URL: 'http://localhost:4100',
-      }
+      VITE_CORE_API_BASE_URL: 'http://localhost:4000',
+      VITE_SCANNER_API_BASE_URL: 'http://localhost:4100',
+    }
     : {}
 
 const parsed = envSchema.safeParse({
@@ -21,11 +21,13 @@ const parsed = envSchema.safeParse({
 
 if (!parsed.success) {
   console.error('Invalid Vite environment variables', parsed.error.flatten())
-  throw new Error('Env validation failed')
+  // No lanzamos error para evitar pantalla blanca, pero las peticiones fallarán.
 }
 
 export const appEnv = {
-  coreApiBaseUrl: parsed.data.VITE_CORE_API_BASE_URL,
-  scannerApiBaseUrl: parsed.data.VITE_SCANNER_API_BASE_URL,
-  publicCoreApiBaseUrl: parsed.data.VITE_PUBLIC_CORE_API_BASE_URL ?? parsed.data.VITE_CORE_API_BASE_URL,
+  coreApiBaseUrl: parsed.success ? parsed.data.VITE_CORE_API_BASE_URL : 'http://localhost:4000',
+  scannerApiBaseUrl: parsed.success ? parsed.data.VITE_SCANNER_API_BASE_URL : 'http://localhost:4100',
+  publicCoreApiBaseUrl: parsed.success
+    ? (parsed.data.VITE_PUBLIC_CORE_API_BASE_URL ?? parsed.data.VITE_CORE_API_BASE_URL)
+    : 'http://localhost:4000',
 }
