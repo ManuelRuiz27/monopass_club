@@ -1,9 +1,15 @@
-import type { ReactNode } from 'react'
+import { lazy, Suspense, type ReactNode } from 'react'
 import { Outlet } from 'react-router-dom'
 import type { RouteObject } from 'react-router-dom'
 import { PagePlaceholder } from '@/components/PagePlaceholder'
-import { GenerateAccessPage } from '@/features/rp/pages/GenerateAccessPage'
-import { HistoryPage } from '@/features/rp/pages/HistoryPage'
+
+const GenerateAccessPage = lazy(async () => ({ default: (await import('@/features/rp/pages/GenerateAccessPage')).GenerateAccessPage }))
+const HistoryPage = lazy(async () => ({ default: (await import('@/features/rp/pages/HistoryPage')).HistoryPage }))
+const ProfilePage = lazy(async () => ({ default: (await import('@/features/rp/pages/ProfilePage')).ProfilePage }))
+
+function lazyElement(node: ReactNode) {
+  return <Suspense fallback={<p>Cargando...</p>}>{node}</Suspense>
+}
 
 type Section = {
   label: string
@@ -16,12 +22,17 @@ type Section = {
 const sections: Section[] = [
   {
     label: 'Generar acceso',
-    element: <GenerateAccessPage />,
+    element: lazyElement(<GenerateAccessPage />),
   },
   {
     label: 'Historial',
     path: 'history',
-    element: <HistoryPage />,
+    element: lazyElement(<HistoryPage />),
+  },
+  {
+    label: 'Perfil',
+    path: 'profile',
+    element: lazyElement(<ProfilePage />),
   },
 ]
 
@@ -38,7 +49,6 @@ export const rpRoutes: RouteObject[] = sections.map((section) => {
   return section.path ? { path: section.path, element } : { index: true, element }
 })
 
-// Shell simplificado - navegación ahora está en AppShell
 export function RpShell() {
   return <Outlet />
 }

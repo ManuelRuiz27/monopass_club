@@ -20,7 +20,8 @@ export function LoginPage() {
       const destination = session.role === 'MANAGER' ? '/manager' : session.role === 'RP' ? '/rp' : '/scanner'
       navigate(destination, { replace: true })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error de autenticacion')
+      console.warn('Login failed', err)
+      setError('No se pudo iniciar sesion. Verifica usuario y contrasena.')
     } finally {
       setIsSubmitting(false)
     }
@@ -30,8 +31,7 @@ export function LoginPage() {
     <div className="auth-card">
       <h2>MonoPass Club</h2>
       <p className="text-muted">
-        Usa cualquiera de las credenciales demo segun el rol disponible: <strong>manager.demo</strong>,{' '}
-        <strong>rp.demo</strong> o <strong>scanner.demo</strong> (password <code>changeme123</code>).
+        Usa las credenciales de tu rol para ingresar.
       </p>
       <form onSubmit={handleSubmit} className="form-grid">
         <label>

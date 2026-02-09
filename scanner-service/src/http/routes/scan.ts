@@ -38,7 +38,7 @@ export type ConfirmResponse = {
 export async function registerScanRoutes(app: FastifyInstance) {
   app.post(
     '/scan/validate',
-    { preHandler: [app.authenticate] },
+    { preHandler: [app.authenticate, app.authorizeScanner] },
     async (request, reply) => {
       const { qrToken } = validateBodySchema.parse(request.body)
       const scanner = await resolveScannerProfile(app, request.user?.userId)
@@ -85,7 +85,7 @@ export async function registerScanRoutes(app: FastifyInstance) {
 
   app.post(
     '/scan/confirm',
-    { preHandler: [app.authenticate] },
+    { preHandler: [app.authenticate, app.authorizeScanner] },
     async (request, reply) => {
       const payload = confirmBodySchema.parse(request.body)
       const scanner = await resolveScannerProfile(app, request.user?.userId)

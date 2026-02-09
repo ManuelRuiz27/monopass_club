@@ -9,7 +9,7 @@ test.describe('Authentication', () => {
     await page.click('button[type="submit"]')
 
     await expect(page).toHaveURL(/\/manager$/)
-    await expect(page.locator('.app-shell__sidebar')).toContainText('MonoPass Club')
+    await expect(page.locator('.app-brand')).toContainText('MonoPass')
   })
 
   test('FE-AUTH-002: Login failure stays on form', async ({ page }) => {
@@ -20,6 +20,6 @@ test.describe('Authentication', () => {
     await page.click('button[type="submit"]')
 
     await expect(page).toHaveURL(/\/login/)
-    await expect(page.locator('text=Usuario o contrasena invalidos')).toBeVisible()
+    await expect(page.locator('text=No se pudo iniciar sesion. Verifica usuario y contrasena.')).toBeVisible()
   })
 })

@@ -17,52 +17,81 @@ export class HttpClient {
     this.baseUrl = baseUrl
   }
 
-  async request<T>(method: HttpMethod, path: string, options: RequestOptions = {}): Promise<T> {
+  private buildUrl(path: string, query?: RequestOptions['query']) {
     const url = new URL(path, this.baseUrl)
 
-    if (options.query) {
-      Object.entries(options.query).forEach(([key, value]) => {
+    if (query) {
+      Object.entries(query).forEach(([key, value]) => {
         if (value !== undefined) {
           url.searchParams.set(key, String(value))
         }
       })
     }
 
+    return url
+  }
+
+  private buildHeaders(options: RequestOptions, hasBody: boolean) {
     const accessToken = tokenStore.getAccessToken()
+    return {
+      ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      ...options.headers,
+    }
+  }
+
+  private async throwIfError(response: Response) {
+    if (response.ok) {
+      return
+    }
+
+    const errorText = await response.text()
+    let message = `Error ${response.status}`
+    try {
+      const parsed = errorText ? JSON.parse(errorText) : null
+      if (parsed && typeof parsed.message === 'string') {
+        message = parsed.message
+      } else if (errorText) {
+        message = errorText
+      }
+    } catch {
+      if (errorText) {
+        message = errorText
+      }
+    }
+
+    throw new Error(message || 'Ocurrio un error inesperado')
+  }
+
+  async request<T>(method: HttpMethod, path: string, options: RequestOptions = {}): Promise<T> {
+    const url = this.buildUrl(path, options.query)
+    const hasBody = Boolean(options.data)
     const response = await fetch(url, {
       method,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-        ...options.headers,
-      },
-      body: options.data ? JSON.stringify(options.data) : undefined,
+      headers: this.buildHeaders(options, hasBody),
+      body: hasBody ? JSON.stringify(options.data) : undefined,
       signal: options.signal,
     })
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      let message = `Error ${response.status}`
-      try {
-        const parsed = errorText ? JSON.parse(errorText) : null
-        if (parsed && typeof parsed.message === 'string') {
-          message = parsed.message
-        } else if (errorText) {
-          message = errorText
-        }
-      } catch {
-        if (errorText) {
-          message = errorText
-        }
-      }
-      throw new Error(message || 'Ocurrio un error inesperado')
-    }
+    await this.throwIfError(response)
 
     if (response.status === 204) {
       return undefined as T
     }
 
     return (await response.json()) as T
+  }
+
+  async getBlob(path: string, options: Omit<RequestOptions, 'data'> = {}) {
+    const url = this.buildUrl(path, options.query)
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: this.buildHeaders(options, false),
+      signal: options.signal,
+    })
+
+    await this.throwIfError(response)
+    return response.blob()
   }
 
   get<T>(path: string, options?: RequestOptions) {

@@ -1,5 +1,4 @@
 ﻿import { coreHttpClient } from '@/lib/httpClient'
-import { appEnv } from '@/lib/env'
 
 export type GuestType = 'GENERAL' | 'VIP' | 'OTHER'
 
@@ -72,5 +71,5 @@ export const rpApi = {
     coreHttpClient.get<TicketHistoryResponse>('/rp/tickets/history', {
       query: { guestType },
     }),
-  getTicketImageUrl: (ticketId: string) => `${appEnv.publicCoreApiBaseUrl}/tickets/${ticketId}/png`,
+  getTicketImage: (ticketId: string) => coreHttpClient.getBlob(`/tickets/${ticketId}/png`),
 }

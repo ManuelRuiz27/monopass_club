@@ -6,6 +6,11 @@ dotenv.config()
 const envSchema = z.object({
   DATABASE_URL: z.string().url(),
   JWT_SECRET: z.string().min(16),
+  JWT_EXPIRES_IN: z.string().default('12h'),
+  ENABLE_HEALTH_SEED: z
+    .string()
+    .optional()
+    .transform((value) => value?.toLowerCase() === 'true'),
   PORT: z.coerce.number().default(4000),
 })
 

@@ -11,19 +11,18 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(4100),
 })
 
-const fallbackTestEnv: Partial<z.infer<typeof envSchema>> =
+const rawEnv =
   process.env.NODE_ENV === 'test'
     ? {
-        CORE_API_BASE_URL: 'http://localhost:4000',
-        SCANNER_API_KEY: 'test-api-key-123',
-        DATABASE_URL: process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/monopass?schema=public',
+        ...process.env,
+        CORE_API_BASE_URL: process.env.CORE_API_BASE_URL ?? 'http://localhost:4000',
+        SCANNER_API_KEY: process.env.SCANNER_API_KEY ?? 'test-api-key-123',
+        JWT_SECRET: process.env.JWT_SECRET ?? process.env.SCANNER_API_KEY ?? 'test-api-key-123',
+        DATABASE_URL: process.env.TEST_DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/monopass?schema=public',
       }
-    : {}
+    : process.env
 
-const parsed = envSchema.safeParse({
-  ...fallbackTestEnv,
-  ...process.env,
-})
+const parsed = envSchema.safeParse(rawEnv)
 
 if (!parsed.success) {
   console.error('Invalid environment variables', parsed.error.flatten())

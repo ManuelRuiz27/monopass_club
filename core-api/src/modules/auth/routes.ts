@@ -4,6 +4,7 @@ import { prisma } from '../../lib/prisma'
 import { verifyPassword } from '../../lib/password'
 import { UserRole } from '@prisma/client'
 import { randomUUID } from 'crypto'
+import { env } from '../../config/env'
 
 const loginBodySchema = z.object({
   username: z.string().min(3),
@@ -40,7 +41,7 @@ export async function registerAuthRoutes(app: FastifyInstance) {
       })
     }
 
-    const token = app.jwt.sign({ userId: user.id, role: user.role })
+    const token = app.jwt.sign({ userId: user.id, role: user.role }, { expiresIn: env.JWT_EXPIRES_IN })
 
     reply.send({ token, userId: user.id, role: user.role })
   })

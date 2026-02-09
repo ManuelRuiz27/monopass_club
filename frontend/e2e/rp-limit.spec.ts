@@ -57,22 +57,15 @@ test.describe('RP Limit', () => {
     await rpPage.click('button[type="submit"]')
     await expect(rpPage).toHaveURL(/\/rp$/)
 
-    await rpPage.click('a:has-text("Generar acceso")')
-    const eventSelect = rpPage.locator('select').first()
-    await expect(eventSelect).toBeVisible()
+    const eventCard = rpPage.locator('.event-select-card').filter({ hasText: eventName }).first()
+    await expect(eventCard).toBeVisible()
+    await eventCard.click()
 
-    const option = eventSelect.locator(`option:has-text("${eventName}")`)
-    await expect(option).toHaveCount(1)
-    const assignmentId = await option.getAttribute('value')
-    if (!assignmentId) {
-      throw new Error('No se encontro el assignmentId del evento de limite')
-    }
-
-    await eventSelect.selectOption(assignmentId)
-    await rpPage.click('[data-testid="generate-btn"]')
+    const generateButton = rpPage.getByRole('button', { name: /generar acceso/i })
+    await generateButton.click()
     await expect(rpPage.locator('[data-testid="ticket-preview"]')).toBeVisible()
-    await expect(rpPage.getByText('Limite alcanzado')).toBeVisible()
-    await expect(rpPage.getByTestId('generate-btn')).toBeDisabled()
+    await expect(rpPage.getByText(/l[ií]mite de accesos/i)).toBeVisible()
+    await expect(generateButton).toBeDisabled()
 
     await rpContext.close()
   })

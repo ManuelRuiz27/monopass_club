@@ -1,0 +1,301 @@
+
+# PassMonkey – Actualización UI/UX (RP · Gerente · Director)
+
+## 1. Contexto general
+
+Este documento define **todas las actualizaciones y lineamientos de UI/UX** para PassMonkey (MonoPass Club),
+con el objetivo de que un **diseñador UI/UX pueda crear maquetas en Figma sin ambigüedades**.
+
+El sistema se utiliza en **ambientes nocturnos**, con usuarios bajo presión de tiempo y luz baja.
+La experiencia debe ser **fluida, clara y visualmente coherente con la esencia PassMonkey**.
+
+---
+
+## 2. Principios globales de diseño
+
+- Mobile-first obligatorio para RP
+- Desktop-first para Gerente y Director
+- Fondos oscuros, alto contraste
+- Feedback visual inmediato (success / error / loading)
+- Ningún rol debe ver funciones que no le correspondan
+- Todo componente debe ser reusable (design system)
+
+---
+
+## 3. Identidad visual PassMonkey
+
+### Paleta base
+
+- Fondo principal: oscuro (night mode permanente)
+- Color primario: verde PassMonkey
+- Color acento: dorado (uso exclusivo para VIP)
+- Estados:
+  - Success: verde
+  - Error: rojo
+  - Warning: ámbar
+
+### Tipografía
+
+- Sans-serif moderna (Inter / SF Pro / similar)
+- Jerarquía clara:
+  - Títulos grandes para RP
+  - Textos más densos y compactos para gerente/director
+
+---
+
+## 4. Rol RP (18–27 años)
+
+### Objetivo del RP
+
+- Generar accesos
+- Compartir accesos
+- Ver estado de sus invitados
+
+Nada más.
+
+### Navegación
+
+- Bottom navigation (máx. 3 ítems):
+  1. Generar acceso (home)
+  2. Eventos / Historial
+  3. Perfil
+
+### Pantallas a diseñar (mobile)
+
+#### RP · Home / Generar acceso
+
+Componentes:
+- Selector de evento asignado (card grande)
+- Selector de tipo de invitado (cards):
+  - General
+  - VIP (visual dorado)
+  - Otro
+- Campo opcional: Nota logística
+- Botón principal grande: “Generar acceso”
+
+UX:
+- Esta es la pantalla inicial
+- Sin métricas
+- Sin tablas
+- Sin dashboard
+
+---
+
+#### RP · QR generado
+
+Componentes:
+- QR centrado y grande
+- Fondo con blur del flyer
+- Botones:
+  - Enviar por WhatsApp
+  - Copiar enlace
+- Botón volver
+
+UX:
+- Animación de éxito
+- Feedback visual claro
+
+---
+
+#### RP · Historial
+
+Componentes:
+- Lista tipo cards
+- Cada card muestra:
+  - Tipo de acceso
+  - Estado:
+    - Pendiente
+    - Escaneado
+- Filtros rápidos por tipo
+
+UX:
+- Scroll infinito
+- Reenvío rápido del acceso
+
+---
+
+#### RP · Perfil
+
+Contenido mínimo:
+- Nombre
+- Evento asignado
+- Cerrar sesión
+
+---
+
+## 5. Rol Gerente (35–50 años)
+
+### Objetivo del Gerente
+
+- Administrar clubes y eventos
+- Administrar RPs y scanners
+- Ver cortes de accesos
+
+### Navegación
+
+- Sidebar izquierda (desktop)
+- Secciones:
+  - Dashboard
+  - Clubs
+  - Eventos
+  - RPs
+  - Scanner
+  - Plantilla
+  - Cortes
+  - Configuración
+
+---
+
+### Pantallas a diseñar (desktop/tablet)
+
+#### Gerente · Dashboard
+
+Componentes:
+- Cards KPI:
+  - Eventos activos
+  - Accesos hoy
+  - VIP vs General
+- Accesos rápidos a:
+  - Eventos
+  - Cortes
+
+UX:
+- Información resumida
+- Sin gráficas complejas
+
+---
+
+#### Gerente · Gestión de RPs
+
+Componentes:
+- Tabla simple:
+  - Nombre
+  - Estado
+  - Evento
+  - Total accesos
+- Botón “Crear RP”
+- Drawer lateral para crear/editar
+
+UX:
+- Confirmación para acciones críticas
+- Filtros por evento y estado
+
+---
+
+#### Gerente · Eventos
+
+Componentes:
+- Lista de eventos
+- Estado (activo / cerrado)
+- Asignación de RPs
+
+UX:
+- Eventos cerrados solo lectura
+
+---
+
+#### Gerente · Editor de plantilla
+
+Componentes:
+- Canvas central
+- Imagen base del acceso
+- QR draggable y escalable
+- Botones:
+  - Guardar
+  - Reset
+
+UX:
+- Preview en tiempo real
+- El QR no puede salir del canvas
+
+---
+
+#### Gerente · Cortes
+
+Componentes:
+- Filtros:
+  - Evento
+  - RP
+  - Rango de fechas
+- Totales:
+  - General
+  - VIP
+  - Otro
+
+UX:
+- Datos claros
+- Opción exportar (futuro)
+
+---
+
+## 6. Rol Director
+
+### Objetivo del Director
+
+- Visión global
+- Análisis
+- Toma de decisiones
+
+### Pantallas a diseñar
+
+#### Director · Dashboard Global
+
+Componentes:
+- KPIs agregados:
+  - Total eventos
+  - Total accesos
+  - % escaneados
+- Gráficas simples de tendencia
+- Ranking de RPs
+
+UX:
+- Muy visual
+- Poco texto
+- Todo filtrable por club y fecha
+
+---
+
+## 7. User Flows obligatorios
+
+El diseñador debe incluir flujos visuales:
+
+- RP → Generar acceso → Compartir → Invitado entra
+- Gerente → Crear evento → Asignar RP → Ver corte
+- Scanner → Escanear → Confirmar
+
+---
+
+## 8. Reglas UX transversales
+
+- Estados obligatorios:
+  - Loading
+  - Success
+  - Error
+- Botones deshabilitados durante requests
+- No doble submit
+- Feedback inmediato
+- Nada de mensajes técnicos
+
+---
+
+## 9. Entregables esperados del diseñador
+
+- Archivo Figma con:
+  - Design system
+  - Componentes
+  - Frames por rol
+  - Prototipos básicos
+- Mobile (RP) y Desktop (Gerente / Director)
+- Nombres claros de frames y componentes
+
+---
+
+## 10. Nota final
+
+Este documento es **la fuente de verdad de UI/UX**.
+Cualquier desviación debe validarse antes de diseño final.
+
+PassMonkey debe sentirse:
+- Rápido para RP
+- Claro para gerente
+- Estratégico para director

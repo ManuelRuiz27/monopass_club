@@ -222,6 +222,7 @@ describe.sequential('RP portal endpoints', () => {
 
     const imageResponse = await request(app.server)
       .get(`/tickets/${createResponse.body.id}/png`)
+      .set('Authorization', `Bearer ${token}`)
       .buffer(true)
       .parse(binaryParser)
 
@@ -230,6 +231,29 @@ describe.sequential('RP portal endpoints', () => {
     expect(image.bitmap.width).toBe(580)
     expect(image.bitmap.height).toBe(260)
     expect(image.getPixelColor(5, 5)).toBe(templateReferenceColor)
+  })
+
+  test('GET /tickets/:id/png bloquea acceso a tickets de otro RP', async () => {
+    const manager = await createManager()
+    const rpOwner = await createRp(manager.id)
+    const rpOther = await createRp(manager.id)
+    const { event } = await createEventWithAssignment(manager.id, rpOwner.profile.id, null)
+
+    const createResponse = await request(app.server)
+      .post('/tickets')
+      .set('Authorization', `Bearer ${rpOwner.token}`)
+      .send({
+        eventId: event.id,
+        guestType: TicketType.GENERAL,
+      })
+
+    expect(createResponse.status).toBe(201)
+
+    const forbiddenResponse = await request(app.server)
+      .get(`/tickets/${createResponse.body.id}/png`)
+      .set('Authorization', `Bearer ${rpOther.token}`)
+
+    expect(forbiddenResponse.status).toBe(404)
   })
 
   function binaryParser(res: NodeJS.ReadableStream, callback: (err: Error | null, data?: Buffer) => void) {

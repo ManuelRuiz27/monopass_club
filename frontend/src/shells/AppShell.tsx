@@ -2,26 +2,28 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '@/features/auth/AuthContext'
 import type { UserRole } from '@/features/auth/AuthContext'
 
-// Navegación completa por rol - ahora incluye todas las secciones en un solo lugar
 const navByRole: Record<UserRole, Array<{ to: string; label: string; icon: string }>> = {
   MANAGER: [
-    { to: '/manager', label: 'Dashboard', icon: '📊' },
-    { to: '/manager/team', label: 'Equipo', icon: '👥' }, // Lleva a TeamLayout (default Rps)
-    { to: '/manager/events', label: 'Eventos', icon: '📅' },
-    { to: '/manager/cuts', label: 'Cortes', icon: '💰' },
+    { to: '/manager', label: 'Dashboard', icon: 'dashboard' },
+    { to: '/manager/team', label: 'Equipo', icon: 'groups' },
+    { to: '/manager/events', label: 'Eventos', icon: 'event' },
+    { to: '/manager/cuts', label: 'Cortes', icon: 'monitoring' },
   ],
   RP: [
-    { to: '/rp', label: 'Eventos', icon: '🎫' },
-    { to: '/rp/history', label: 'Historial', icon: '📋' },
+    { to: '/rp', label: 'Generar', icon: 'qr_code' },
+    { to: '/rp/history', label: 'Historial', icon: 'history' },
+    { to: '/rp/profile', label: 'Perfil', icon: 'person' },
   ],
   SCANNER: [
-    { to: '/scanner', label: 'Escanear', icon: '📷' },
+    { to: '/scanner', label: 'Escanear', icon: 'qr_code_scanner' },
+    { to: '/scanner/cuts', label: 'Cortes', icon: 'analytics' },
   ],
 }
 
 const secondaryNav: Record<UserRole, Array<{ to: string; label: string; icon: string }>> = {
   MANAGER: [
-    { to: '/manager/settings', label: 'Config', icon: '⚙️' },
+    { to: '/manager/template', label: 'Plantilla', icon: 'image' },
+    { to: '/manager/settings', label: 'Config', icon: 'settings' },
   ],
   RP: [],
   SCANNER: [],
@@ -35,7 +37,6 @@ export function AppShell() {
 
   return (
     <div className="app-shell-unified">
-      {/* Header */}
       <header className="app-header">
         <h1 className="app-brand">MonoPass</h1>
         <div className="app-user">
@@ -46,7 +47,6 @@ export function AppShell() {
         </div>
       </header>
 
-      {/* Navegación (sticky en desktop, fixed bottom en móvil) */}
       <nav className="app-bottom-nav">
         {navItems.map((item) => (
           <NavLink
@@ -55,7 +55,9 @@ export function AppShell() {
             end={item.to === '/manager' || item.to === '/rp' || item.to === '/scanner'}
             className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}
           >
-            <span className="bottom-nav-icon">{item.icon}</span>
+            <span className="material-symbols-outlined bottom-nav-icon" aria-hidden="true">
+              {item.icon}
+            </span>
             <span className="bottom-nav-label">{item.label}</span>
           </NavLink>
         ))}
@@ -65,13 +67,14 @@ export function AppShell() {
             to={item.to}
             className={({ isActive }) => `bottom-nav-item bottom-nav-item--secondary ${isActive ? 'active' : ''}`}
           >
-            <span className="bottom-nav-icon">{item.icon}</span>
+            <span className="material-symbols-outlined bottom-nav-icon" aria-hidden="true">
+              {item.icon}
+            </span>
             <span className="bottom-nav-label">{item.label}</span>
           </NavLink>
         ))}
       </nav>
 
-      {/* Contenido principal */}
       <main className="app-main">
         <Outlet />
       </main>

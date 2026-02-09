@@ -1,4 +1,4 @@
-import { FastifyInstance, FastifyReply } from 'fastify'
+import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
 import { TicketType } from '@prisma/client'
 import { prisma } from '../../lib/prisma'
@@ -88,9 +88,21 @@ export async function registerTicketRoutes(app: FastifyInstance) {
     }
   })
 
-  const sendTicketPng = async (ticketId: string, reply: FastifyReply) => {
+  const sendTicketPng = async (ticketId: string, request: FastifyRequest, reply: FastifyReply) => {
+    const rpProfile = await prisma.rpProfile.findFirst({
+      where: { userId: request.user!.userId, active: true },
+      select: { id: true },
+    })
+
+    if (!rpProfile) {
+      throw app.httpErrors.forbidden('RP no autorizado o inactivo')
+    }
+
     const ticket = await prisma.ticket.findFirst({
-      where: { id: ticketId },
+      where: {
+        id: ticketId,
+        rpId: rpProfile.id,
+      },
       include: {
         event: true,
       },
@@ -108,15 +120,15 @@ export async function registerTicketRoutes(app: FastifyInstance) {
       .send(pngBuffer)
   }
 
-  app.get('/tickets/:ticketId/png', async (request, reply) => {
+  app.get('/tickets/:ticketId/png', { preHandler: [app.authenticate, app.authorizeRp] }, async (request, reply) => {
     const params = ticketParamsSchema.parse(request.params)
-    await sendTicketPng(params.ticketId, reply)
+    await sendTicketPng(params.ticketId, request, reply)
   })
 
   // Legacy alias until frontend actualiza consumos
-  app.get('/tickets/:ticketId/image', async (request, reply) => {
+  app.get('/tickets/:ticketId/image', { preHandler: [app.authenticate, app.authorizeRp] }, async (request, reply) => {
     const params = ticketParamsSchema.parse(request.params)
-    await sendTicketPng(params.ticketId, reply)
+    await sendTicketPng(params.ticketId, request, reply)
   })
 }
 

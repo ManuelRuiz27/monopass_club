@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRpAssignments } from '../hooks'
@@ -11,27 +11,60 @@ export function GenerateAccessPage() {
   const { data, isLoading, error } = useRpAssignments()
   const queryClient = useQueryClient()
 
-  // Vista: null = lista de eventos, assignment = generando para ese evento
   const [activeEvent, setActiveEvent] = useState<RpEventAssignment | null>(null)
   const [guestType, setGuestType] = useState<GuestType>('GENERAL')
   const [note, setNote] = useState('')
   const [lastTicketId, setLastTicketId] = useState<string | null>(null)
   const [lastGuestType, setLastGuestType] = useState<GuestType>('GENERAL')
   const [shareCopy, setShareCopy] = useState('')
-  const [previewNonce, setPreviewNonce] = useState(0)
+  const [ticketImageUrl, setTicketImageUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (ticketImageUrl) {
+        URL.revokeObjectURL(ticketImageUrl)
+      }
+    }
+  }, [ticketImageUrl])
 
   const mutation = useMutation({
     mutationFn: rpApi.createTicket,
-    onSuccess: (ticket) => {
+    onSuccess: async (ticket) => {
       setLastTicketId(ticket.id)
       setLastGuestType(ticket.guestType)
       setShareCopy(`Acceso ${ticket.guestType} generado para ${ticket.event.name} (${new Date(ticket.event.startsAt).toLocaleDateString()}).`)
-      setPreviewNonce(Date.now())
       toast.showToast({ title: 'Acceso generado', variant: 'success' })
       queryClient.invalidateQueries({ queryKey: ['rp-events'] })
+
+      try {
+        const ticketImage = await rpApi.getTicketImage(ticket.id)
+        const nextUrl = URL.createObjectURL(ticketImage)
+        setTicketImageUrl((previous) => {
+          if (previous) {
+            URL.revokeObjectURL(previous)
+          }
+          return nextUrl
+        })
+      } catch (error) {
+        setTicketImageUrl((previous) => {
+          if (previous) {
+            URL.revokeObjectURL(previous)
+          }
+          return null
+        })
+        toast.showToast({
+          title: 'Ticket generado sin vista previa',
+          description: error instanceof Error ? error.message : undefined,
+          variant: 'info',
+        })
+      }
     },
-    onError: (err: unknown) => {
-      toast.showToast({ title: 'No se pudo generar el acceso', description: err instanceof Error ? err.message : undefined, variant: 'error' })
+    onError: (error: unknown) => {
+      toast.showToast({
+        title: 'No se pudo generar el acceso',
+        description: error instanceof Error ? error.message : undefined,
+        variant: 'error',
+      })
     },
   })
 
@@ -44,16 +77,14 @@ export function GenerateAccessPage() {
     [data?.otherLabel],
   )
 
-  // Solo eventos activos
   const activeEvents = useMemo(() => {
     if (!data) return []
-    return data.events.filter((e) => e.eventActive)
+    return data.events.filter((event) => event.eventActive)
   }, [data])
 
-  // Actualizar el evento activo con datos frescos
   const currentEventData = useMemo(() => {
     if (!activeEvent || !data) return null
-    return data.events.find((e) => e.assignmentId === activeEvent.assignmentId) ?? null
+    return data.events.find((event) => event.assignmentId === activeEvent.assignmentId) ?? null
   }, [activeEvent, data])
 
   if (isLoading) {
@@ -102,15 +133,18 @@ export function GenerateAccessPage() {
     setActiveEvent(null)
     setLastTicketId(null)
     setNote('')
+    setTicketImageUrl((previous) => {
+      if (previous) {
+        URL.revokeObjectURL(previous)
+      }
+      return null
+    })
   }
 
-  const previewUrl = lastTicketId ? `${rpApi.getTicketImageUrl(lastTicketId)}?t=${previewNonce}` : null
-  const shareUrl = lastTicketId
-    ? `https://wa.me/?text=${encodeURIComponent(`${shareCopy} ${rpApi.getTicketImageUrl(lastTicketId)}`)}`
-    : null
+  const previewUrl = ticketImageUrl
+  const shareUrl = lastTicketId ? `https://wa.me/?text=${encodeURIComponent(`${shareCopy} Codigo: ${lastTicketId}`)}` : null
   const limitReached = currentEventData?.remainingAccesses === 0
 
-  // === VISTA: Lista de eventos ===
   if (!activeEvent) {
     return (
       <div>
@@ -134,7 +168,8 @@ export function GenerateAccessPage() {
                 </p>
               </header>
               <p style={{ margin: '0.5rem 0', fontSize: '0.9rem' }}>
-                📅 {new Date(event.startsAt).toLocaleDateString()} • {new Date(event.startsAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {new Date(event.startsAt).toLocaleDateString()} ·{' '}
+                {new Date(event.startsAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </p>
               <div className="stats-row" style={{ margin: '0.75rem 0', padding: '0.5rem 0' }}>
                 <div>
@@ -142,21 +177,23 @@ export function GenerateAccessPage() {
                   <span>Generados</span>
                 </div>
                 <div>
-                  <strong>{event.remainingAccesses ?? '∞'}</strong>
+                  <strong>{event.remainingAccesses ?? 'Sin limite'}</strong>
                   <span>Restantes</span>
                 </div>
                 <div>
-                  <strong>{event.limitAccesses ?? '∞'}</strong>
-                  <span>Límite</span>
+                  <strong>{event.limitAccesses ?? 'Sin limite'}</strong>
+                  <span>Limite</span>
                 </div>
               </div>
               <div className="badge-group" style={{ marginTop: '0.5rem' }}>
                 <span className="badge">General: {event.guestTypeCounts.GENERAL}</span>
                 <span className="badge">VIP: {event.guestTypeCounts.VIP}</span>
-                <span className="badge">{data.otherLabel}: {event.guestTypeCounts.OTHER}</span>
+                <span className="badge">
+                  {data.otherLabel}: {event.guestTypeCounts.OTHER}
+                </span>
               </div>
               <p className="text-muted" style={{ margin: '0.75rem 0 0', fontSize: '0.8rem', textAlign: 'center' }}>
-                Toca para generar →
+                Toca para generar
               </p>
             </article>
           ))}
@@ -165,16 +202,10 @@ export function GenerateAccessPage() {
     )
   }
 
-  // === VISTA: Generación de acceso ===
   return (
     <div>
-      <button
-        type="button"
-        className="button--ghost"
-        onClick={handleBackToEvents}
-        style={{ marginBottom: '1rem' }}
-      >
-        ← Volver a eventos
+      <button type="button" className="button--ghost" onClick={handleBackToEvents} style={{ marginBottom: '1rem' }}>
+        Volver a eventos
       </button>
 
       <article className="card" style={{ marginBottom: '1rem' }}>
@@ -182,7 +213,7 @@ export function GenerateAccessPage() {
           <div>
             <h4 style={{ margin: 0 }}>{currentEventData?.eventName}</h4>
             <p style={{ margin: 0 }} className="text-muted">
-              {currentEventData?.clubName} • {new Date(currentEventData?.startsAt ?? '').toLocaleString()}
+              {currentEventData?.clubName} · {new Date(currentEventData?.startsAt ?? '').toLocaleString()}
             </p>
           </div>
           <span className="badge badge--success">Activo</span>
@@ -193,12 +224,12 @@ export function GenerateAccessPage() {
             <span>Generados</span>
           </div>
           <div>
-            <strong>{currentEventData?.remainingAccesses ?? '∞'}</strong>
+            <strong>{currentEventData?.remainingAccesses ?? 'Sin limite'}</strong>
             <span>Restantes</span>
           </div>
           <div>
-            <strong>{currentEventData?.limitAccesses ?? 'Sin límite'}</strong>
-            <span>Límite</span>
+            <strong>{currentEventData?.limitAccesses ?? 'Sin limite'}</strong>
+            <span>Limite</span>
           </div>
         </div>
       </article>
@@ -209,15 +240,15 @@ export function GenerateAccessPage() {
             Tipo de invitado
           </span>
           <div className="badge-group">
-            {guestOptions.map((opt) => (
+            {guestOptions.map((option) => (
               <button
-                key={opt.value}
+                key={option.value}
                 type="button"
-                className={guestType === opt.value ? '' : 'button--ghost'}
-                onClick={() => setGuestType(opt.value)}
+                className={guestType === option.value ? '' : 'button--ghost'}
+                onClick={() => setGuestType(option.value)}
                 style={{ padding: '0.5rem 1rem' }}
               >
-                {opt.label}
+                {option.label}
               </button>
             ))}
           </div>
@@ -227,20 +258,16 @@ export function GenerateAccessPage() {
           Nota (opcional)
           <input
             value={note}
-            onChange={(e) => setNote(e.target.value)}
+            onChange={(event) => setNote(event.target.value)}
             placeholder="Nombre del invitado, mesa, etc."
             maxLength={100}
           />
         </label>
 
-        {limitReached && (
-          <p className="text-warning">
-            ⚠ Has alcanzado el límite de accesos para este evento.
-          </p>
-        )}
+        {limitReached && <p className="text-warning">Has alcanzado el limite de accesos para este evento.</p>}
 
         <button type="submit" disabled={mutation.isPending || limitReached}>
-          {mutation.isPending ? '⏳ Generando...' : '🎫 Generar acceso'}
+          {mutation.isPending ? 'Generando...' : 'Generar acceso'}
         </button>
       </form>
 
@@ -254,9 +281,7 @@ export function GenerateAccessPage() {
         <section className="card ticket-success-card" style={{ marginTop: '1.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
-              <h4 style={{ marginTop: 0, marginBottom: '0.5rem' }}>
-                ✅ Ticket generado ({lastGuestType})
-              </h4>
+              <h4 style={{ marginTop: 0, marginBottom: '0.5rem' }}>Ticket generado ({lastGuestType})</h4>
               <p className="text-muted" style={{ margin: 0, fontSize: '0.875rem' }}>
                 Listo para compartir o descargar
               </p>
@@ -272,7 +297,7 @@ export function GenerateAccessPage() {
                 padding: '0.75rem 1.25rem',
               }}
             >
-              {mutation.isPending ? '⏳ Generando...' : '⚡ Generar otro'}
+              {mutation.isPending ? 'Generando...' : 'Generar otro'}
             </button>
           </div>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', marginTop: '1rem' }}>
@@ -283,15 +308,23 @@ export function GenerateAccessPage() {
                 className="media-frame"
                 style={{ width: 200 }}
                 data-testid="ticket-preview"
+                data-ticket-id={lastTicketId}
               />
             )}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <a href={rpApi.getTicketImageUrl(lastTicketId)} target="_blank" rel="noreferrer" className="button button--ghost" style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}>
-                💾 Descargar PNG
-              </a>
+              {previewUrl && (
+                <a
+                  href={previewUrl}
+                  download={`ticket-${lastTicketId}.png`}
+                  className="button button--ghost"
+                  style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
+                >
+                  Descargar PNG
+                </a>
+              )}
               {shareUrl && (
                 <a href={shareUrl} target="_blank" rel="noreferrer" className="button button--ghost" style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}>
-                  📤 Compartir WhatsApp
+                  Compartir WhatsApp
                 </a>
               )}
             </div>
