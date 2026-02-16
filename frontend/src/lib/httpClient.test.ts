@@ -33,11 +33,10 @@ describe('HttpClient', () => {
     expect(fetch).toHaveBeenCalledWith(new URL('/health?foo=bar&page=2', BASE_URL), {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Authorization: 'Bearer token-123',
       },
       body: undefined,
-      signal: undefined,
+      signal: expect.any(AbortSignal),
     })
   })
 })

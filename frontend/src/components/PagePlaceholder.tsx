@@ -11,7 +11,7 @@ export function PagePlaceholder({ title, description, hint }: PagePlaceholderPro
     <section className="page-placeholder">
       <h2>{title}</h2>
       <p>{description}</p>
-      {hint ? <div style={{ marginTop: '1rem' }}>{hint}</div> : null}
+      {hint ? <div className="page-placeholder__hint">{hint}</div> : null}
     </section>
   )
 }

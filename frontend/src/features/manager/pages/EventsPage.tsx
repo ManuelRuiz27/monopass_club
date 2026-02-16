@@ -1,57 +1,45 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from 'react-router-dom'
 import { managerApi, type EventDTO } from '../api'
 import { useToast } from '@/components/ToastProvider'
 import { Modal } from '@/components/Modal'
 import { TemplateEditor, type TemplateConfig } from '@/components/TemplateEditor'
 import { EventWizard, type EventFormData } from '../components/EventWizard'
+import { BottomSheet, Button, PageErrorState, PageLoadingState } from '@/components/ui'
+
+type StatusFilter = 'ALL' | 'ACTIVE' | 'CLOSED'
+
+type ClubFilter = 'ALL' | string
+
+function formatDate(value: string) {
+  return new Date(value).toLocaleDateString([], {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
+function getGeneratedAccesses(event: EventDTO) {
+  return event.assignments.reduce((accumulator, assignment) => accumulator + assignment.usedAccesses, 0)
+}
 
 export function EventsPage() {
+  const navigate = useNavigate()
   const toast = useToast()
   const queryClient = useQueryClient()
   const eventsQuery = useQuery({ queryKey: ['events'], queryFn: managerApi.getEvents })
-  const rpsQuery = useQuery({ queryKey: ['rps'], queryFn: managerApi.getRps })
-  const [assignForms, setAssignForms] = useState<Record<string, { rpId: string; limit: string }>>({})
 
-  // Estado para el modal de edición de plantilla
   const [editingTemplateEvent, setEditingTemplateEvent] = useState<EventDTO | null>(null)
-
-  // Estado para el wizard de creación de evento
-  const [showWizard, setShowWizard] = useState(false)
+  const [isCreateEventModalOpen, setIsCreateEventModalOpen] = useState(false)
   const [wizardInitialData, setWizardInitialData] = useState<Partial<EventFormData> | undefined>(undefined)
+  const [wizardSessionId, setWizardSessionId] = useState(0)
 
-  const handleDuplicateEvent = (event: EventDTO) => {
-    // Configurar fechas para "mañana" a la misma hora
-    const now = new Date()
-    const tomorrowStart = new Date(now)
-    tomorrowStart.setDate(now.getDate() + 1)
-    tomorrowStart.setHours(22, 0, 0, 0) // Default 10 PM
-
-    const tomorrowEnd = new Date(tomorrowStart)
-    tomorrowEnd.setHours(tomorrowStart.getHours() + 6) // +6 horas
-
-    // Copiar datos del evento
-    setWizardInitialData({
-      clubId: event.club.id,
-      name: `${event.name} (Copia)`,
-      startsAt: tomorrowStart.toISOString().slice(0, 16),
-      endsAt: tomorrowEnd.toISOString().slice(0, 16),
-      template: {
-        templateImageUrl: event.templateImageUrl ?? '',
-        qrPositionX: event.qrPositionX ?? 0.5,
-        qrPositionY: event.qrPositionY ?? 0.5,
-        qrSize: event.qrSize ?? 0.35,
-      },
-      // También podríamos copiar asignaciones, pero mejor empezar limpio o dejarlo opcional
-      rpAssignments: [],
-    })
-    setShowWizard(true)
-    toast.showToast({ title: 'Datos copiados al wizard', variant: 'info' })
-    // Scroll al wizard
-    setTimeout(() => {
-      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
-    }, 100)
-  }
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL')
+  const [clubFilter, setClubFilter] = useState<ClubFilter>('ALL')
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false)
+  const [pendingStatusFilter, setPendingStatusFilter] = useState<StatusFilter>('ALL')
+  const [pendingClubFilter, setPendingClubFilter] = useState<ClubFilter>('ALL')
 
   const updateEventStatus = useMutation({
     mutationFn: (payload: { eventId: string; active: boolean }) => managerApi.updateEvent(payload.eventId, { active: payload.active }),
@@ -64,35 +52,6 @@ export function EventsPage() {
     },
   })
 
-
-  const assignMutation = useMutation({
-    mutationFn: ({ eventId, rpId, limit }: { eventId: string; rpId: string; limit: number | null }) =>
-      managerApi.assignRpToEvent(eventId, { rpId, limitAccesses: limit }),
-    onSuccess: (_, variables) => {
-      toast.showToast({ title: 'RP asignado', variant: 'success' })
-      queryClient.invalidateQueries({ queryKey: ['events'] })
-      setAssignForms((prev) => ({ ...prev, [variables.eventId]: { rpId: '', limit: '' } }))
-    },
-  })
-
-  const updateLimitMutation = useMutation({
-    mutationFn: ({ eventId, rpId, limit }: { eventId: string; rpId: string; limit: number | null }) =>
-      managerApi.updateAssignmentLimit(eventId, rpId, limit),
-    onSuccess: () => {
-      toast.showToast({ title: 'Limite actualizado', variant: 'info' })
-      queryClient.invalidateQueries({ queryKey: ['events'] })
-    },
-  })
-
-  const removeAssignmentMutation = useMutation({
-    mutationFn: ({ eventId, rpId }: { eventId: string; rpId: string }) => managerApi.removeAssignment(eventId, rpId),
-    onSuccess: () => {
-      toast.showToast({ title: 'Asignacion removida', variant: 'info' })
-      queryClient.invalidateQueries({ queryKey: ['events'] })
-    },
-  })
-
-  // Mutación para guardar la plantilla del evento
   const updateTemplateMutation = useMutation({
     mutationFn: ({ eventId, config }: { eventId: string; config: TemplateConfig }) =>
       managerApi.updateTemplate(eventId, {
@@ -106,160 +65,285 @@ export function EventsPage() {
       queryClient.invalidateQueries({ queryKey: ['events'] })
       setEditingTemplateEvent(null)
     },
-    onError: (err: unknown) => {
+    onError: (error: unknown) => {
       toast.showToast({
         title: 'Error al guardar plantilla',
-        description: err instanceof Error ? err.message : undefined,
+        description: error instanceof Error ? error.message : undefined,
         variant: 'error',
       })
     },
   })
+
+  const events = useMemo(() => eventsQuery.data ?? [], [eventsQuery.data])
+
+  const availableClubs = useMemo(() => {
+    const clubMap = new Map<string, string>()
+    events.forEach((event) => {
+      clubMap.set(event.club.id, event.club.name)
+    })
+    return [...clubMap.entries()].map(([id, name]) => ({ id, name }))
+  }, [events])
+
+  const filteredEvents = useMemo(() => {
+    return events.filter((event) => {
+      const passesStatus = statusFilter === 'ALL' || (statusFilter === 'ACTIVE' ? event.active : !event.active)
+      const passesClub = clubFilter === 'ALL' || event.club.id === clubFilter
+      return passesStatus && passesClub
+    })
+  }, [events, statusFilter, clubFilter])
+
+  const showEmptyState = !eventsQuery.isLoading && !eventsQuery.error && events.length === 0
+  const showFilteredEmpty = !eventsQuery.isLoading && !eventsQuery.error && events.length > 0 && filteredEvents.length === 0
+  const hasEventsData = eventsQuery.isSuccess
+
+  const openCreateEventModal = () => {
+    setWizardInitialData(undefined)
+    setWizardSessionId((current) => current + 1)
+    setIsCreateEventModalOpen(true)
+  }
+
+  const closeCreateEventModal = () => {
+    setIsCreateEventModalOpen(false)
+    setWizardInitialData(undefined)
+  }
+
+  const handleDuplicateEvent = (event: EventDTO) => {
+    const now = new Date()
+    const tomorrowStart = new Date(now)
+    tomorrowStart.setDate(now.getDate() + 1)
+    tomorrowStart.setHours(22, 0, 0, 0)
+
+    const tomorrowEnd = new Date(tomorrowStart)
+    tomorrowEnd.setHours(tomorrowStart.getHours() + 6)
+
+    setWizardInitialData({
+      clubId: event.club.id,
+      name: `${event.name} (Copia)`,
+      startsAt: tomorrowStart.toISOString().slice(0, 16),
+      endsAt: tomorrowEnd.toISOString().slice(0, 16),
+      template: {
+        templateImageUrl: event.templateImageUrl ?? '',
+        qrPositionX: event.qrPositionX ?? 0.5,
+        qrPositionY: event.qrPositionY ?? 0.5,
+        qrSize: event.qrSize ?? 0.35,
+      },
+      rpAssignments: [],
+    })
+    setWizardSessionId((current) => current + 1)
+    setIsCreateEventModalOpen(true)
+    toast.showToast({ title: 'Datos copiados al wizard', variant: 'info' })
+  }
 
   const handleSaveTemplate = (config: TemplateConfig) => {
     if (!editingTemplateEvent) return
     updateTemplateMutation.mutate({ eventId: editingTemplateEvent.id, config })
   }
 
-  const hasTemplate = (event: EventDTO) => Boolean(event.templateImageUrl)
-
-  const handleAssignSubmit = (eventId: string) => {
-    const current = assignForms[eventId]
-    if (!current?.rpId) return
-    const limit = current.limit ? Number(current.limit) : null
-    assignMutation.mutate({ eventId, rpId: current.rpId, limit })
+  const openFilterSheet = () => {
+    setPendingStatusFilter(statusFilter)
+    setPendingClubFilter(clubFilter)
+    setIsFilterSheetOpen(true)
   }
 
-  const handleLimitUpdate = (event: EventDTO, rpId: string) => {
-    const current = event.assignments.find((assignment) => assignment.rpId === rpId)
-    const suggested = current?.limitAccesses ?? ''
-    const raw = window.prompt('Nuevo limite (deja vacio para sin limite)', suggested ? String(suggested) : '')
-    if (raw === null) return
-    const nextValue = raw.trim() === '' ? null : Number(raw)
-    if (nextValue !== null && Number.isNaN(nextValue)) {
-      toast.showToast({ title: 'Valor invalido', description: 'Ingresa un numero valido.', variant: 'error' })
-      return
-    }
-    updateLimitMutation.mutate({ eventId: event.id, rpId, limit: nextValue })
+  const applyFilterSheet = () => {
+    setStatusFilter(pendingStatusFilter)
+    setClubFilter(pendingClubFilter)
+    setIsFilterSheetOpen(false)
   }
 
-  const handleRemoveAssignment = (eventId: string, rpId: string) => {
-    if (!window.confirm('Eliminar esta asignacion?')) return
-    removeAssignmentMutation.mutate({ eventId, rpId })
+  const clearFilters = () => {
+    setStatusFilter('ALL')
+    setClubFilter('ALL')
+    setPendingStatusFilter('ALL')
+    setPendingClubFilter('ALL')
   }
 
-  const availableRps = rpsQuery.data ?? []
+  const isFiltered = statusFilter !== 'ALL' || clubFilter !== 'ALL'
+
+  const renderEventActions = (event: EventDTO, stacked = false) => {
+    const isStatusMutationPending = updateEventStatus.isPending && updateEventStatus.variables?.eventId === event.id
+
+    return (
+      <div className={`manager-events-actions ${stacked ? 'manager-events-actions--stack' : ''}`}>
+        <Button type="button" variant="secondary" size="sm" onClick={() => navigate(`/manager/events/${event.id}`)}>
+          Ver detalle
+        </Button>
+
+        <Button
+          type="button"
+          variant={event.active ? 'danger' : 'success'}
+          size="sm"
+          onClick={() => updateEventStatus.mutate({ eventId: event.id, active: !event.active })}
+          loading={isStatusMutationPending}
+        >
+          {event.active ? 'Cerrar' : 'Reabrir'}
+        </Button>
+
+        <Button type="button" variant="ghost" size="sm" onClick={() => setEditingTemplateEvent(event)}>
+          Plantilla
+        </Button>
+
+        <Button type="button" variant="ghost" size="sm" onClick={() => handleDuplicateEvent(event)}>
+          Duplicar
+        </Button>
+      </div>
+    )
+  }
 
   return (
-    <div>
-      <h3 style={{ marginTop: 0 }}>Eventos</h3>
-      {eventsQuery.isLoading ? <p>Cargando eventos...</p> : null}
-      {eventsQuery.error ? <p className="text-danger">No se pudieron cargar los eventos.</p> : null}
+    <div className="manager-events-page">
+      <header className="manager-events-page__header">
+        <div className="manager-events-page__header-left">
+          <h3 className="manager-events-page__title">Eventos</h3>
+          <p className="text-muted manager-events-page__subtitle">Gestiona los eventos de tu club</p>
+        </div>
 
-      <div className="card-grid" style={{ marginTop: '1rem' }}>
-        {eventsQuery.data?.map((event) => (
-          <article key={event.id} className="card">
-            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <h4 style={{ margin: 0 }}>{event.name}</h4>
-                <p style={{ margin: 0 }} className="text-muted">
-                  {event.club.name}
-                </p>
-                <small>{new Date(event.startsAt).toLocaleString()} - {new Date(event.endsAt).toLocaleString()}</small>
-              </div>
-              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                <button
-                  type="button"
-                  className="button--ghost"
-                  onClick={() => handleDuplicateEvent(event)}
-                  title="Duplicar evento"
-                  style={{ padding: '0.25rem 0.5rem', fontSize: '1rem' }}
-                >
-                  📄
-                </button>
-                <span className={`badge ${event.active ? 'badge--success' : 'badge--danger'}`}>
-                  {event.active ? 'Activo' : 'Cerrado'}
-                </span>
-              </div>
-            </header>
-            <div style={{ margin: '0.75rem 0', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <button type="button" onClick={() => updateEventStatus.mutate({ eventId: event.id, active: !event.active })}>
-                {event.active ? 'Cerrar evento' : 'Reabrir'}
-              </button>
-              <button type="button" className="button--ghost" onClick={() => setEditingTemplateEvent(event)}>
-                {hasTemplate(event) ? '📷 Editar plantilla' : '📷 Configurar plantilla'}
-              </button>
-            </div>
-            {/* Indicador de estado de plantilla */}
-            <div className={`event-card__template-status ${hasTemplate(event) ? 'event-card__template-status--configured' : 'event-card__template-status--pending'}`}>
-              {hasTemplate(event) ? (
-                <>✓ Plantilla configurada</>
-              ) : (
-                <>⚠ Sin plantilla - Los tickets no tendrán imagen de fondo</>
-              )}
-            </div>
-            <section>
-              <h5 style={{ margin: '0.5rem 0' }}>RPs asignados</h5>
-              {event.assignments.length === 0 ? <p className="text-muted">Aun no hay asignaciones.</p> : null}
-              {event.assignments.map((assignment) => (
-                <div key={assignment.id} className="panel">
-                  <strong>{assignment.rp.user.name}</strong>
-                  <p style={{ margin: '0.25rem 0' }} className="text-muted">
-                    Generados: {assignment.usedAccesses}
-                  </p>
-                  <p style={{ margin: '0.25rem 0' }} className="text-muted">
-                    Limite: {assignment.limitAccesses ?? 'Sin limite'}
-                  </p>
-                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                    <button type="button" onClick={() => handleLimitUpdate(event, assignment.rpId)}>
-                      Editar limite
-                    </button>
-                    <button type="button" onClick={() => handleRemoveAssignment(event.id, assignment.rpId)}>
-                      Quitar RP
-                    </button>
+        <Button
+          type="button"
+          leftIcon={<span className="material-symbols-outlined" aria-hidden="true">add</span>}
+          onClick={openCreateEventModal}
+        >
+          Nuevo Evento
+        </Button>
+      </header>
+
+      {eventsQuery.isLoading ? <PageLoadingState message="Cargando eventos..." /> : null}
+      {eventsQuery.error ? <PageErrorState description="No se pudieron cargar los eventos." /> : null}
+
+      {hasEventsData && !showEmptyState ? (
+        <section className="manager-events-toolbar">
+          <div className="manager-events-toolbar__mobile">
+            <Button type="button" variant="secondary" size="sm" onClick={openFilterSheet}>
+              Filtrar
+            </Button>
+            {isFiltered ? (
+              <Button type="button" variant="ghost" size="sm" onClick={clearFilters}>
+                Limpiar
+              </Button>
+            ) : null}
+          </div>
+
+          <div className="manager-events-toolbar__desktop">
+            <label>
+              Estado
+              <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}>
+                <option value="ALL">Todos</option>
+                <option value="ACTIVE">Activos</option>
+                <option value="CLOSED">Cerrados</option>
+              </select>
+            </label>
+
+            <label>
+              Club
+              <select value={clubFilter} onChange={(event) => setClubFilter(event.target.value)}>
+                <option value="ALL">Todos</option>
+                {availableClubs.map((club) => (
+                  <option key={club.id} value={club.id}>
+                    {club.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </section>
+      ) : null}
+
+      {showEmptyState ? (
+        <section className="manager-empty-state card">
+          <div className="manager-empty-state__icon-shell" aria-hidden="true">
+            <span className="material-symbols-outlined">event_busy</span>
+          </div>
+          <h4 className="manager-empty-state__title">Sin eventos todavia</h4>
+          <p className="text-muted manager-empty-state__description">Crea tu primer evento para empezar a gestionar accesos</p>
+          <Button
+            type="button"
+            leftIcon={<span className="material-symbols-outlined" aria-hidden="true">add</span>}
+            onClick={openCreateEventModal}
+          >
+            Crear primer evento
+          </Button>
+        </section>
+      ) : null}
+
+      {showFilteredEmpty ? (
+        <section className="manager-empty-state manager-empty-state--compact card">
+          <h4 className="manager-empty-state__title">No hay eventos para este filtro</h4>
+          <p className="text-muted manager-empty-state__description">Ajusta los filtros o limpia la busqueda para ver todos los eventos.</p>
+          <Button type="button" variant="secondary" onClick={clearFilters}>Limpiar filtros</Button>
+        </section>
+      ) : null}
+
+      {hasEventsData && !showEmptyState && !showFilteredEmpty ? (
+        <>
+          <div className="manager-events-table-wrap">
+            <table className="manager-events-table">
+              <thead>
+                <tr>
+                  <th>Evento</th>
+                  <th>Fecha</th>
+                  <th>Accesos</th>
+                  <th>RPs</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredEvents.map((event) => (
+                  <tr key={event.id}>
+                    <td>
+                      <strong>{event.name}</strong>
+                      <p className="text-muted manager-events-table__club">{event.club.name}</p>
+                    </td>
+                    <td>{formatDate(event.startsAt)}</td>
+                    <td>{getGeneratedAccesses(event)}</td>
+                    <td>{event.assignments.length}</td>
+                    <td>
+                      <span className={`badge ${event.active ? 'badge--success' : 'badge--warning'}`}>
+                        {event.active ? 'Activo' : 'Cerrado'}
+                      </span>
+                    </td>
+                    <td>{renderEventActions(event)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="manager-events-mobile-list">
+            {filteredEvents.map((event) => (
+              <article key={`mobile-${event.id}`} className="card manager-events-mobile-card">
+                <header className="manager-events-mobile-card__header">
+                  <div>
+                    <h4 className="manager-events-mobile-card__title">{event.name}</h4>
+                    <p className="text-muted manager-events-mobile-card__club">{event.club.name}</p>
+                  </div>
+                  <span className={`badge ${event.active ? 'badge--success' : 'badge--warning'}`}>
+                    {event.active ? 'Activo' : 'Cerrado'}
+                  </span>
+                </header>
+
+                <div className="manager-events-mobile-card__stats">
+                  <div>
+                    <span className="text-muted">Fecha</span>
+                    <strong>{formatDate(event.startsAt)}</strong>
+                  </div>
+                  <div>
+                    <span className="text-muted">Accesos</span>
+                    <strong>{getGeneratedAccesses(event)}</strong>
+                  </div>
+                  <div>
+                    <span className="text-muted">RPs</span>
+                    <strong>{event.assignments.length}</strong>
                   </div>
                 </div>
-              ))}
-              <div style={{ marginTop: '0.75rem' }}>
-                <h6 style={{ margin: '0.25rem 0' }}>Asignar RP</h6>
-                <div className="form-grid">
-                  <select
-                    value={assignForms[event.id]?.rpId ?? ''}
-                    onChange={(e) =>
-                      setAssignForms((prev) => ({ ...prev, [event.id]: { rpId: e.target.value, limit: prev[event.id]?.limit ?? '' } }))
-                    }
-                    disabled={!event.active}
-                  >
-                    <option value="">Selecciona RP</option>
-                    {availableRps.map((rp) => (
-                      <option key={rp.id} value={rp.id} disabled={!rp.active}>
-                        {rp.user.name} {!rp.active ? '(Inactivo)' : ''}
-                      </option>
-                    ))}
-                  </select>
-                  <input
-                    type="number"
-                    min={1}
-                    placeholder="Limite opcional"
-                    value={assignForms[event.id]?.limit ?? ''}
-                    onChange={(e) =>
-                      setAssignForms((prev) => ({ ...prev, [event.id]: { rpId: prev[event.id]?.rpId ?? '', limit: e.target.value } }))
-                    }
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleAssignSubmit(event.id)}
-                    disabled={!event.active || assignMutation.isPending}
-                  >
-                    {assignMutation.isPending ? 'Asignando...' : 'Asignar'}
-                  </button>
-                </div>
-              </div>
-            </section>
-          </article>
-        ))}
-      </div>
 
-      {/* Modal de edición de plantilla */}
+                {renderEventActions(event, true)}
+              </article>
+            ))}
+          </div>
+        </>
+      ) : null}
+
       <Modal
         isOpen={editingTemplateEvent !== null}
         onClose={() => setEditingTemplateEvent(null)}
@@ -282,38 +366,53 @@ export function EventsPage() {
         )}
       </Modal>
 
-      {/* Wizard de creación de evento inline */}
-      <section className="card" style={{ marginTop: '2rem' }}>
-        <h4 style={{ marginTop: 0, marginBottom: '1rem' }}>✨ Crear nuevo evento</h4>
-        {showWizard ? (
-          <EventWizard
-            key={wizardInitialData ? 'duplicate' : 'new'} // Force remount if type changes
-            initialData={wizardInitialData}
-            onComplete={() => {
-              setShowWizard(false)
-              setWizardInitialData(undefined)
-            }}
-            onCancel={() => {
-              setShowWizard(false)
-              setWizardInitialData(undefined)
-            }}
-          />
-        ) : (
-          <div style={{ textAlign: 'center', padding: '2rem 1rem' }}>
-            <p className="text-muted" style={{ margin: 0 }}>Crea un evento con plantilla y asignación de RPs en un flujo guiado.</p>
-            <button
-              type="button"
-              onClick={() => {
-                setWizardInitialData(undefined)
-                setShowWizard(true)
-              }}
-              style={{ marginTop: '1rem' }}
-            >
-              🚀 Iniciar wizard
-            </button>
-          </div>
-        )}
-      </section>
+      <Modal isOpen={isCreateEventModalOpen} onClose={closeCreateEventModal} title="Nuevo Evento" size="lg">
+        <EventWizard
+          key={`wizard-${wizardSessionId}`}
+          initialData={wizardInitialData}
+          onComplete={closeCreateEventModal}
+          onCancel={closeCreateEventModal}
+        />
+      </Modal>
+
+      <BottomSheet
+        open={isFilterSheetOpen}
+        onClose={() => setIsFilterSheetOpen(false)}
+        title="Filtrar eventos"
+        actions={
+          <>
+            <Button type="button" variant="secondary" onClick={() => setIsFilterSheetOpen(false)}>
+              Cancelar
+            </Button>
+            <Button type="button" onClick={applyFilterSheet}>
+              Aplicar
+            </Button>
+          </>
+        }
+      >
+        <div className="form-grid manager-events-sheet">
+          <label>
+            Estado
+            <select value={pendingStatusFilter} onChange={(event) => setPendingStatusFilter(event.target.value as StatusFilter)}>
+              <option value="ALL">Todos</option>
+              <option value="ACTIVE">Activos</option>
+              <option value="CLOSED">Cerrados</option>
+            </select>
+          </label>
+
+          <label>
+            Club
+            <select value={pendingClubFilter} onChange={(event) => setPendingClubFilter(event.target.value)}>
+              <option value="ALL">Todos</option>
+              {availableClubs.map((club) => (
+                <option key={`sheet-${club.id}`} value={club.id}>
+                  {club.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      </BottomSheet>
     </div>
   )
 }

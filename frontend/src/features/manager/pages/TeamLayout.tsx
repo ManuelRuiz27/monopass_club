@@ -9,22 +9,22 @@ export function TeamLayout() {
   ]
 
   return (
-    <div>
-      <h3 style={{ marginTop: 0 }}>Gestion de equipo</h3>
-      <nav className="section-nav">
+    <div className="manager-team-layout">
+      <header className="manager-team-layout__header">
+        <h3 className="manager-team-layout__title">Gestion de equipo</h3>
+      </header>
+
+      <nav className="section-nav manager-team-layout__nav">
         {tabs.map((tab) => (
-          <NavLink
-            key={tab.to}
-            to={tab.to}
-            className={({ isActive }) => (isActive ? 'active' : undefined)}
-          >
-            <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1rem' }}>
+          <NavLink key={tab.to} to={tab.to} className={({ isActive }) => (isActive ? 'active' : undefined)}>
+            <span className="material-symbols-outlined manager-team-layout__icon" aria-hidden="true">
               {tab.icon}
             </span>
             <span>{tab.label}</span>
           </NavLink>
         ))}
       </nav>
+
       <Outlet />
     </div>
   )

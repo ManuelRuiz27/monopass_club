@@ -1,7 +1,8 @@
-﻿import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { managerApi } from '../api'
 import { useToast } from '@/components/ToastProvider'
+import { Button } from '@/components/ui'
 
 export function SettingsPage() {
   const queryClient = useQueryClient()
@@ -19,29 +20,38 @@ export function SettingsPage() {
   })
 
   return (
-    <div>
-      <h3>Settings</h3>
-      <p>Renombra el tipo de invitado OTHER para reflejar tus necesidades.</p>
-      <form
-        className="form-grid"
-        onSubmit={(event) => {
-          event.preventDefault()
-          updateLabel.mutate()
-        }}
-      >
-        <label>
-          Etiqueta
-          <input value={currentLabel} onChange={(e) => setLabel(e.target.value)} required />
-        </label>
-        <button type="submit" disabled={updateLabel.isPending}>
-          {updateLabel.isPending ? 'Guardando...' : 'Actualizar'}
-        </button>
-      </form>
-      {settingsQuery.data ? (
-        <p style={{ marginTop: '1rem' }}>
-          Etiqueta actual: <strong>{settingsQuery.data.otherLabel}</strong>
+    <div className="manager-settings-page">
+      <header className="manager-settings-page__header">
+        <h3 className="manager-settings-page__title">Configuracion</h3>
+        <p className="text-muted manager-settings-page__subtitle">
+          Renombra el tipo de invitado OTHER para reflejar tus necesidades.
         </p>
-      ) : null}
+      </header>
+
+      <section className="card manager-settings-card">
+        <form
+          className="form-grid manager-settings-form"
+          onSubmit={(event) => {
+            event.preventDefault()
+            updateLabel.mutate()
+          }}
+        >
+          <label>
+            Etiqueta
+            <input value={currentLabel} onChange={(event) => setLabel(event.target.value)} required />
+          </label>
+
+          <Button type="submit" loading={updateLabel.isPending}>
+            {updateLabel.isPending ? 'Guardando...' : 'Actualizar'}
+          </Button>
+        </form>
+
+        {settingsQuery.data ? (
+          <p className="manager-settings-card__current text-muted">
+            Etiqueta actual: <strong>{settingsQuery.data.otherLabel}</strong>
+          </p>
+        ) : null}
+      </section>
     </div>
   )
 }

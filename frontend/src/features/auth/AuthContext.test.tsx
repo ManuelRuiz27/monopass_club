@@ -65,4 +65,19 @@ describe('AuthContext', () => {
     expect(localStorage.getItem('monopass_session')).toBeNull()
     expect(mockedTokenStore.clear.mock.calls.length).toBe(clearsBeforeLogout + 1)
   })
+
+  test('loginWithToken hace fallback a /auth/login cuando /auth/login-token no existe', async () => {
+    const session = { token: 'jwt-token', userId: 'scanner-1', role: 'SCANNER' }
+    mockedHttp.post.mockRejectedValueOnce(new Error('not found')).mockResolvedValueOnce(session)
+
+    const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider })
+
+    await act(async () => {
+      await result.current.loginWithToken({ token: 'ABC123' })
+    })
+
+    expect(mockedHttp.post).toHaveBeenNthCalledWith(1, '/auth/login-token', { token: 'ABC123' })
+    expect(mockedHttp.post).toHaveBeenNthCalledWith(2, '/auth/login', { username: 'ABC123', password: 'ABC123' })
+    expect(result.current.isAuthenticated).toBe(true)
+  })
 })

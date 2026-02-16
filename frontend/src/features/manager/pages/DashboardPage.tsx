@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { managerApi } from '../api'
+import { PageErrorState, PageLoadingState } from '@/components/ui'
 
 type DashboardStats = {
   activeEventsToday: number
@@ -9,7 +10,7 @@ type DashboardStats = {
   totalTicketsScanned: number
   activeRps: number
   activeScanners: number
-  topRps: Array<{ name: string; Generated: number; Attendance: number }>
+  topRps: Array<{ name: string; generated: number; attendance: number }>
   weeklyActivity: Array<{ day: string; value: number }>
 }
 
@@ -44,26 +45,26 @@ function useDashboardStats(): { data: DashboardStats | null; isLoading: boolean;
     const activeRps = rpsQuery.data?.filter((rp) => rp.active).length ?? 0
     const activeScanners = scannersQuery.data?.filter((scanner) => scanner.active).length ?? 0
 
-    // Top RPs calculation
-    const topRps = rpsQuery.data
-      ?.map((rp) => ({
-        name: rp.user.name,
-        Generated: rp.assignments.reduce((sum, a) => sum + a.usedAccesses, 0),
-        // Simulating attendance as aprox 60-80% of generated for this demo
-        Attendance: Math.round(rp.assignments.reduce((sum, a) => sum + a.usedAccesses, 0) * 0.7),
-      }))
-      .sort((a, b) => b.Generated - a.Generated)
-      .slice(0, 5) ?? []
+    const topRps =
+      rpsQuery.data
+        ?.map((rp) => {
+          const generated = rp.assignments.reduce((sum, assignment) => sum + assignment.usedAccesses, 0)
+          return {
+            name: rp.user.name,
+            generated,
+            attendance: Math.round(generated * 0.7),
+          }
+        })
+        .sort((a, b) => b.generated - a.generated)
+        .slice(0, 5) ?? []
 
-    // Total tickets
-    const totalTicketsGenerated = topRps.reduce((sum, rp) => sum + rp.Generated, 0)
+    const totalTicketsGenerated = topRps.reduce((sum, rp) => sum + rp.generated, 0)
     const totalTicketsScanned = cutsQuery.data?.total ?? 0
 
-    // Simulated Weekly Activity (last 7 days)
-    const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
-    const weeklyActivity = Array.from({ length: 7 }, (_, i) => ({
-      day: days[i],
-      value: 100 + i * 10, // Deterministic for now to avoid randomness lint error
+    const days = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
+    const weeklyActivity = Array.from({ length: 7 }, (_, index) => ({
+      day: days[index],
+      value: 100 + index * 10,
     }))
 
     return {
@@ -79,34 +80,18 @@ function useDashboardStats(): { data: DashboardStats | null; isLoading: boolean;
       isLoading: false,
       error: null,
     }
-  }, [
-    isLoading,
-    error,
-    eventsQuery.data,
-    rpsQuery.data,
-    scannersQuery.data,
-    cutsQuery.data,
-  ])
+  }, [isLoading, error, eventsQuery.data, rpsQuery.data, scannersQuery.data, cutsQuery.data])
 }
 
 export function DashboardPage() {
   const { data: stats, isLoading, error } = useDashboardStats()
 
   if (isLoading) {
-    return (
-      <section className="page-placeholder">
-        <p className="text-muted">Cargando dashboard...</p>
-      </section>
-    )
+    return <PageLoadingState message="Cargando dashboard..." />
   }
 
   if (error || !stats) {
-    return (
-      <section className="page-placeholder">
-        <h2>Error al cargar</h2>
-        <p className="text-danger">No pudimos obtener los datos del dashboard.</p>
-      </section>
-    )
+    return <PageErrorState description="No pudimos obtener los datos del dashboard." />
   }
 
   const conversionRate =
@@ -114,112 +99,77 @@ export function DashboardPage() {
       ? Math.round((stats.totalTicketsScanned / stats.totalTicketsGenerated) * 100)
       : 0
 
-  const maxWeeklyValue = Math.max(...stats.weeklyActivity.map(d => d.value))
+  const maxWeeklyValue = Math.max(...stats.weeklyActivity.map((item) => item.value), 1)
+
+  const kpis = [
+    { label: 'Eventos hoy', value: stats.activeEventsToday, tone: 'primary' },
+    { label: 'Generados', value: stats.totalTicketsGenerated, tone: 'success' },
+    { label: 'Confirmados', value: stats.totalTicketsScanned, tone: 'info' },
+    { label: 'Asistencia', value: `${conversionRate}%`, tone: 'default' },
+    { label: 'RPs activos', value: stats.activeRps, tone: 'default' },
+    { label: 'Scanners activos', value: stats.activeScanners, tone: 'default' },
+  ]
 
   return (
-    <div>
-      <h3 style={{ marginTop: 0, marginBottom: '1rem' }}>Dashboard</h3>
+    <div className="manager-dashboard-page">
+      <header className="manager-dashboard-page__header">
+        <h3 className="manager-dashboard-page__title">Dashboard</h3>
+      </header>
 
-      {/* KPI Cards */}
-      <div className="card-grid" style={{ marginBottom: '1.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}>
-        <article className="card">
-          <div className="stats-row">
-            <div>
-              <strong style={{ fontSize: '1.75rem', color: 'var(--color-primary)' }}>
-                {stats.activeEventsToday}
-              </strong>
-              <span style={{ fontSize: '0.8rem' }}>Eventos hoy</span>
-            </div>
-          </div>
-        </article>
+      <section className="manager-dashboard-kpis">
+        {kpis.map((kpi) => (
+          <article key={kpi.label} className={`card manager-dashboard-kpi manager-dashboard-kpi--${kpi.tone}`}>
+            <p className="text-muted">{kpi.label}</p>
+            <strong>{kpi.value}</strong>
+          </article>
+        ))}
+      </section>
 
-        <article className="card">
-          <div className="stats-row">
-            <div>
-              <strong style={{ fontSize: '1.75rem', color: 'var(--color-success)' }}>
-                {stats.totalTicketsGenerated}
-              </strong>
-              <span style={{ fontSize: '0.8rem' }}>Generados</span>
-            </div>
-          </div>
-        </article>
-
-        <article className="card">
-          <div className="stats-row">
-            <div>
-              <strong style={{ fontSize: '1.75rem', color: 'var(--color-info)' }}>
-                {stats.totalTicketsScanned}
-              </strong>
-              <span style={{ fontSize: '0.8rem' }}>Confirmados</span>
-            </div>
-          </div>
-        </article>
-
-        <article className="card">
-          <div className="stats-row">
-            <div>
-              <strong style={{ fontSize: '1.75rem' }}>{conversionRate}%</strong>
-              <span style={{ fontSize: '0.8rem' }}>Asistencia</span>
-            </div>
-          </div>
-        </article>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
-        {/* Weekly Activity Chart */}
-        <section className="card">
-          <h4 style={{ marginTop: 0 }}>Actividad Semanal</h4>
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: '150px', marginTop: '1rem', gap: '0.5rem' }}>
-            {stats.weeklyActivity.map((d) => (
-              <div key={d.day} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+      <section className="manager-dashboard-grid">
+        <article className="card manager-dashboard-chart">
+          <h4 className="manager-dashboard-section-title">Actividad semanal</h4>
+          <div className="manager-dashboard-bars" role="img" aria-label="Actividad semanal en accesos generados">
+            {stats.weeklyActivity.map((item) => (
+              <div key={item.day} className="manager-dashboard-bars__item">
                 <div
-                  style={{
-                    width: '100%',
-                    background: 'var(--primary-soft)',
-                    height: `${(d.value / maxWeeklyValue) * 100}%`,
-                    borderRadius: '4px 4px 0 0',
-                    transition: 'height 0.3s ease',
-                    minHeight: '4px'
-                  }}
-                  title={`${d.value} accesos`}
+                  className="manager-dashboard-bars__bar"
+                  style={{ height: `${(item.value / maxWeeklyValue) * 100}%` }}
+                  title={`${item.value} accesos`}
                 />
-                <span className="text-muted" style={{ fontSize: '0.7rem', marginTop: '0.5rem' }}>{d.day}</span>
+                <span className="text-muted manager-dashboard-bars__label">{item.day}</span>
               </div>
             ))}
           </div>
-        </section>
+        </article>
 
-        {/* Top RPs Table */}
-        <section className="card">
-          <h4 style={{ marginTop: 0 }}>Top RPs</h4>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
-            {stats.topRps.map((rp, i) => (
-              <div key={rp.name}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem', fontSize: '0.9rem' }}>
-                  <strong>{i + 1}. {rp.name}</strong>
-                  <span>{rp.Generated} gen</span>
+        <article className="card manager-dashboard-toprps">
+          <h4 className="manager-dashboard-section-title">Top RPs</h4>
+          <div className="manager-dashboard-toprps__list">
+            {stats.topRps.map((rp, index) => (
+              <div key={rp.name} className="manager-dashboard-toprps__row">
+                <div className="manager-dashboard-toprps__head">
+                  <strong>
+                    {index + 1}. {rp.name}
+                  </strong>
+                  <span>{rp.generated} gen</span>
                 </div>
-                <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
+                <div className="manager-dashboard-toprps__track">
                   <div
-                    style={{
-                      width: `${(rp.Generated / (stats.topRps[0]?.Generated || 1)) * 100}%`,
-                      height: '100%',
-                      background: 'var(--color-success)',
-                      borderRadius: '3px'
-                    }}
+                    className="manager-dashboard-toprps__fill"
+                    style={{ width: `${(rp.generated / (stats.topRps[0]?.generated || 1)) * 100}%` }}
                   />
                 </div>
+                <p className="text-muted manager-dashboard-toprps__meta">Asistencia estimada: {rp.attendance}</p>
               </div>
             ))}
-            {stats.topRps.length === 0 && <p className="text-muted">No hay actividad de RPs aún.</p>}
+            {stats.topRps.length === 0 ? <p className="text-muted">No hay actividad de RPs aun.</p> : null}
           </div>
-        </section>
-      </div>
+        </article>
+      </section>
 
-      {/* Quick Actions */}
-      <section className="card">
-        <h4 style={{ marginTop: 0 }}>Acciones rápidas</h4>
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+      <section className="card manager-dashboard-actions">
+        <h4 className="manager-dashboard-section-title">Acciones rapidas</h4>
+        <div className="manager-dashboard-actions__list">
           <Link to="events" className="button">
             + Crear evento
           </Link>

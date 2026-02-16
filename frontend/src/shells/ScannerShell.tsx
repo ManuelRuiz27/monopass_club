@@ -6,7 +6,7 @@ const ScannerPage = lazy(async () => ({ default: (await import('@/features/scann
 const ScannerCutsPage = lazy(async () => ({ default: (await import('@/features/scanner/pages/ScannerCutsPage')).ScannerCutsPage }))
 
 function lazyElement(node: ReactNode) {
-  return <Suspense fallback={<p>Cargando...</p>}>{node}</Suspense>
+  return <Suspense fallback={<p className="text-muted">Cargando...</p>}>{node}</Suspense>
 }
 
 const sections: Array<{ label: string; to: string; icon: string; end?: boolean }> = [
@@ -36,7 +36,7 @@ export function ScannerShell() {
             end={section.end}
             className={({ isActive }) => (isActive ? 'active' : undefined)}
           >
-            <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1rem' }}>
+            <span className="material-symbols-outlined section-nav__icon" aria-hidden="true">
               {section.icon}
             </span>
             <span>{section.label}</span>

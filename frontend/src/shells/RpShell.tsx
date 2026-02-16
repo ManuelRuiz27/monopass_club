@@ -1,14 +1,16 @@
 import { lazy, Suspense, type ReactNode } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router-dom'
 import type { RouteObject } from 'react-router-dom'
 import { PagePlaceholder } from '@/components/PagePlaceholder'
 
-const GenerateAccessPage = lazy(async () => ({ default: (await import('@/features/rp/pages/GenerateAccessPage')).GenerateAccessPage }))
+const RpEventsPage = lazy(async () => ({ default: (await import('@/features/rp/pages/RpEventsPage')).RpEventsPage }))
+const RpGeneratePage = lazy(async () => ({ default: (await import('@/features/rp/pages/RpGeneratePage')).RpGeneratePage }))
+const RpGeneratedPage = lazy(async () => ({ default: (await import('@/features/rp/pages/RpGeneratedPage')).RpGeneratedPage }))
 const HistoryPage = lazy(async () => ({ default: (await import('@/features/rp/pages/HistoryPage')).HistoryPage }))
 const ProfilePage = lazy(async () => ({ default: (await import('@/features/rp/pages/ProfilePage')).ProfilePage }))
 
 function lazyElement(node: ReactNode) {
-  return <Suspense fallback={<p>Cargando...</p>}>{node}</Suspense>
+  return <Suspense fallback={<p className="text-muted">Cargando...</p>}>{node}</Suspense>
 }
 
 type Section = {
@@ -21,8 +23,19 @@ type Section = {
 
 const sections: Section[] = [
   {
+    label: 'Mis eventos',
+    path: 'events',
+    element: lazyElement(<RpEventsPage />),
+  },
+  {
     label: 'Generar acceso',
-    element: lazyElement(<GenerateAccessPage />),
+    path: 'generate/:assignmentId',
+    element: lazyElement(<RpGeneratePage />),
+  },
+  {
+    label: 'Acceso generado',
+    path: 'generated',
+    element: lazyElement(<RpGeneratedPage />),
   },
   {
     label: 'Historial',
@@ -48,6 +61,8 @@ export const rpRoutes: RouteObject[] = sections.map((section) => {
 
   return section.path ? { path: section.path, element } : { index: true, element }
 })
+
+rpRoutes.unshift({ index: true, element: <Navigate to="events" replace /> })
 
 export function RpShell() {
   return <Outlet />

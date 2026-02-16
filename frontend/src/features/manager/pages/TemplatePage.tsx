@@ -1,7 +1,8 @@
-﻿import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { managerApi } from '../api'
 import { useToast } from '@/components/ToastProvider'
+import { Button, PageErrorState, PageLoadingState } from '@/components/ui'
 
 const MIN_QR_SIZE = 0.1
 const MAX_QR_SIZE = 0.8
@@ -19,6 +20,7 @@ export function TemplatePage() {
   const eventsQuery = useQuery({ queryKey: ['events'], queryFn: managerApi.getEvents })
   const [selectedEventId, setSelectedEventId] = useState('')
   const [template, setTemplate] = useState(defaultTemplateState)
+  const [templateFileName, setTemplateFileName] = useState('')
   const [isDragging, setIsDragging] = useState(false)
   const canvasRef = useRef<HTMLDivElement>(null)
   const dragPointerId = useRef<number | null>(null)
@@ -35,6 +37,7 @@ export function TemplatePage() {
 
   const handleSelectEvent = (eventId: string) => {
     setSelectedEventId(eventId)
+    setTemplateFileName('')
     const selected = eventsQuery.data?.find((event) => event.id === eventId)
     if (!selected) {
       setTemplate(defaultTemplateState)
@@ -72,9 +75,10 @@ export function TemplatePage() {
 
   const handleImageUpload = (file: File | null) => {
     if (!file) return
+    setTemplateFileName(file.name)
     const reader = new FileReader()
     reader.onload = () => {
-      setTemplate((prev) => ({ ...prev, templateImageUrl: reader.result as string }))
+      setTemplate((previous) => ({ ...previous, templateImageUrl: reader.result as string }))
     }
     reader.readAsDataURL(file)
   }
@@ -110,11 +114,11 @@ export function TemplatePage() {
       const distance = Math.hypot(second.x - first.x, second.y - first.y)
       const ratio = distance / pinchState.current.distance
       const nextSize = clampValue(pinchState.current.size * ratio, MIN_QR_SIZE, MAX_QR_SIZE)
-      setTemplate((prev) => ({
-        ...prev,
+      setTemplate((previous) => ({
+        ...previous,
         qrSize: Number(nextSize.toFixed(3)),
-        qrPositionX: clampPosition(prev.qrPositionX, nextSize),
-        qrPositionY: clampPosition(prev.qrPositionY, nextSize),
+        qrPositionX: clampPosition(previous.qrPositionX, nextSize),
+        qrPositionY: clampPosition(previous.qrPositionY, nextSize),
       }))
       return
     }
@@ -122,7 +126,11 @@ export function TemplatePage() {
     if (!isDragging || dragPointerId.current !== event.pointerId) return
     const nextX = clampPosition((event.clientX - rect.left) / rect.width, template.qrSize)
     const nextY = clampPosition((event.clientY - rect.top) / rect.height, template.qrSize)
-    setTemplate((prev) => ({ ...prev, qrPositionX: Number(nextX.toFixed(3)), qrPositionY: Number(nextY.toFixed(3)) }))
+    setTemplate((previous) => ({
+      ...previous,
+      qrPositionX: Number(nextX.toFixed(3)),
+      qrPositionY: Number(nextY.toFixed(3)),
+    }))
   }
 
   const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -131,7 +139,7 @@ export function TemplatePage() {
       try {
         canvasRef.current.releasePointerCapture(event.pointerId)
       } catch {
-        // ignore
+        // noop
       }
     }
     setIsDragging(false)
@@ -141,107 +149,161 @@ export function TemplatePage() {
     }
   }
 
-  const qrSizePercent = `${Math.round(template.qrSize * 100)}%`
-  return (
-    <div>
-      <h3>Plantilla / QR</h3>
-      <p className="text-muted">
-        Sube la imagen base, posiciona el QR y pellizca para ajustar el tamano.
-      </p>
-      <form
-        className="form-grid"
-        onSubmit={(event) => {
-          event.preventDefault()
-          updateTemplate.mutate()
-        }}
-      >
-        <label>
-          Evento
-          <select value={selectedEventId} onChange={(e) => handleSelectEvent(e.target.value)} required>
-            <option value="" disabled>
-              Selecciona un evento
-            </option>
-            {eventsQuery.data?.map((event) => (
-              <option key={event.id} value={event.id}>
-                {event.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Imagen base
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleImageUpload(e.target.files?.[0] ?? null)}
-            disabled={!selectedEventId}
-          />
-        </label>
-        <label>
-          Escala QR ({qrSizePercent})
-          <input
-            type="range"
-            min={MIN_QR_SIZE}
-            max={MAX_QR_SIZE}
-            step={0.01}
-            value={template.qrSize}
-            onChange={(e) => {
-              const nextSize = Number(e.target.value)
-              setTemplate((prev) => ({
-                ...prev,
-                qrSize: nextSize,
-                qrPositionX: clampPosition(prev.qrPositionX, nextSize),
-                qrPositionY: clampPosition(prev.qrPositionY, nextSize),
-              }))
-            }}
-            disabled={!selectedEventId}
-          />
-        </label>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button type="submit" disabled={!selectedEventId || updateTemplate.isPending}>
-            {updateTemplate.isPending ? 'Guardando...' : 'Guardar plantilla'}
-          </button>
-          <button
-            type="button"
-            className="button--ghost"
-            onClick={() => setTemplate(defaultTemplateState)}
-            disabled={!selectedEventId}
-          >
-            Restablecer
-          </button>
-        </div>
-      </form>
+  const selectedEvent = useMemo(
+    () => eventsQuery.data?.find((event) => event.id === selectedEventId) ?? null,
+    [eventsQuery.data, selectedEventId],
+  )
 
-      <section style={{ marginTop: '1.5rem' }}>
-        <h4>Preview en tiempo real</h4>
-        <p className="text-subtle">Arrastra el QR para posicionarlo. Pellizca sobre el QR para escalarlo.</p>
-        <div
-          ref={canvasRef}
-          className="template-canvas"
-          style={{
-            backgroundImage: template.templateImageUrl ? `url(${template.templateImageUrl})` : undefined,
-            touchAction: 'none',
-          }}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerLeave={handlePointerUp}
-          onPointerCancel={handlePointerUp}
-        >
-          <div
-            onPointerDown={handlePointerDown}
-            className="template-qr"
-            style={{
-              width: `${template.qrSize * 100}%`,
-              paddingBottom: `${template.qrSize * 100}%`,
-              left: `${template.qrPositionX * 100}%`,
-              top: `${template.qrPositionY * 100}%`,
-              cursor: selectedEventId ? 'grab' : 'not-allowed',
+  const qrSizePercent = `${Math.round(template.qrSize * 100)}%`
+  const qrPosX = `${Math.round(template.qrPositionX * 100)}%`
+  const qrPosY = `${Math.round(template.qrPositionY * 100)}%`
+
+  const handleReset = () => {
+    if (!selectedEventId) {
+      setTemplate(defaultTemplateState)
+      setTemplateFileName('')
+      return
+    }
+    handleSelectEvent(selectedEventId)
+  }
+
+  if (eventsQuery.isLoading) {
+    return <PageLoadingState message="Cargando eventos..." />
+  }
+
+  if (eventsQuery.error) {
+    return <PageErrorState description="No se pudieron cargar los eventos." />
+  }
+
+  return (
+    <div className="manager-template-page">
+      <header className="manager-template-page__header">
+        <div>
+          <h3 className="manager-template-page__title">Plantilla / QR</h3>
+          <p className="text-muted manager-template-page__subtitle">
+            Sube imagen base, posiciona el QR y ajusta escala para cada evento.
+          </p>
+        </div>
+      </header>
+
+      <div className="manager-template-layout">
+        <section className="card manager-template-controls">
+          <form
+            className="form-grid manager-template-form"
+            onSubmit={(event) => {
+              event.preventDefault()
+              updateTemplate.mutate()
             }}
           >
-            QR
+            <label>
+              Evento
+              <select value={selectedEventId} onChange={(event) => handleSelectEvent(event.target.value)} required>
+                <option value="" disabled>
+                  Selecciona un evento
+                </option>
+                {eventsQuery.data?.map((event) => (
+                  <option key={event.id} value={event.id}>
+                    {event.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              Imagen base
+              <div className="manager-template-file">
+                <label
+                  className={`button button--ghost manager-template-file__trigger ${!selectedEventId ? 'manager-template-file__trigger--disabled' : ''}`}
+                >
+                  {template.templateImageUrl ? 'Cambiar imagen' : 'Subir imagen'}
+                  <input
+                    className="manager-template-file__input"
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) => handleImageUpload(event.target.files?.[0] ?? null)}
+                    disabled={!selectedEventId}
+                  />
+                </label>
+                <span className="text-muted manager-template-file__name">
+                  {templateFileName || (template.templateImageUrl ? 'Imagen cargada' : 'Sin archivo seleccionado')}
+                </span>
+              </div>
+            </label>
+
+            <label>
+              Escala QR ({qrSizePercent})
+              <input
+                className="manager-template-range"
+                type="range"
+                min={MIN_QR_SIZE}
+                max={MAX_QR_SIZE}
+                step={0.01}
+                value={template.qrSize}
+                onChange={(event) => {
+                  const nextSize = Number(event.target.value)
+                  setTemplate((previous) => ({
+                    ...previous,
+                    qrSize: nextSize,
+                    qrPositionX: clampPosition(previous.qrPositionX, nextSize),
+                    qrPositionY: clampPosition(previous.qrPositionY, nextSize),
+                  }))
+                }}
+                disabled={!selectedEventId}
+              />
+            </label>
+
+            <div className="manager-template-form__actions">
+              <Button type="submit" loading={updateTemplate.isPending} disabled={!selectedEventId}>
+                {updateTemplate.isPending ? 'Guardando...' : 'Guardar plantilla'}
+              </Button>
+              <Button type="button" variant="ghost" onClick={handleReset} disabled={!selectedEventId}>
+                Restablecer
+              </Button>
+            </div>
+          </form>
+        </section>
+
+        <section className="card manager-template-preview">
+          <header className="manager-template-preview__header">
+            <h4 className="manager-template-preview__title">Preview en tiempo real</h4>
+            {selectedEvent ? <span className="badge">{selectedEvent.name}</span> : null}
+          </header>
+          <p className="text-muted manager-template-preview__hint">Arrastra para posicionar y pellizca para escalar.</p>
+
+          <div
+            ref={canvasRef}
+            className="template-canvas manager-template-preview__canvas"
+            style={{
+              backgroundImage: template.templateImageUrl ? `url(${template.templateImageUrl})` : undefined,
+              touchAction: 'none',
+            }}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerLeave={handlePointerUp}
+            onPointerCancel={handlePointerUp}
+          >
+            <div
+              onPointerDown={handlePointerDown}
+              className="template-qr manager-template-preview__qr"
+              style={{
+                width: `${template.qrSize * 100}%`,
+                paddingBottom: `${template.qrSize * 100}%`,
+                left: `${template.qrPositionX * 100}%`,
+                top: `${template.qrPositionY * 100}%`,
+                cursor: selectedEventId ? (isDragging ? 'grabbing' : 'grab') : 'not-allowed',
+              }}
+            >
+              QR
+            </div>
           </div>
-        </div>
-      </section>
+
+          <div className="manager-template-preview__meta text-muted">
+            <span>X: {qrPosX}</span>
+            <span>Y: {qrPosY}</span>
+            <span>Tamano: {qrSizePercent}</span>
+          </div>
+        </section>
+      </div>
     </div>
   )
 }

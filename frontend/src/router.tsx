@@ -1,11 +1,13 @@
 import { Navigate, createBrowserRouter } from 'react-router-dom'
 import { AppShell } from './shells/AppShell'
+import { DirectorShell, directorRoutes } from './shells/DirectorShell'
 import { ManagerShell, managerRoutes } from './shells/ManagerShell'
 import { RpShell, rpRoutes } from './shells/RpShell'
 import { ScannerShell, scannerRoutes } from './shells/ScannerShell'
-import { PagePlaceholder } from './components/PagePlaceholder'
 import { RequireAuth } from '@/features/auth/RequireAuth'
 import { LoginPage } from '@/features/auth/LoginPage'
+import { NotFoundPage } from '@/features/auth/NotFoundPage'
+import { StaffTokenLoginPage } from '@/features/auth/StaffTokenLoginPage'
 import { RoleGate } from '@/features/auth/RoleGate'
 
 export const router = createBrowserRouter([
@@ -45,18 +47,26 @@ export const router = createBrowserRouter([
         children: scannerRoutes,
       },
       {
-        path: '*',
+        path: '/director',
         element: (
-          <PagePlaceholder
-            title="Ups, no encontramos la pagina"
-            description="Revisa la URL o vuelve a una de las secciones principales."
-          />
+          <RoleGate allow={['DIRECTOR']}>
+            <DirectorShell />
+          </RoleGate>
         ),
+        children: directorRoutes,
+      },
+      {
+        path: '*',
+        element: <NotFoundPage />,
       },
     ],
   },
   {
     path: '/login',
     element: <LoginPage />,
+  },
+  {
+    path: '/staff/login-token',
+    element: <StaffTokenLoginPage />,
   },
 ])

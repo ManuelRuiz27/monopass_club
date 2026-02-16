@@ -1,0 +1,89 @@
+{
+  "meta": {
+    "source": "design/passmonkey_v1Claude.pen",
+    "version": "1.0.0",
+    "format": "passmonkey-ui-tokens"
+  },
+  "color": {
+    "bg-border": "#1F1F1F",
+    "bg-card": "#141414",
+    "bg-page": "#0F0F0F",
+    "bg-sidebar": "#0A0A0A",
+    "text-primary": "#FAF8F5",
+    "text-secondary": "#888888",
+    "text-tertiary": "#666666",
+    "text-on-gold": "#0A0A0A",
+    "success": "#4ADE80",
+    "success-tint": "#4ADE8040",
+    "error": "#F87171",
+    "warning": "#F59E0B",
+    "info": "#60A5FA",
+    "info-tint": "#60A5FA40",
+    "gold-primary": "#C9A962",
+    "gold-tint-08": "#C9A96208",
+    "gold-tint-10": "#C9A96210",
+    "gold-tint-30": "#C9A96230",
+    "gold-tint-40": "#C9A96240",
+    "role": {
+      "director-primary": "#C9A962",
+      "director-tint-10": "#C9A96210",
+      "director-tint-30": "#C9A96230",
+      "manager-primary": "#6366F1",
+      "manager-tint-10": "#6366F11A",
+      "manager-tint-30": "#6366F14D",
+      "rp-primary": "#8B5CF6",
+      "rp-tint-10": "#8B5CF61A",
+      "rp-tint-30": "#8B5CF64D",
+      "staff-primary": "#10B981",
+      "staff-tint-10": "#10B9811A",
+      "staff-tint-30": "#10B9814D"
+    },
+    "green-primary": "#22C55E",
+    "green-tint-10": "#22C55E10",
+    "green-tint-40": "#22C55E40"
+  },
+  "spacing": {
+    "1": 2,
+    "2": 4,
+    "3": 6,
+    "4": 8,
+    "5": 10,
+    "6": 12,
+    "7": 14,
+    "8": 16,
+    "9": 20,
+    "10": 24,
+    "11": 28,
+    "12": 40,
+    "13": 48,
+    "14": 56
+  },
+  "radius": {
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24
+  },
+  "elevation": {
+    "soft": "0 18px 32px rgb(0 0 0 / 40%)",
+    "card": "0 14px 30px rgb(0 0 0 / 30%)"
+  },
+  "motion": {
+    "duration-fast-ms": 120,
+    "duration-base-ms": 220,
+    "duration-slow-ms": 320,
+    "ease-standard": "cubic-bezier(0.2, 0, 0, 1)",
+    "ease-decelerate": "cubic-bezier(0, 0, 0, 1)",
+    "ease-accelerate": "cubic-bezier(0.3, 0, 1, 1)"
+  },
+  "typography": {
+    "font-title": "Playfair Display, Georgia, serif",
+    "font-body": "Manrope, Inter, system-ui, -apple-system, Segoe UI, sans-serif",
+    "size-xs": 12,
+    "size-sm": 14,
+    "size-md": 16,
+    "size-lg": 22,
+    "size-xl": 32,
+    "size-display": 48
+  }
+}

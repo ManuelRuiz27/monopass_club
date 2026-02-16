@@ -8,10 +8,12 @@ type RequestOptions = {
   query?: Record<string, string | number | undefined>
   headers?: Record<string, string>
   signal?: AbortSignal
+  timeoutMs?: number
 }
 
 export class HttpClient {
   private readonly baseUrl: string
+  private static readonly DEFAULT_TIMEOUT_MS = 15_000
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl
@@ -66,12 +68,36 @@ export class HttpClient {
   async request<T>(method: HttpMethod, path: string, options: RequestOptions = {}): Promise<T> {
     const url = this.buildUrl(path, options.query)
     const hasBody = Boolean(options.data)
-    const response = await fetch(url, {
-      method,
-      headers: this.buildHeaders(options, hasBody),
-      body: hasBody ? JSON.stringify(options.data) : undefined,
-      signal: options.signal,
-    })
+    const controller = new AbortController()
+    const timeoutMs = options.timeoutMs ?? HttpClient.DEFAULT_TIMEOUT_MS
+    const timerId = window.setTimeout(() => {
+      controller.abort(new Error(`Request timeout after ${timeoutMs}ms`))
+    }, timeoutMs)
+
+    if (options.signal) {
+      if (options.signal.aborted) {
+        controller.abort(options.signal.reason)
+      } else {
+        options.signal.addEventListener('abort', () => controller.abort(options.signal?.reason), { once: true })
+      }
+    }
+
+    let response: Response
+    try {
+      response = await fetch(url, {
+        method,
+        headers: this.buildHeaders(options, hasBody),
+        body: hasBody ? JSON.stringify(options.data) : undefined,
+        signal: controller.signal,
+      })
+    } catch (error) {
+      if (controller.signal.aborted) {
+        throw new Error('La solicitud tardo demasiado. Intenta de nuevo.')
+      }
+      throw error
+    } finally {
+      window.clearTimeout(timerId)
+    }
 
     await this.throwIfError(response)
 
@@ -84,11 +110,35 @@ export class HttpClient {
 
   async getBlob(path: string, options: Omit<RequestOptions, 'data'> = {}) {
     const url = this.buildUrl(path, options.query)
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: this.buildHeaders(options, false),
-      signal: options.signal,
-    })
+    const controller = new AbortController()
+    const timeoutMs = options.timeoutMs ?? HttpClient.DEFAULT_TIMEOUT_MS
+    const timerId = window.setTimeout(() => {
+      controller.abort(new Error(`Request timeout after ${timeoutMs}ms`))
+    }, timeoutMs)
+
+    if (options.signal) {
+      if (options.signal.aborted) {
+        controller.abort(options.signal.reason)
+      } else {
+        options.signal.addEventListener('abort', () => controller.abort(options.signal?.reason), { once: true })
+      }
+    }
+
+    let response: Response
+    try {
+      response = await fetch(url, {
+        method: 'GET',
+        headers: this.buildHeaders(options, false),
+        signal: controller.signal,
+      })
+    } catch (error) {
+      if (controller.signal.aborted) {
+        throw new Error('La solicitud tardo demasiado. Intenta de nuevo.')
+      }
+      throw error
+    } finally {
+      window.clearTimeout(timerId)
+    }
 
     await this.throwIfError(response)
     return response.blob()

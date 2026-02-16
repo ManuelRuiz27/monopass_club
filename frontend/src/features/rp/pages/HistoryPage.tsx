@@ -1,43 +1,75 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { rpApi, type GuestType } from '../api'
-import { PagePlaceholder } from '@/components/PagePlaceholder'
+import { BottomSheet, Button, CardEmptyState, PageErrorState, PageLoadingState } from '@/components/ui'
 
 export function HistoryPage() {
   const [filter, setFilter] = useState<GuestType | ''>('')
+  const [pendingFilter, setPendingFilter] = useState<GuestType | ''>('')
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false)
+
   const historyQuery = useQuery({
     queryKey: ['rp-history', filter],
     queryFn: () => rpApi.getTicketHistory(filter || undefined),
   })
 
   if (historyQuery.isLoading) {
-    return <p>Cargando historial...</p>
+    return <PageLoadingState message="Cargando historial..." />
   }
 
   if (historyQuery.error) {
-    return <PagePlaceholder title="Sin historial" description="No pudimos cargar los tickets." />
+    return <PageErrorState title="Error al cargar historial" description="No pudimos cargar los tickets." />
   }
 
   const data = historyQuery.data
 
   if (!data || data.tickets.length === 0) {
-    return <PagePlaceholder title="Sin historial disponible" description="Genera un acceso para comenzar." />
+    return <CardEmptyState title="Sin historial disponible" description="Genera un acceso para comenzar." />
+  }
+
+  const openFilterSheet = () => {
+    setPendingFilter(filter)
+    setIsFilterSheetOpen(true)
+  }
+
+  const closeFilterSheet = () => {
+    setIsFilterSheetOpen(false)
+  }
+
+  const applyPendingFilter = () => {
+    setFilter(pendingFilter)
+    setIsFilterSheetOpen(false)
   }
 
   return (
-    <div>
-      <h3 style={{ marginTop: 0 }}>Historial</h3>
-      <div className="form-grid" style={{ maxWidth: 320 }}>
-        <label>
-          Filtro por tipo
-          <select value={filter} onChange={(e) => setFilter(e.target.value as GuestType | '')}>
-            <option value="">Todos</option>
-            <option value="GENERAL">General</option>
-            <option value="VIP">VIP</option>
-            <option value="OTHER">{data.otherLabel}</option>
-          </select>
-        </label>
+    <div className="rp-history-page">
+      <h3 className="rp-history-page__title">Historial</h3>
+
+      <div className="rp-history-toolbar">
+        <div className="rp-history-toolbar__mobile">
+          <Button type="button" variant="secondary" size="sm" onClick={openFilterSheet}>
+            Filtrar
+          </Button>
+          {filter ? (
+            <Button type="button" variant="ghost" size="sm" onClick={() => setFilter('')}>
+              Limpiar
+            </Button>
+          ) : null}
+        </div>
+
+        <div className="rp-history-toolbar__desktop">
+          <label>
+            Filtro por tipo
+            <select value={filter} onChange={(e) => setFilter(e.target.value as GuestType | '')}>
+              <option value="">Todos</option>
+              <option value="GENERAL">General</option>
+              <option value="VIP">VIP</option>
+              <option value="OTHER">{data.otherLabel}</option>
+            </select>
+          </label>
+        </div>
       </div>
+
       <table>
         <thead>
           <tr>
@@ -70,6 +102,34 @@ export function HistoryPage() {
           ))}
         </tbody>
       </table>
+
+      <BottomSheet
+        open={isFilterSheetOpen}
+        onClose={closeFilterSheet}
+        title="Filtrar historial"
+        actions={
+          <>
+            <Button type="button" variant="secondary" onClick={closeFilterSheet}>
+              Cancelar
+            </Button>
+            <Button type="button" onClick={applyPendingFilter}>
+              Aplicar
+            </Button>
+          </>
+        }
+      >
+        <div className="form-grid rp-history-sheet">
+          <label>
+            Tipo de acceso
+            <select value={pendingFilter} onChange={(e) => setPendingFilter(e.target.value as GuestType | '')}>
+              <option value="">Todos</option>
+              <option value="GENERAL">General</option>
+              <option value="VIP">VIP</option>
+              <option value="OTHER">{data.otherLabel}</option>
+            </select>
+          </label>
+        </div>
+      </BottomSheet>
     </div>
   )
 }

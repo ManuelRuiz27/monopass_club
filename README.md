@@ -1,39 +1,46 @@
 # MonoPass Club Monorepo
 
 ## Requisitos
-- Node.js 22+
-- Docker y Docker Compose (para Postgres/Redis locales)
+- Docker y Docker Compose
+- Node.js 22+ (solo si quieres correr servicios fuera de Docker)
 
-## Levantar infraestructura local
+## Levantar frontend + backend en Docker (local)
 ```bash
-# 1) Contenedores de base de datos y Redis
-docker compose up -d
-
-# 2) Dependencias por workspace
-npm install --workspaces core-api scanner-service frontend
-
-# 3) Variables (.env) basadas en los .env.example de cada paquete
+# 1) Construir imagen y levantar servicios
+docker compose up --build -d
 ```
 
-### Migraciones y seed
-```bash
-npm run prisma:generate
-npm run prisma:migrate -w core-api
-npm run prisma:seed -w core-api
-```
-La configuracion `prisma.config.ts` ya apunta al comando `tsx` que usa el adapter `@prisma/adapter-pg` sobre la conexion Docker (`postgresql://postgres:postgres@localhost:5432/monopass`).
+Servicios expuestos:
+- Frontend: `http://localhost:5173`
+- Core API: `http://localhost:4000/health`
+- Scanner API: `http://localhost:4100/health`
+- Postgres: `localhost:5432`
 
-Cada vez que el schema cambie, `npm run prisma:generate` (o `npm run prisma:generate -w core-api`) ejecuta `scripts/sync-prisma-client.cjs`, copiando los artefactos de `@prisma/client` y `.prisma` hacia `node_modules` raiz y el workspace `scanner-service` (si existe su `node_modules`). Esto evita pasos manuales para que ambos servicios compartan exactamente el mismo cliente.
+`db-migrate` corre automaticamente al levantar el stack y aplica migraciones Prisma.
+
+### Seed demo (opcional)
+```bash
+# Carga usuarios demo (reinicia tablas funcionales)
+docker compose --profile seed run --rm db-seed
+```
 
 Credenciales demo sembradas (`changeme123` como password):
 - `manager.demo`
 - `rp.demo`
 - `scanner.demo`
 
-## Servicios
-- `npm run dev -w core-api`
-- `npm run dev -w scanner-service`
-- `npm run dev -w frontend`
+## Flujo local fuera de Docker (opcional)
+```bash
+npm install --workspaces core-api scanner-service frontend
+npm run prisma:generate
+npm run prisma:migrate -w core-api
+npm run prisma:seed -w core-api
+npm run dev -w core-api
+npm run dev -w scanner-service
+npm run dev -w frontend
+```
+
+Cada vez que el schema cambie, `npm run prisma:generate` (o `npm run prisma:generate -w core-api`) ejecuta `scripts/sync-prisma-client.cjs`, copiando los artefactos de `@prisma/client` y `.prisma` hacia `node_modules` raiz y el workspace `scanner-service` (si existe su `node_modules`). Esto evita pasos manuales para que ambos servicios compartan exactamente el mismo cliente.
 
 ## Deploy Render + Supabase (sin Docker)
 Usa el blueprint `render.yaml` o configura el servicio manualmente con estos comandos:
@@ -64,4 +71,6 @@ STORYBOOK_TESTS=true npm run test -w frontend
 ## Limpieza
 ```bash
 docker compose down
+# Si quieres borrar datos de Postgres/Redis:
+docker compose down -v
 ```

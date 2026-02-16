@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { coreHttpClient } from '@/lib/httpClient'
 import { tokenStore } from '@/lib/tokenStore'
 
-export type UserRole = 'MANAGER' | 'RP' | 'SCANNER'
+export type UserRole = 'MANAGER' | 'RP' | 'SCANNER' | 'DIRECTOR'
 
 type Session = {
   token: string
@@ -16,6 +16,7 @@ type AuthContextValue = {
   session: Session | null
   isAuthenticated: boolean
   login: (credentials: { username: string; password: string }) => Promise<Session>
+  loginWithToken: (payload: { token: string }) => Promise<Session>
   logout: () => void
 }
 
@@ -50,12 +51,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return response
   }
 
+  const loginWithToken = async ({ token }: { token: string }) => {
+    const trimmed = token.trim()
+    if (!trimmed) {
+      throw new Error('Token invalido o vacio')
+    }
+
+    try {
+      const response = await coreHttpClient.post<Session>('/auth/login-token', { token: trimmed })
+      setSession(response)
+      return response
+    } catch {
+      // Backward-compatible fallback while backend token endpoint is rolled out.
+      const response = await coreHttpClient.post<Session>('/auth/login', {
+        username: trimmed,
+        password: trimmed,
+      })
+      setSession(response)
+      return response
+    }
+  }
+
   const logout = () => {
     setSession(null)
   }
 
   const value = useMemo<AuthContextValue>(
-    () => ({ session, isAuthenticated: Boolean(session?.token), login, logout }),
+    () => ({ session, isAuthenticated: Boolean(session?.token), login, loginWithToken, logout }),
     [session],
   )
 

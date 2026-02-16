@@ -1,0 +1,16 @@
+.git
+.github
+node_modules
+core-api/node_modules
+scanner-service/node_modules
+frontend/node_modules
+**/*.log
+**/*.err
+**/dist
+**/coverage
+**/.turbo
+**/.next
+design
+design_preview
+docs/screenshots
+qa/evidence

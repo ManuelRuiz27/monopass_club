@@ -11,7 +11,7 @@ npm run prisma:seed
 npm run dev
 ```
 
-Con Docker corriendo (`docker compose up -d` en la raíz) los `.env` pueden apuntar a `postgresql://postgres:postgres@localhost:5432/monopass?schema=public`.
+Con Docker corriendo (`docker compose up --build -d` en la raíz) los `.env` pueden apuntar a `postgresql://postgres:postgres@localhost:5432/monopass?schema=public`.
 
 El script `npm run prisma:generate` ejecuta `scripts/sync-prisma-client.cjs` para copiar el cliente generado hacia `node_modules` raíz y el workspace `scanner-service`, evitando sincronizaciones manuales cada vez que cambie el schema.
 
@@ -33,3 +33,4 @@ PORT=4000
 - `GET/PATCH /settings/guest-types/other-label`
 
 Todos los endpoints requieren JWT (`Authorization: Bearer ...`) excepto el login. El seed crea usuarios demo (`manager.demo`, `rp.demo`, `scanner.demo`, password `changeme123`).
+

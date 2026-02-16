@@ -1,0 +1,8 @@
+U("hBNKB", {stroke: {thickness: 2, fill: "$staff-primary"}})
+U("vdqnJ", {fill: "$staff-primary"})
+U("7q88g", {fill: "$staff-primary"})
+U("Kow3k", {fill: "$staff-primary"})
+U("IvFPj", {stroke: {thickness: 1, fill: "$staff-tint-30"}})
+U("bD1bk", {stroke: {thickness: 2, fill: "$staff-tint-30"}})
+U("7jy2m", {stroke: {thickness: 1, fill: "$staff-primary"}})
+U("sAhDe", {fill: "$staff-primary"})

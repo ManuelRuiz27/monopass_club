@@ -10,13 +10,19 @@ const navByRole: Record<UserRole, Array<{ to: string; label: string; icon: strin
     { to: '/manager/cuts', label: 'Cortes', icon: 'monitoring' },
   ],
   RP: [
-    { to: '/rp', label: 'Generar', icon: 'qr_code' },
+    { to: '/rp/events', label: 'Generar', icon: 'qr_code' },
     { to: '/rp/history', label: 'Historial', icon: 'history' },
     { to: '/rp/profile', label: 'Perfil', icon: 'person' },
   ],
   SCANNER: [
     { to: '/scanner', label: 'Escanear', icon: 'qr_code_scanner' },
     { to: '/scanner/cuts', label: 'Cortes', icon: 'analytics' },
+  ],
+  DIRECTOR: [
+    { to: '/director', label: 'Dashboard', icon: 'dashboard' },
+    { to: '/director/comparative', label: 'Comparativo', icon: 'query_stats' },
+    { to: '/director/historical', label: 'Historicas', icon: 'timeline' },
+    { to: '/director/reports', label: 'Reportes', icon: 'description' },
   ],
 }
 
@@ -27,6 +33,7 @@ const secondaryNav: Record<UserRole, Array<{ to: string; label: string; icon: st
   ],
   RP: [],
   SCANNER: [],
+  DIRECTOR: [{ to: '/director/status', label: 'Estados', icon: 'insights' }],
 }
 
 export function AppShell() {
@@ -41,7 +48,7 @@ export function AppShell() {
         <h1 className="app-brand">MonoPass</h1>
         <div className="app-user">
           <span className="text-muted">{session?.userId ?? 'Usuario'}</span>
-          <button className="button--ghost" onClick={logout} style={{ padding: '0.5rem 0.75rem', fontSize: '0.8rem' }}>
+          <button className="button--ghost app-user__logout" onClick={logout}>
             Salir
           </button>
         </div>
@@ -52,7 +59,7 @@ export function AppShell() {
           <NavLink
             key={item.to}
             to={item.to}
-            end={item.to === '/manager' || item.to === '/rp' || item.to === '/scanner'}
+            end={item.to === '/manager' || item.to === '/rp' || item.to === '/scanner' || item.to === '/director'}
             className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}
           >
             <span className="material-symbols-outlined bottom-nav-icon" aria-hidden="true">

@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useAuth } from '@/features/auth/AuthContext'
 import { useRpAssignments } from '../hooks'
+import { Button } from '@/components/ui'
 
 export function ProfilePage() {
   const { session, logout } = useAuth()
@@ -11,48 +12,48 @@ export function ProfilePage() {
     const active = data.events.filter((event) => event.eventActive)
     if (!active.length) return null
     return [...active].sort((a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime())[0]
-  }, [data?.events])
+  }, [data])
 
   return (
-    <div>
-      <h3 style={{ marginTop: 0 }}>Perfil</h3>
-      <p className="text-muted" style={{ marginTop: 0 }}>
+    <div className="rp-profile-page">
+      <h3 className="rp-profile-page__title">Perfil</h3>
+      <p className="text-muted rp-profile-page__subtitle">
         Datos basicos de tu cuenta RP.
       </p>
 
-      <article className="card" style={{ maxWidth: 560 }}>
-        <h4 style={{ marginTop: 0, marginBottom: '0.5rem' }}>Usuario</h4>
-        <p style={{ margin: 0 }}>
+      <article className="card rp-profile-card">
+        <h4 className="rp-profile-card__title">Usuario</h4>
+        <p className="rp-profile-card__line">
           <strong>ID:</strong> {session?.userId ?? 'Sin sesion'}
         </p>
-        <p style={{ margin: '0.25rem 0 0' }}>
+        <p className="rp-profile-card__line rp-profile-card__line--spaced">
           <strong>Rol:</strong> RP
         </p>
       </article>
 
-      <article className="card" style={{ maxWidth: 560, marginTop: '1rem' }}>
-        <h4 style={{ marginTop: 0, marginBottom: '0.5rem' }}>Evento asignado</h4>
+      <article className="card rp-profile-card rp-profile-card--offset">
+        <h4 className="rp-profile-card__title">Evento asignado</h4>
         {isLoading ? <p className="text-muted">Cargando asignacion...</p> : null}
         {!isLoading && !assignedEvent ? <p className="text-muted">No hay evento activo asignado.</p> : null}
         {assignedEvent ? (
           <>
-            <p style={{ margin: 0 }}>
+            <p className="rp-profile-card__line">
               <strong>{assignedEvent.eventName}</strong>
             </p>
-            <p className="text-muted" style={{ margin: '0.25rem 0 0' }}>
+            <p className="text-muted rp-profile-card__line rp-profile-card__line--spaced">
               {assignedEvent.clubName}
             </p>
-            <p style={{ margin: '0.25rem 0 0' }}>
+            <p className="rp-profile-card__line rp-profile-card__line--spaced">
               {new Date(assignedEvent.startsAt).toLocaleString()}
             </p>
           </>
         ) : null}
       </article>
 
-      <div style={{ marginTop: '1rem' }}>
-        <button type="button" className="button--ghost" onClick={logout}>
+      <div className="rp-profile-page__logout">
+        <Button type="button" variant="ghost" onClick={logout}>
           Cerrar sesion
-        </button>
+        </Button>
       </div>
     </div>
   )

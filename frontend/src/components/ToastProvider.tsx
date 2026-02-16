@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react'
+import { Toast } from '@/components/ui'
 
-type ToastVariant = 'success' | 'error' | 'info'
+type ToastVariant = 'success' | 'error' | 'info' | 'warning'
 
 export type ToastOptions = {
   title: string
@@ -35,7 +36,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   const showToast = useCallback(
     (options: ToastOptions) => {
-      const id = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : `toast-${Date.now()}`
+      const id =
+        typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+          ? crypto.randomUUID()
+          : `toast-${Date.now()}`
       const record: ToastRecord = {
         id,
         title: options.title,
@@ -57,15 +61,13 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       {children}
       <div className="toast-viewport">
         {toasts.map((toast) => (
-          <div key={toast.id} className={`toast toast-${toast.variant}`}>
-            <div>
-              <strong>{toast.title}</strong>
-              {toast.description ? <p>{toast.description}</p> : null}
-            </div>
-            <button type="button" aria-label="Cerrar notificacion" onClick={() => dismissToast(toast.id)}>
-              ×
-            </button>
-          </div>
+          <Toast
+            key={toast.id}
+            title={toast.title}
+            description={toast.description}
+            variant={toast.variant}
+            onClose={() => dismissToast(toast.id)}
+          />
         ))}
       </div>
     </ToastContext.Provider>

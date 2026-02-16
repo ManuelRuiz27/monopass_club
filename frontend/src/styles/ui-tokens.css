@@ -1,0 +1,81 @@
+:root {
+  /* Source: design/passmonkey_v1Claude.pen */
+  --pm-color-bg-border: #1f1f1f;
+  --pm-color-bg-card: #141414;
+  --pm-color-bg-page: #0f0f0f;
+  --pm-color-bg-sidebar: #0a0a0a;
+
+  --pm-color-text-primary: #faf8f5;
+  --pm-color-text-secondary: #888888;
+  --pm-color-text-tertiary: #666666;
+  --pm-color-text-on-gold: #0a0a0a;
+
+  --pm-color-success: #4ade80;
+  --pm-color-success-tint: #4ade8040;
+  --pm-color-error: #f87171;
+  --pm-color-warning: #f59e0b;
+  --pm-color-info: #60a5fa;
+  --pm-color-info-tint: #60a5fa40;
+
+  --pm-color-gold-primary: #c9a962;
+  --pm-color-gold-tint-08: #c9a96208;
+  --pm-color-gold-tint-10: #c9a96210;
+  --pm-color-gold-tint-30: #c9a96230;
+  --pm-color-gold-tint-40: #c9a96240;
+
+  --pm-color-role-director-primary: #c9a962;
+  --pm-color-role-director-tint-10: #c9a96210;
+  --pm-color-role-director-tint-30: #c9a96230;
+  --pm-color-role-manager-primary: #6366f1;
+  --pm-color-role-manager-tint-10: #6366f11a;
+  --pm-color-role-manager-tint-30: #6366f14d;
+  --pm-color-role-rp-primary: #8b5cf6;
+  --pm-color-role-rp-tint-10: #8b5cf61a;
+  --pm-color-role-rp-tint-30: #8b5cf64d;
+  --pm-color-role-staff-primary: #10b981;
+  --pm-color-role-staff-tint-10: #10b9811a;
+  --pm-color-role-staff-tint-30: #10b9814d;
+
+  --pm-color-green-primary: #22c55e;
+  --pm-color-green-tint-10: #22c55e10;
+  --pm-color-green-tint-40: #22c55e40;
+
+  --pm-space-1: 2px;
+  --pm-space-2: 4px;
+  --pm-space-3: 6px;
+  --pm-space-4: 8px;
+  --pm-space-5: 10px;
+  --pm-space-6: 12px;
+  --pm-space-7: 14px;
+  --pm-space-8: 16px;
+  --pm-space-9: 20px;
+  --pm-space-10: 24px;
+  --pm-space-11: 28px;
+  --pm-space-12: 40px;
+  --pm-space-13: 48px;
+  --pm-space-14: 56px;
+
+  --pm-radius-sm: 8px;
+  --pm-radius-md: 12px;
+  --pm-radius-lg: 16px;
+  --pm-radius-xl: 24px;
+
+  --pm-shadow-soft: 0 18px 32px rgb(0 0 0 / 40%);
+  --pm-shadow-card: 0 14px 30px rgb(0 0 0 / 30%);
+
+  --pm-motion-fast: 120ms;
+  --pm-motion-base: 220ms;
+  --pm-motion-slow: 320ms;
+  --pm-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --pm-ease-decelerate: cubic-bezier(0, 0, 0, 1);
+  --pm-ease-accelerate: cubic-bezier(0.3, 0, 1, 1);
+
+  --pm-font-title: 'Playfair Display', Georgia, serif;
+  --pm-font-body: 'Manrope', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --pm-font-size-xs: 12px;
+  --pm-font-size-sm: 14px;
+  --pm-font-size-md: 16px;
+  --pm-font-size-lg: 22px;
+  --pm-font-size-xl: 32px;
+  --pm-font-size-display: 48px;
+}

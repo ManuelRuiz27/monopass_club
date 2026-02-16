@@ -15,6 +15,7 @@ services:
       retries: 5
     volumes:
       - pgdata:/var/lib/postgresql/data
+
   redis:
     image: redis:7-alpine
     restart: unless-stopped
@@ -22,6 +23,90 @@ services:
       - "6379:6379"
     volumes:
       - redisdata:/data
+
+  db-migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: monopass-club-local:latest
+    command: sh -c "npm run prisma:migrate -w core-api"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/monopass?schema=public
+      JWT_SECRET: local-dev-jwt-secret-123456
+      PORT: 4000
+    restart: "no"
+
+  db-seed:
+    image: monopass-club-local:latest
+    pull_policy: never
+    command: sh -c "npm run prisma:seed -w core-api"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      db-migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/monopass?schema=public
+      JWT_SECRET: local-dev-jwt-secret-123456
+      PORT: 4000
+    profiles: ["seed"]
+    restart: "no"
+
+  core-api:
+    image: monopass-club-local:latest
+    pull_policy: never
+    command: sh -c "npm run dev -w core-api"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      db-migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/monopass?schema=public
+      JWT_SECRET: local-dev-jwt-secret-123456
+      PORT: 4000
+    ports:
+      - "4000:4000"
+
+  scanner-service:
+    image: monopass-club-local:latest
+    pull_policy: never
+    command: sh -c "npm run dev -w scanner-service"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      db-migrate:
+        condition: service_completed_successfully
+      core-api:
+        condition: service_started
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/monopass?schema=public
+      CORE_API_BASE_URL: http://core-api:4000
+      SCANNER_API_KEY: local-scanner-api-key-123
+      JWT_SECRET: local-scanner-jwt-key-123
+      PORT: 4100
+    ports:
+      - "4100:4100"
+
+  frontend:
+    image: monopass-club-local:latest
+    pull_policy: never
+    command: sh -c "ROLLUP_VERSION=$$(node -p \"require('./frontend/node_modules/rollup/package.json').version\") && npm install -w frontend --no-save @rollup/rollup-linux-x64-gnu@$$ROLLUP_VERSION && npm run dev -w frontend -- --host 0.0.0.0 --port 5173"
+    depends_on:
+      core-api:
+        condition: service_started
+      scanner-service:
+        condition: service_started
+    environment:
+      VITE_CORE_API_BASE_URL: http://localhost:4000
+      VITE_SCANNER_API_BASE_URL: http://localhost:4100
+      VITE_PUBLIC_CORE_API_BASE_URL: http://localhost:4000
+    ports:
+      - "5173:5173"
+
 volumes:
   pgdata:
   redisdata:

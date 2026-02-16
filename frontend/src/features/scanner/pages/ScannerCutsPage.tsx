@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router-dom'
 import { scannerApi } from '../api'
+import { Button, CardEmptyState, PageErrorState, PageLoadingState } from '@/components/ui'
 
 type SortBy = 'event' | 'rp' | 'general' | 'vip' | 'other' | 'total'
 type SortDir = 'asc' | 'desc'
@@ -142,13 +143,13 @@ export function ScannerCutsPage() {
   }
 
   return (
-    <div>
-      <h3 style={{ marginTop: 0 }}>Cortes en tiempo real</h3>
-      <p className="text-muted" style={{ marginTop: 0 }}>
+    <div className="scanner-cuts-page">
+      <h3 className="scanner-cuts-page__title">Cortes en tiempo real</h3>
+      <p className="text-muted scanner-cuts-page__subtitle">
         Resumen por evento y RP durante la operacion.
       </p>
 
-      <div className="form-grid" style={{ maxWidth: 720, marginBottom: '1rem' }}>
+      <div className="form-grid scanner-cuts-filters">
         <label>
           Evento
           <select
@@ -216,172 +217,189 @@ export function ScannerCutsPage() {
           </select>
         </label>
 
-        <button
+        <Button
           type="button"
-          className="button--ghost"
+          variant="ghost"
+          size="sm"
           onClick={() => updateParams({ page: String(Math.max(0, page - 1)), detailEvent: null, detailRp: null, detailPage: null })}
           disabled={page === 0}
         >
           Anterior
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
-          className="button--ghost"
+          variant="ghost"
+          size="sm"
           onClick={() => updateParams({ page: String(page + 1), detailEvent: null, detailRp: null, detailPage: null })}
           disabled={!summary?.pagination.hasMore}
         >
           Siguiente
-        </button>
+        </Button>
 
-        <button type="button" onClick={resetFilters}>
+        <Button type="button" size="sm" onClick={resetFilters}>
           Limpiar filtros
-        </button>
+        </Button>
       </div>
 
       {summary ? (
-        <p className="text-muted" style={{ margin: '0 0 0.5rem' }}>
+        <p className="text-muted scanner-cuts-page__summary">
           Eventos mostrados: {summary.events.length} de {summary.pagination.totalEvents} - Pagina {page + 1}
         </p>
       ) : null}
 
-      {cutsQuery.isLoading ? <p>Cargando cortes...</p> : null}
-      {cutsQuery.error ? <p className="text-danger">No se pudo cargar el resumen de cortes.</p> : null}
+      {cutsQuery.isLoading ? <PageLoadingState message="Cargando cortes..." /> : null}
+      {cutsQuery.error ? <PageErrorState description="No se pudo cargar el resumen de cortes." /> : null}
 
       {summary ? (
-        <div className="card-grid" style={{ marginTop: '1rem' }}>
-          <article className="card">
-            <h4 style={{ marginTop: 0 }}>Total general</h4>
-            <strong style={{ fontSize: '1.4rem' }}>{summary.totalGeneral}</strong>
+        <div className="card-grid scanner-cuts-kpis">
+          <article className="card scanner-cuts-kpi">
+            <h4 className="scanner-cuts-kpi__title">Total general</h4>
+            <strong className="scanner-cuts-kpi__value">{summary.totalGeneral}</strong>
           </article>
-          <article className="card">
-            <h4 style={{ marginTop: 0 }}>Total VIP</h4>
-            <strong style={{ fontSize: '1.4rem' }}>{summary.totalVip}</strong>
+          <article className="card scanner-cuts-kpi">
+            <h4 className="scanner-cuts-kpi__title">Total VIP</h4>
+            <strong className="scanner-cuts-kpi__value">{summary.totalVip}</strong>
           </article>
-          <article className="card">
-            <h4 style={{ marginTop: 0 }}>Total otro</h4>
-            <strong style={{ fontSize: '1.4rem' }}>{summary.totalOther}</strong>
+          <article className="card scanner-cuts-kpi">
+            <h4 className="scanner-cuts-kpi__title">Total otro</h4>
+            <strong className="scanner-cuts-kpi__value">{summary.totalOther}</strong>
           </article>
-          <article className="card">
-            <h4 style={{ marginTop: 0 }}>Total escaneados</h4>
-            <strong style={{ fontSize: '1.4rem' }}>{summary.total}</strong>
+          <article className="card scanner-cuts-kpi">
+            <h4 className="scanner-cuts-kpi__title">Total escaneados</h4>
+            <strong className="scanner-cuts-kpi__value">{summary.total}</strong>
           </article>
         </div>
       ) : null}
 
       {summary && rpRows.length === 0 ? (
-        <p className="text-muted" style={{ marginTop: '1rem' }}>
-          Sin escaneos para los filtros actuales.
-        </p>
+        <CardEmptyState
+          title="Sin escaneos para los filtros actuales"
+          description="Prueba con otro evento o rango de fechas."
+          actionLabel="Limpiar filtros"
+          onAction={resetFilters}
+        />
       ) : null}
 
       {rpRows.length > 0 ? (
-        <table>
-          <thead>
-            <tr>
-              <th>Evento</th>
-              <th>RP</th>
-              <th>General</th>
-              <th>VIP</th>
-              <th>Otro</th>
-              <th>Total</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {rpRows.map((row) => (
-              <tr key={`${row.eventId}-${row.rpId}`}>
-                <td>
-                  <strong>{row.eventName}</strong>
-                  <br />
-                  <small>{row.clubName}</small>
-                </td>
-                <td>{row.rpName}</td>
-                <td>{row.totalGeneral}</td>
-                <td>{row.totalVip}</td>
-                <td>{row.totalOther}</td>
-                <td>{row.total}</td>
-                <td>
-                  <button
-                    type="button"
-                    className="button--ghost"
-                    onClick={() => updateParams({ detailEvent: row.eventId, detailRp: row.rpId, detailPage: '0' })}
-                  >
-                    Ver detalle
-                  </button>
-                </td>
+        <div className="scanner-cuts-table-wrap">
+          <table className="scanner-cuts-table">
+            <thead>
+              <tr>
+                <th>Evento</th>
+                <th>RP</th>
+                <th>General</th>
+                <th>VIP</th>
+                <th>Otro</th>
+                <th>Total</th>
+                <th></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rpRows.map((row) => (
+                <tr key={`${row.eventId}-${row.rpId}`}>
+                  <td>
+                    <strong>{row.eventName}</strong>
+                    <br />
+                    <small>{row.clubName}</small>
+                  </td>
+                  <td>{row.rpName}</td>
+                  <td>{row.totalGeneral}</td>
+                  <td>{row.totalVip}</td>
+                  <td>{row.totalOther}</td>
+                  <td>{row.total}</td>
+                  <td>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => updateParams({ detailEvent: row.eventId, detailRp: row.rpId, detailPage: '0' })}
+                    >
+                      Ver detalle
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : null}
 
       {detailSelection ? (
-        <section className="card" style={{ marginTop: '1.5rem' }}>
-          <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <section className="card scanner-cuts-detail">
+          <header className="scanner-cuts-detail__header">
             <div>
-              <h4 style={{ margin: 0 }}>Detalle por RP</h4>
-              <p style={{ margin: 0 }} className="text-muted">
+              <h4 className="scanner-cuts-detail__title">Detalle por RP</h4>
+              <p className="text-muted scanner-cuts-detail__subtitle">
                 Escaneos en el rango seleccionado.
               </p>
             </div>
-            <button type="button" className="button--ghost" onClick={() => updateParams({ detailEvent: null, detailRp: null, detailPage: null })}>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => updateParams({ detailEvent: null, detailRp: null, detailPage: null })}
+            >
               Cerrar
-            </button>
+            </Button>
           </header>
 
-          {detailQuery.isLoading ? <p>Cargando detalle...</p> : null}
-          {detailQuery.error ? <p className="text-danger">No se pudo cargar el detalle.</p> : null}
+          {detailQuery.isLoading ? <PageLoadingState message="Cargando detalle..." /> : null}
+          {detailQuery.error ? <PageErrorState description="No se pudo cargar el detalle." /> : null}
 
           {detailQuery.data ? (
             <>
-              <p className="text-muted" style={{ marginBottom: '0.5rem' }}>
+              <p className="text-muted scanner-cuts-detail__meta">
                 {detailQuery.data.event.name} - {detailQuery.data.rp.name} - Total: {detailQuery.data.total}
               </p>
-              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <button
+              <div className="scanner-cuts-detail__pager">
+                <Button
                   type="button"
-                  className="button--ghost"
+                  variant="ghost"
+                  size="sm"
                   onClick={() => updateParams({ detailPage: String(Math.max(0, detailPage - 1)) })}
                   disabled={detailPage === 0}
                 >
                   Anterior detalle
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
-                  className="button--ghost"
+                  variant="ghost"
+                  size="sm"
                   onClick={() => updateParams({ detailPage: String(detailPage + 1) })}
                   disabled={!detailQuery.data.pagination.hasMore}
                 >
                   Siguiente detalle
-                </button>
-                <span className="text-muted" style={{ alignSelf: 'center' }}>
+                </Button>
+                <span className="text-muted scanner-cuts-detail__pager-label">
                   Pagina detalle {detailPage + 1}
                 </span>
               </div>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Ticket</th>
-                    <th>Tipo</th>
-                    <th>Nota</th>
-                    <th>Scanner</th>
-                    <th>Hora</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {detailQuery.data.scans.map((scan) => (
-                    <tr key={`${scan.ticketId}-${scan.scannedAt}`}>
-                      <td>{scan.ticketId.slice(0, 8)}</td>
-                      <td>
-                        <span className="badge">{scan.displayLabel}</span>
-                      </td>
-                      <td>{scan.note ?? '-'}</td>
-                      <td>{scan.scannerName}</td>
-                      <td>{new Date(scan.scannedAt).toLocaleString()}</td>
+              <div className="scanner-cuts-table-wrap">
+                <table className="scanner-cuts-table">
+                  <thead>
+                    <tr>
+                      <th>Ticket</th>
+                      <th>Tipo</th>
+                      <th>Nota</th>
+                      <th>Scanner</th>
+                      <th>Hora</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {detailQuery.data.scans.map((scan) => (
+                      <tr key={`${scan.ticketId}-${scan.scannedAt}`}>
+                        <td>{scan.ticketId.slice(0, 8)}</td>
+                        <td>
+                          <span className="badge">{scan.displayLabel}</span>
+                        </td>
+                        <td>{scan.note ?? '-'}</td>
+                        <td>{scan.scannerName}</td>
+                        <td>{new Date(scan.scannedAt).toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </>
           ) : null}
         </section>
