@@ -1,11 +1,13 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { gsap } from 'gsap'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useRpAssignments } from '../hooks'
 import { rpApi, type GuestType } from '../api'
 import { RpStateView } from '../components/RpStateView'
 import { useToast } from '@/components/ToastProvider'
 import { Button, Input, PageLoadingState } from '@/components/ui'
+import { usePrefersReducedMotion } from '@/lib/motion/usePrefersReducedMotion'
 
 function formatDateTime(dateValue: string) {
   return new Date(dateValue).toLocaleString([], {
@@ -24,6 +26,8 @@ export function RpGeneratePage() {
   const { data, isLoading, error, refetch } = useRpAssignments()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
+  const screenRef = useRef<HTMLDivElement | null>(null)
+  const prefersReducedMotion = usePrefersReducedMotion()
 
   const [guestType, setGuestType] = useState<GuestType>('GENERAL')
   const [note, setNote] = useState('')
@@ -60,13 +64,44 @@ export function RpGeneratePage() {
     },
   })
 
+  useLayoutEffect(() => {
+    if (prefersReducedMotion) return
+
+    const scope = screenRef.current
+    if (!scope) return
+
+    const blocks = gsap.utils.toArray<HTMLElement>(
+      '.rp-screen__back, .rp-generate-summary, .rp-generate-form, .rp-state, .rp-generate-error',
+      scope,
+    )
+
+    if (blocks.length === 0) return
+
+    const tween = gsap.fromTo(
+      blocks,
+      { autoAlpha: 0, y: 18 },
+      {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.26,
+        stagger: 0.06,
+        ease: 'power2.out',
+        clearProps: 'opacity,transform',
+      },
+    )
+
+    return () => {
+      tween.kill()
+    }
+  }, [assignmentId, error, isLoading, mutation.status, prefersReducedMotion])
+
   if (isLoading) {
     return <PageLoadingState message="Cargando evento..." />
   }
 
   if (error || !data) {
     return (
-      <div className="rp-screen">
+      <div ref={screenRef} className="rp-screen">
         <Button type="button" variant="ghost" size="sm" className="rp-screen__back" onClick={() => navigate('/rp/events')}>
           Volver a eventos
         </Button>
@@ -88,7 +123,7 @@ export function RpGeneratePage() {
 
   if (!eventData) {
     return (
-      <div className="rp-screen">
+      <div ref={screenRef} className="rp-screen">
         <Button type="button" variant="ghost" size="sm" className="rp-screen__back" onClick={() => navigate('/rp/events')}>
           Volver a eventos
         </Button>
@@ -110,7 +145,7 @@ export function RpGeneratePage() {
 
   if (!eventData.eventActive) {
     return (
-      <div className="rp-screen">
+      <div ref={screenRef} className="rp-screen">
         <Button type="button" variant="ghost" size="sm" className="rp-screen__back" onClick={() => navigate('/rp/events')}>
           Volver a eventos
         </Button>
@@ -152,7 +187,7 @@ export function RpGeneratePage() {
   const shouldRenderDetailedError = detailedErrorMessage.length > 0 && detailedErrorMessage !== generationErrorCopy
 
   return (
-    <div className="rp-screen">
+    <div ref={screenRef} className="rp-screen">
       <Button type="button" variant="ghost" size="sm" className="rp-screen__back" onClick={() => navigate('/rp/events')}>
         Volver a eventos
       </Button>

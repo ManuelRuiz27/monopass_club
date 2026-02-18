@@ -40,6 +40,8 @@ npm run dev -w scanner-service
 npm run dev -w frontend
 ```
 
+Importante: usa el mismo valor de `JWT_SECRET` en `core-api` y `scanner-service`; si no coinciden, `/scan/validate` y `/scan/confirm` responderan `401 Unauthorized`.
+
 Cada vez que el schema cambie, `npm run prisma:generate` (o `npm run prisma:generate -w core-api`) ejecuta `scripts/sync-prisma-client.cjs`, copiando los artefactos de `@prisma/client` y `.prisma` hacia `node_modules` raiz y el workspace `scanner-service` (si existe su `node_modules`). Esto evita pasos manuales para que ambos servicios compartan exactamente el mismo cliente.
 
 ## Deploy Render + Supabase (sin Docker)

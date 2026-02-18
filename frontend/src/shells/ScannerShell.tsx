@@ -1,6 +1,8 @@
-import { lazy, Suspense, type ReactNode } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { lazy, Suspense, useRef, type ReactNode } from 'react'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import type { RouteObject } from 'react-router-dom'
+import { useGsapInteractiveScale } from '@/lib/motion/useGsapInteractiveScale'
+import { useGsapRouteTransition } from '@/lib/motion/useGsapRouteTransition'
 
 const ScannerPage = lazy(async () => ({ default: (await import('@/features/scanner/pages/ScannerPage')).ScannerPage }))
 const ScannerCutsPage = lazy(async () => ({ default: (await import('@/features/scanner/pages/ScannerCutsPage')).ScannerCutsPage }))
@@ -20,6 +22,13 @@ export const scannerRoutes: RouteObject[] = [
 ]
 
 export function ScannerShell() {
+  const location = useLocation()
+  const outletRef = useRef<HTMLDivElement | null>(null)
+  const navRef = useRef<HTMLElement | null>(null)
+
+  useGsapRouteTransition(outletRef, location.key || location.pathname, { y: 20, duration: 0.24 })
+  useGsapInteractiveScale(navRef, 'a', location.pathname, { hoverScale: 1.02, pressScale: 0.97 })
+
   return (
     <div>
       <header className="shell-header">
@@ -28,7 +37,7 @@ export function ScannerShell() {
           <p className="text-muted">Validacion y confirmacion de accesos en puerta.</p>
         </div>
       </header>
-      <nav className="section-nav">
+      <nav ref={navRef} className="section-nav">
         {sections.map((section) => (
           <NavLink
             key={section.label}
@@ -43,7 +52,11 @@ export function ScannerShell() {
           </NavLink>
         ))}
       </nav>
-      <Outlet />
+      <div ref={outletRef} className="motion-route-shell">
+        <div data-gsap-route-panel>
+          <Outlet />
+        </div>
+      </div>
     </div>
   )
 }

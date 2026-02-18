@@ -515,6 +515,14 @@ h6 {
   font-size: 1rem;
 }
 
+.motion-route-shell {
+  width: 100%;
+}
+
+.motion-route-shell > [data-gsap-route-panel] {
+  width: 100%;
+}
+
 /* --- Components: Page Placeholder & Content --- */
 .page-placeholder {
   padding: 2.5rem;
@@ -2481,6 +2489,24 @@ table tr:hover td {
   background: #000 !important;
 }
 
+.scanner-stage__scan-beam {
+  position: absolute;
+  inset-inline: 8%;
+  top: 0;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--pm-color-role-staff-primary) 20%, transparent 80%),
+    color-mix(in oklab, var(--pm-color-role-staff-primary) 75%, #fff 25%),
+    color-mix(in oklab, var(--pm-color-role-staff-primary) 20%, transparent 80%)
+  );
+  box-shadow: 0 0 16px color-mix(in oklab, var(--pm-color-role-staff-primary) 70%, transparent 30%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
 .scanner-overlay {
   position: absolute;
   inset: 0;
@@ -2488,6 +2514,7 @@ table tr:hover td {
   place-items: center;
   padding: var(--pm-space-8);
   background: rgb(0 0 0 / 65%);
+  z-index: 2;
 }
 
 .scanner-overlay--neutral {
@@ -2606,6 +2633,12 @@ table tr:hover td {
 
   .scanner-overlay__card h3 {
     font-size: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scanner-stage__scan-beam {
+    display: none;
   }
 }
 

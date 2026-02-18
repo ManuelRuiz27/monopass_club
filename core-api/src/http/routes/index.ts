@@ -10,6 +10,8 @@ import { registerRpPortalRoutes } from '../../modules/rp-portal/routes'
 import { registerTicketRoutes } from '../../modules/tickets/routes'
 import { registerCutRoutes } from '../../modules/cuts/routes'
 import { registerRpGroupRoutes } from '../../modules/rp-groups/routes'
+import { registerLeadRoutes } from '../../modules/leads/routes'
+import { registerLandingRoutes } from '../../modules/landing/routes'
 
 export async function registerRoutes(app: FastifyInstance) {
   await registerHealthRoutes(app)
@@ -23,4 +25,6 @@ export async function registerRoutes(app: FastifyInstance) {
   await registerTicketRoutes(app)
   await registerCutRoutes(app)
   await registerRpGroupRoutes(app)
+  await registerLeadRoutes(app)
+  await registerLandingRoutes(app)
 }

@@ -1,6 +1,6 @@
-# MonoPass Club Frontend
+﻿# MonoPass Club Frontend
 
-Workspace React + Vite que re�ne Manager, RP y Scanner shells junto con Storybook y pruebas.
+Workspace React + Vite que reúne Manager, RP y Scanner shells junto con Storybook y pruebas.
 
 ## Scripts
 
@@ -15,6 +15,7 @@ npm run storybook  # Componentes aislados
 
 - React Router define tres dominios (`/manager`, `/rp`, `/scanner`) con vistas para Sprint 1.
 - TanStack Query + cliente HTTP centralizado (`src/lib/httpClient.ts`) manejan JWT y base URLs (`VITE_CORE_API_BASE_URL`, `VITE_SCANNER_API_BASE_URL`).
+- Motion: puedes desactivar animaciones GSAP con VITE_DISABLE_MOTION=true (util para QA y accesibilidad forzada).
 - Storybook 10 ya configurado con addon de accesibilidad y pruebas via Vitest.
 
 ## Login

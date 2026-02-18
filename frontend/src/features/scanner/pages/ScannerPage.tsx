@@ -1,8 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
+import { gsap } from 'gsap'
 import { Html5QrcodeScanner } from 'html5-qrcode'
 import { scannerApi, type ScannerValidateResponse } from '../api'
 import { Button } from '@/components/ui'
+import { useGsapInteractiveScale } from '@/lib/motion/useGsapInteractiveScale'
+import { usePrefersReducedMotion } from '@/lib/motion/usePrefersReducedMotion'
 
 type ScannerStatus = 'SCANNING' | 'VALIDATING' | 'CONFIRMING' | 'REVIEW_NOTE' | 'SUCCESS' | 'INVALID'
 type SystemIssue = 'OFFLINE' | 'NO_PERMISSION' | 'NO_CAMERA' | 'NETWORK'
@@ -49,7 +52,12 @@ export function ScannerPage() {
   const [ticketData, setTicketData] = useState<ScannerValidateResponse['ticket'] | null>(null)
   const [pendingNoteToken, setPendingNoteToken] = useState<string | null>(null)
   const [systemIssue, setSystemIssue] = useState<SystemIssue | null>(null)
+  const prefersReducedMotion = usePrefersReducedMotion()
 
+  const stageRef = useRef<HTMLElement | null>(null)
+  const beamRef = useRef<HTMLDivElement | null>(null)
+  const overlayRef = useRef<HTMLDivElement | null>(null)
+  const overlayCardRef = useRef<HTMLDivElement | null>(null)
   const scannerRef = useRef<Html5QrcodeScanner | null>(null)
   const isProcessingRef = useRef(false)
   const isPausedRef = useRef(false)
@@ -316,9 +324,91 @@ export function ScannerPage() {
   const currentTone = feedback?.tone ?? 'neutral'
   const issueCopy = systemIssue ? systemIssueCopy(systemIssue) : null
 
+  useGsapInteractiveScale(stageRef, '.scanner-overlay .ui-btn, .scanner-stage__manual .ui-btn', status, {
+    hoverScale: 1.01,
+    pressScale: 0.98,
+  })
+
+  useLayoutEffect(() => {
+    if (prefersReducedMotion) return
+
+    const scope = stageRef.current
+    if (!scope) return
+
+    const context = gsap.context(() => {
+      const timeline = gsap.timeline({ defaults: { ease: 'power2.out' } })
+      timeline
+        .fromTo(
+          '[data-gsap-scan-header]',
+          { autoAlpha: 0, y: 14 },
+          { autoAlpha: 1, y: 0, duration: 0.24, clearProps: 'opacity,transform' },
+        )
+        .fromTo(
+          '[data-gsap-scan-viewport]',
+          { autoAlpha: 0, scale: 0.98 },
+          { autoAlpha: 1, scale: 1, duration: 0.3, clearProps: 'opacity,transform' },
+          '-=0.12',
+        )
+        .fromTo(
+          '[data-gsap-scan-footer]',
+          { autoAlpha: 0, y: 14 },
+          { autoAlpha: 1, y: 0, duration: 0.24, clearProps: 'opacity,transform' },
+          '-=0.14',
+        )
+    }, scope)
+
+    return () => context.revert()
+  }, [prefersReducedMotion, systemIssue])
+
+  useLayoutEffect(() => {
+    const beam = beamRef.current
+    if (!beam) return
+
+    gsap.killTweensOf(beam)
+
+    if (prefersReducedMotion || status !== 'SCANNING' || Boolean(systemIssue)) {
+      gsap.set(beam, { autoAlpha: 0 })
+      return
+    }
+
+    const tween = gsap.fromTo(
+      beam,
+      { autoAlpha: 0.16, yPercent: -120 },
+      {
+        autoAlpha: 0.9,
+        yPercent: 120,
+        duration: 1.2,
+        ease: 'sine.inOut',
+        repeat: -1,
+        yoyo: true,
+      },
+    )
+
+    return () => {
+      tween.kill()
+    }
+  }, [prefersReducedMotion, status, systemIssue])
+
+  useLayoutEffect(() => {
+    if (prefersReducedMotion || status === 'SCANNING' || !feedback) return
+
+    const overlay = overlayRef.current
+    const card = overlayCardRef.current
+    if (!overlay || !card) return
+
+    const timeline = gsap.timeline({ defaults: { ease: 'power2.out' } })
+    timeline
+      .fromTo(overlay, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.15 })
+      .fromTo(card, { autoAlpha: 0, y: 20, scale: 0.95 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.24 }, 0)
+
+    return () => {
+      timeline.kill()
+    }
+  }, [feedback, prefersReducedMotion, status])
+
   return (
-    <section className="scanner-stage">
-      <header className="scanner-stage__header">
+    <section ref={stageRef} className="scanner-stage">
+      <header className="scanner-stage__header" data-gsap-scan-header>
         <div>
           <p className="scanner-stage__brand">PassMonkey</p>
           <h2 className="scanner-stage__title">Scanner</h2>
@@ -336,12 +426,13 @@ export function ScannerPage() {
         </article>
       ) : (
         <>
-          <div className="scanner-stage__viewport">
+          <div className="scanner-stage__viewport" data-gsap-scan-viewport>
             <div id="reader" className="scanner-stage__reader" />
+            <div ref={beamRef} className="scanner-stage__scan-beam" aria-hidden="true" />
 
             {status !== 'SCANNING' && feedback ? (
-              <div className={`scanner-overlay scanner-overlay--${currentTone}`}>
-                <div className="scanner-overlay__card">
+              <div ref={overlayRef} className={`scanner-overlay scanner-overlay--${currentTone}`}>
+                <div ref={overlayCardRef} className="scanner-overlay__card">
                   <h3>{feedback.title}</h3>
                   {feedback.message ? <p>{feedback.message}</p> : null}
 
@@ -379,7 +470,7 @@ export function ScannerPage() {
             ) : null}
           </div>
 
-          <footer className="scanner-stage__footer">
+          <footer className="scanner-stage__footer" data-gsap-scan-footer>
             <p className="scanner-stage__event">Noche de Inauguracion - Club Noir</p>
             <form className="scanner-stage__manual" onSubmit={handleManualSubmit}>
               <input

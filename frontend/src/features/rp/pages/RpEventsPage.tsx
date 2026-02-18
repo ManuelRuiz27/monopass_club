@@ -1,8 +1,11 @@
-import { useMemo, type KeyboardEvent } from 'react'
+import { useLayoutEffect, useMemo, useRef, type KeyboardEvent } from 'react'
+import { gsap } from 'gsap'
 import { useNavigate } from 'react-router-dom'
 import { useRpAssignments } from '../hooks'
 import { RpStateView } from '../components/RpStateView'
 import { Button, PageLoadingState } from '@/components/ui'
+import { useGsapInteractiveScale } from '@/lib/motion/useGsapInteractiveScale'
+import { usePrefersReducedMotion } from '@/lib/motion/usePrefersReducedMotion'
 
 function formatDateTime(dateValue: string) {
   return new Date(dateValue).toLocaleString([], {
@@ -16,11 +19,15 @@ function formatDateTime(dateValue: string) {
 export function RpEventsPage() {
   const navigate = useNavigate()
   const { data, isLoading, error, refetch } = useRpAssignments()
+  const screenRef = useRef<HTMLDivElement | null>(null)
+  const prefersReducedMotion = usePrefersReducedMotion()
 
   const activeEvents = useMemo(() => {
     if (!data) return []
     return data.events.filter((event) => event.eventActive)
   }, [data])
+
+  useGsapInteractiveScale(screenRef, '.rp-event-card', activeEvents.length, { hoverScale: 1.015, pressScale: 0.985 })
 
   const openGenerate = (assignmentId: string) => {
     navigate(`/rp/generate/${assignmentId}`)
@@ -31,6 +38,39 @@ export function RpEventsPage() {
     event.preventDefault()
     openGenerate(assignmentId)
   }
+
+  useLayoutEffect(() => {
+    if (prefersReducedMotion) return
+
+    const scope = screenRef.current
+    if (!scope) return
+
+    const header = scope.querySelector<HTMLElement>('.rp-screen__header')
+    const cards = gsap.utils.toArray<HTMLElement>('.rp-event-card', scope)
+
+    const timeline = gsap.timeline({ defaults: { ease: 'power2.out' } })
+
+    if (header) {
+      timeline.fromTo(
+        header,
+        { autoAlpha: 0, y: 14 },
+        { autoAlpha: 1, y: 0, duration: 0.24, clearProps: 'opacity,transform' },
+      )
+    }
+
+    if (cards.length > 0) {
+      timeline.fromTo(
+        cards,
+        { autoAlpha: 0, y: 20 },
+        { autoAlpha: 1, y: 0, duration: 0.26, stagger: 0.06, clearProps: 'opacity,transform' },
+        '-=0.08',
+      )
+    }
+
+    return () => {
+      timeline.kill()
+    }
+  }, [activeEvents.length, prefersReducedMotion])
 
   if (isLoading) {
     return <PageLoadingState message="Cargando eventos..." />
@@ -77,7 +117,7 @@ export function RpEventsPage() {
   }
 
   return (
-    <div className="rp-screen">
+    <div ref={screenRef} className="rp-screen">
       <header className="rp-screen__header">
         <h3 className="rp-screen__title">Mis eventos</h3>
         <p className="rp-screen__description">Selecciona un evento para generar accesos.</p>

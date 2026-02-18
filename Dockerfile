@@ -6,6 +6,7 @@ COPY package.json package-lock.json ./
 COPY core-api/package.json core-api/package.json
 COPY scanner-service/package.json scanner-service/package.json
 COPY frontend/package.json frontend/package.json
+COPY landing/package.json landing/package.json
 
 RUN npm ci --workspaces --include-workspace-root
 

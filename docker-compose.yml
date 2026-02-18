@@ -67,6 +67,17 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/monopass?schema=public
       JWT_SECRET: local-dev-jwt-secret-123456
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173,http://localhost:5174}
+      PRICING_EVENT: ${PRICING_EVENT:-750}
+      PRICING_BASE: ${PRICING_BASE:-2999}
+      PRICING_PRO: ${PRICING_PRO:-5000}
+      PRICING_CURRENCY: ${PRICING_CURRENCY:-MXN}
+      MP_ACCESS_TOKEN: ${MP_ACCESS_TOKEN:-}
+      MP_WEBHOOK_SECRET: ${MP_WEBHOOK_SECRET:-}
+      APP_PUBLIC_BASE_URL: ${APP_PUBLIC_BASE_URL:-http://localhost:5174}
+      APP_LOGIN_URL: ${APP_LOGIN_URL:-http://localhost:5173}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-no-reply@passmonkey.club}
       PORT: 4000
     ports:
       - "4000:4000"
@@ -85,8 +96,8 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/monopass?schema=public
       CORE_API_BASE_URL: http://core-api:4000
-      SCANNER_API_KEY: local-scanner-api-key-123
-      JWT_SECRET: local-scanner-jwt-key-123
+      SCANNER_API_KEY: local-dev-jwt-secret-123456
+      JWT_SECRET: local-dev-jwt-secret-123456
       PORT: 4100
     ports:
       - "4100:4100"
@@ -94,18 +105,30 @@ services:
   frontend:
     image: monopass-club-local:latest
     pull_policy: never
-    command: sh -c "ROLLUP_VERSION=$$(node -p \"require('./frontend/node_modules/rollup/package.json').version\") && npm install -w frontend --no-save @rollup/rollup-linux-x64-gnu@$$ROLLUP_VERSION && npm run dev -w frontend -- --host 0.0.0.0 --port 5173"
+    command: sh -c "npm run dev -w frontend -- --host 0.0.0.0 --port 5173"
     depends_on:
       core-api:
         condition: service_started
       scanner-service:
         condition: service_started
     environment:
-      VITE_CORE_API_BASE_URL: http://localhost:4000
-      VITE_SCANNER_API_BASE_URL: http://localhost:4100
-      VITE_PUBLIC_CORE_API_BASE_URL: http://localhost:4000
+      VITE_CORE_API_BASE_URL: http://192.168.100.39:4000
+      VITE_SCANNER_API_BASE_URL: http://192.168.100.39:4100
+      VITE_PUBLIC_CORE_API_BASE_URL: http://192.168.100.39:4000
     ports:
       - "5173:5173"
+
+  landing:
+    image: monopass-club-local:latest
+    pull_policy: never
+    command: sh -c "npm run dev -w landing -- --host 0.0.0.0 --port 5174"
+    depends_on:
+      core-api:
+        condition: service_started
+    environment:
+      VITE_CORE_API_BASE_URL: ${VITE_CORE_API_BASE_URL:-http://localhost:4000}
+    ports:
+      - "5174:5174"
 
 volumes:
   pgdata:

@@ -1,0 +1,525 @@
+openapi: 3.0.3
+info:
+  title: Pass Monkey Public Landing API
+  version: 1.2.0
+  description: Public endpoints consumed by the landing app and Mercado Pago webhook.
+
+servers:
+  - url: https://api.passmonkey.example.com
+    description: Production
+  - url: https://staging-api.passmonkey.example.com
+    description: Staging
+  - url: http://localhost:4000
+    description: Local dev
+
+tags:
+  - name: Landing Public
+    description: Public endpoints consumed by the landing app.
+  - name: Webhooks
+    description: Provider webhooks.
+
+paths:
+  /landing/pricing:
+    get:
+      tags: [Landing Public]
+      summary: Get current pricing for event, base and pro plans
+      operationId: getLandingPricing
+      responses:
+        "200":
+          description: Current prices and currency
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PricingResponse"
+              example:
+                event_price: 750
+                base_price: 2999
+                pro_price: 5000
+                currency: MXN
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /landing/leads:
+    post:
+      tags: [Landing Public]
+      summary: Create a lead from landing forms
+      operationId: createLandingLead
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLeadRequest"
+            example:
+              name: Maria Lopez
+              club: Club Y
+              city: Guadalajara
+              phone: "+523312345678"
+              email: maria@example.com
+              eventDate: "2026-03-07"
+              estimatedVolume: 350
+              utm:
+                source: google
+                medium: cpc
+                campaign: brand_search
+                term: pass monkey
+                content: ad_1
+      responses:
+        "201":
+          description: Lead created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateLeadResponse"
+              example:
+                id: "9a1dc1f2-b04e-45fd-bf36-fd9b2d420c5b"
+                status: created
+        "400":
+          description: Invalid webhook payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebhookErrorResponse"
+              example:
+                success: false
+                message: Invalid webhook payload.
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /landing/events/activation:
+    post:
+      tags: [Landing Public]
+      summary: Create checkout for event activation
+      description: |
+        Creates a pending order in database and attempts checkout generation in Mercado Pago.
+        Behavior depends on environment configuration:
+        - 201: checkout URL generated
+        - 503: MP_ACCESS_TOKEN missing (order is still persisted as pending)
+        - 502: provider failure while creating preference
+      operationId: createLandingActivationCheckout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEventCheckoutRequest"
+            example:
+              clubName: Club X
+              city: San Luis Potosi
+              ownerName: Juan Perez
+              ownerEmail: juan@example.com
+              phone: "+524441234567"
+              utm:
+                source: instagram
+                medium: cpc
+                campaign: launch_feb_2026
+      responses:
+        "201":
+          description: Order created and checkout URL returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateEventCheckoutResponse"
+        "502":
+          description: Provider error while creating preference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProviderErrorResponse"
+              example:
+                status: provider_error
+                orderId: "9a1dc1f2-b04e-45fd-bf36-fd9b2d420c5b"
+                message: Unable to create payment checkout URL at this time.
+        "503":
+          description: Missing payment provider configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfigurationErrorResponse"
+              example:
+                status: configuration_error
+                orderId: "9a1dc1f2-b04e-45fd-bf36-fd9b2d420c5b"
+                message: MP_ACCESS_TOKEN is not configured.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/ServerError"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /landing/orders/{orderId}:
+    get:
+      tags: [Landing Public]
+      summary: Get public status for a landing order
+      operationId: getLandingOrderStatus
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Order status found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LandingOrderStatusResponse"
+        "404":
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                statusCode: 404
+                error: Not Found
+                message: Order not found.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /webhooks/mercadopago:
+    post:
+      tags: [Webhooks]
+      summary: Mercado Pago webhook receiver
+      description: |
+        Processes Mercado Pago notification payload and updates order status.
+        On approved payments, provisioning is executed (manager user + club + initial event + event license).
+        If email provider is configured, temporary credentials are sent by email.
+        If MP_ACCESS_TOKEN is missing, returns 501.
+      operationId: mercadopagoWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MercadoPagoWebhookPayload"
+      responses:
+        "200":
+          description: Webhook acknowledged (target behavior)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebhookAck"
+        "501":
+          description: Missing webhook provider configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebhookNotImplementedResponse"
+              example:
+                success: false
+                message: Webhook handler requires MP_ACCESS_TOKEN.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+components:
+  responses:
+    BadRequest:
+      description: Validation error or malformed payload
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+          example:
+            statusCode: 400
+            error: Bad Request
+            message: Invalid request body
+    ServerError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+          example:
+            statusCode: 500
+            error: Internal Server Error
+            message: Unexpected error
+    Unauthorized:
+      description: Invalid webhook signature
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/WebhookErrorResponse"
+          example:
+            success: false
+            message: Invalid webhook signature.
+    TooManyRequests:
+      description: Request rate limit exceeded
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds until next allowed request.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RateLimitedResponse"
+          example:
+            status: rate_limited
+            message: Too many requests. Please retry later.
+
+  schemas:
+    ApiError:
+      type: object
+      additionalProperties: false
+      required: [statusCode, error, message]
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+        error:
+          type: string
+        message:
+          type: string
+
+    UTM:
+      type: object
+      additionalProperties: false
+      properties:
+        source:
+          type: string
+          nullable: true
+        medium:
+          type: string
+          nullable: true
+        campaign:
+          type: string
+          nullable: true
+        term:
+          type: string
+          nullable: true
+        content:
+          type: string
+          nullable: true
+
+    PricingResponse:
+      type: object
+      additionalProperties: false
+      required: [event_price, base_price, pro_price, currency]
+      properties:
+        event_price:
+          type: integer
+          format: int32
+          minimum: 0
+        base_price:
+          type: integer
+          format: int32
+          minimum: 0
+        pro_price:
+          type: integer
+          format: int32
+          minimum: 0
+        currency:
+          type: string
+          example: MXN
+
+    CreateLeadRequest:
+      type: object
+      additionalProperties: false
+      required: [name, club, city, phone]
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 120
+        club:
+          type: string
+          minLength: 2
+          maxLength: 120
+        city:
+          type: string
+          minLength: 2
+          maxLength: 120
+        phone:
+          type: string
+          minLength: 7
+          maxLength: 32
+        email:
+          type: string
+          format: email
+          nullable: true
+        eventDate:
+          type: string
+          format: date
+          nullable: true
+        estimatedVolume:
+          type: integer
+          format: int32
+          minimum: 1
+          nullable: true
+        utm:
+          $ref: "#/components/schemas/UTM"
+
+    CreateLeadResponse:
+      type: object
+      additionalProperties: false
+      required: [id, status]
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum: [created]
+
+    CreateEventCheckoutRequest:
+      type: object
+      additionalProperties: false
+      required: [clubName, city, ownerName, ownerEmail, phone]
+      properties:
+        clubName:
+          type: string
+          minLength: 2
+          maxLength: 120
+        city:
+          type: string
+          minLength: 2
+          maxLength: 120
+        ownerName:
+          type: string
+          minLength: 2
+          maxLength: 120
+        ownerEmail:
+          type: string
+          format: email
+        phone:
+          type: string
+          minLength: 7
+          maxLength: 32
+        utm:
+          $ref: "#/components/schemas/UTM"
+
+    CreateEventCheckoutResponse:
+      type: object
+      additionalProperties: false
+      required: [orderId, paymentUrl]
+      properties:
+        orderId:
+          type: string
+        paymentUrl:
+          type: string
+          format: uri
+
+    ConfigurationErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [status, orderId, message]
+      properties:
+        status:
+          type: string
+          enum: [configuration_error]
+        orderId:
+          type: string
+        message:
+          type: string
+
+    ProviderErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [status, orderId, message]
+      properties:
+        status:
+          type: string
+          enum: [provider_error]
+        orderId:
+          type: string
+        message:
+          type: string
+
+    MercadoPagoWebhookPayload:
+      type: object
+      additionalProperties: true
+      description: Generic payload received from Mercado Pago notifications.
+
+    WebhookAck:
+      type: object
+      additionalProperties: false
+      required: [success]
+      properties:
+        success:
+          type: boolean
+          example: true
+
+    WebhookNotImplementedResponse:
+      type: object
+      additionalProperties: false
+      required: [success, message]
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        message:
+          type: string
+
+    WebhookErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [success, message]
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        message:
+          type: string
+
+    RateLimitedResponse:
+      type: object
+      additionalProperties: false
+      required: [status, message]
+      properties:
+        status:
+          type: string
+          enum: [rate_limited]
+        message:
+          type: string
+
+    LandingOrderStatusResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - orderId
+        - paymentStatus
+        - provisioningStatus
+        - amount
+        - currency
+        - createdAt
+      properties:
+        orderId:
+          type: string
+          format: uuid
+        paymentStatus:
+          type: string
+          enum: [PENDING, PAID, FAILED]
+        provisioningStatus:
+          type: string
+          enum: [NOT_STARTED, PROVISIONED, FAILED]
+        amount:
+          type: integer
+          format: int32
+        currency:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        paidAt:
+          type: string
+          format: date-time
+          nullable: true
+        credentialsEmailSentAt:
+          type: string
+          format: date-time
+          nullable: true
+        credentialsEmailError:
+          type: string
+          nullable: true

@@ -1,7 +1,8 @@
-import { lazy, Suspense, type ReactNode } from 'react'
-import { Navigate, Outlet } from 'react-router-dom'
+import { lazy, Suspense, useRef, type ReactNode } from 'react'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import type { RouteObject } from 'react-router-dom'
 import { PagePlaceholder } from '@/components/PagePlaceholder'
+import { useGsapRouteTransition } from '@/lib/motion/useGsapRouteTransition'
 
 const RpEventsPage = lazy(async () => ({ default: (await import('@/features/rp/pages/RpEventsPage')).RpEventsPage }))
 const RpGeneratePage = lazy(async () => ({ default: (await import('@/features/rp/pages/RpGeneratePage')).RpGeneratePage }))
@@ -65,5 +66,16 @@ export const rpRoutes: RouteObject[] = sections.map((section) => {
 rpRoutes.unshift({ index: true, element: <Navigate to="events" replace /> })
 
 export function RpShell() {
-  return <Outlet />
+  const location = useLocation()
+  const shellRef = useRef<HTMLDivElement | null>(null)
+
+  useGsapRouteTransition(shellRef, location.key || location.pathname)
+
+  return (
+    <div ref={shellRef} className="motion-route-shell">
+      <div data-gsap-route-panel>
+        <Outlet />
+      </div>
+    </div>
+  )
 }

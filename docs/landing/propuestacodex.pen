@@ -1,0 +1,5278 @@
+{
+  "version": "2.8",
+  "children": [
+    {
+      "type": "frame",
+      "id": "z9O7O",
+      "x": 0,
+      "y": 0,
+      "name": "Pass Monkey Landing - Desktop 1440",
+      "width": 1440,
+      "fill": "#0B0B12",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "laQgm",
+          "name": "01 Hero",
+          "width": "fill_container",
+          "fill": "#0B0B12",
+          "layout": "vertical",
+          "gap": 24,
+          "padding": [
+            64,
+            120
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "wDOBE",
+              "name": "Hero Content",
+              "width": "fill_container",
+              "gap": 36,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "ZvSkv",
+                  "name": "Hero Left",
+                  "width": 620,
+                  "layout": "vertical",
+                  "gap": 20,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "pqXkH",
+                      "name": "h1badge",
+                      "fill": "#7A5CFF",
+                      "content": "OPERACION NOCTURNA PROFESIONAL",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "medium"
+                    },
+                    {
+                      "type": "text",
+                      "id": "TT8EI",
+                      "name": "h1title",
+                      "fill": "#EAEAF0",
+                      "content": "Deja de imprimir\nboletos.",
+                      "fontFamily": "Inter",
+                      "fontSize": 60,
+                      "fontWeight": "bold"
+                    },
+                    {
+                      "type": "text",
+                      "id": "beTLP",
+                      "name": "h1sub",
+                      "fill": "#BEBECC",
+                      "content": "Controla accesos en tiempo real con QR dinamico y escaneo profesional en puerta.",
+                      "fontFamily": "Inter",
+                      "fontSize": 22,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "rytQw",
+                      "name": "Hero CTA Row",
+                      "gap": 12,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "8TSPR",
+                          "name": "CTA Primary",
+                          "fill": "#5B2EFF",
+                          "cornerRadius": 14,
+                          "padding": [
+                            14,
+                            22
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "yyjws",
+                              "name": "h1ctaPrimaryTxt",
+                              "fill": "#FFFFFF",
+                              "content": "Activar 1 evento por $750",
+                              "fontFamily": "Inter",
+                              "fontSize": 16,
+                              "fontWeight": "semibold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "y0sDh",
+                          "name": "CTA Secondary",
+                          "fill": "#11111C",
+                          "cornerRadius": 14,
+                          "padding": [
+                            14,
+                            22
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "LPSnX",
+                              "name": "h1ctaSecondaryTxt",
+                              "fill": "#CFCFE0",
+                              "content": "Ver planes mensuales",
+                              "fontFamily": "Inter",
+                              "fontSize": 16,
+                              "fontWeight": "medium"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "qWeez",
+                      "name": "h1micro",
+                      "fill": "#9C9CAD",
+                      "content": "Activo en minutos. Sin contratos. Pago por evento o mensual.",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "5dDtn",
+                  "name": "Hero Right",
+                  "metadata": {
+                    "type": "unsplash",
+                    "username": "stalkr",
+                    "link": "https://unsplash.com/@stalkr",
+                    "author": "sebastian herrera"
+                  },
+                  "width": "fill_container",
+                  "height": 420,
+                  "fill": {
+                    "type": "image",
+                    "enabled": true,
+                    "url": "https://images.unsplash.com/photo-1676401863280-838787381d9e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzEyMTgwNjh8&ixlib=rb-4.1.0&q=80&w=1080",
+                    "mode": "fill"
+                  },
+                  "cornerRadius": 22,
+                  "layout": "vertical",
+                  "gap": 14,
+                  "padding": 20,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "6t3nK",
+                      "name": "Status Badge",
+                      "fill": "#0F2A18",
+                      "cornerRadius": 999,
+                      "padding": [
+                        8,
+                        12
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "4XCGd",
+                          "name": "h1statusTxt",
+                          "fill": "#00E676",
+                          "content": "VALIDADO",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "bold"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "hsokK",
+                      "name": "Realtime Strip",
+                      "width": "fill_container",
+                      "fill": "#0F0F1A",
+                      "cornerRadius": 12,
+                      "padding": [
+                        12,
+                        14
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "69AvI",
+                          "name": "h1kpiL",
+                          "fill": "#BEBECC",
+                          "content": "Escaneos en puerta",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "medium"
+                        },
+                        {
+                          "type": "text",
+                          "id": "7Ia3V",
+                          "name": "h1kpiR",
+                          "fill": "#7A5CFF",
+                          "content": "Tiempo real",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "semibold"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "bJUn9",
+          "name": "02 Como Funciona",
+          "width": "fill_container",
+          "fill": "#0D0D16",
+          "layout": "vertical",
+          "gap": 24,
+          "padding": [
+            64,
+            120
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "05KhH",
+              "name": "s2title",
+              "fill": "#EAEAF0",
+              "content": "Digitaliza tu proximo evento en 3 pasos.",
+              "fontFamily": "Inter",
+              "fontSize": 38,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "text",
+              "id": "bNj3f",
+              "name": "s2sub",
+              "fill": "#B7B7C8",
+              "content": "Operacion clara. Sin papel. Sin caos.",
+              "fontFamily": "Inter",
+              "fontSize": 16,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "Dbyk6",
+              "name": "Steps Row",
+              "width": "fill_container",
+              "gap": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "4TmkO",
+                  "name": "Paso 1",
+                  "width": "fill_container",
+                  "fill": "#121223",
+                  "cornerRadius": 18,
+                  "layout": "vertical",
+                  "gap": 10,
+                  "padding": 18,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "IYCVp",
+                      "name": "s2numA",
+                      "fill": "#7A5CFF",
+                      "content": "01",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "bold"
+                    },
+                    {
+                      "type": "text",
+                      "id": "ZnX0z",
+                      "name": "s2ttlA",
+                      "fill": "#EAEAF0",
+                      "content": "Crea tu evento",
+                      "fontFamily": "Inter",
+                      "fontSize": 22,
+                      "fontWeight": "semibold"
+                    },
+                    {
+                      "type": "text",
+                      "id": "8Xjcg",
+                      "name": "s2txtA",
+                      "fill": "#BEBECC",
+                      "content": "En minutos.",
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "1OVcG",
+                  "name": "Paso 2",
+                  "width": "fill_container",
+                  "fill": "#121223",
+                  "cornerRadius": 18,
+                  "layout": "vertical",
+                  "gap": 10,
+                  "padding": 18,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "iBZof",
+                      "name": "s2numB",
+                      "fill": "#7A5CFF",
+                      "content": "02",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "bold"
+                    },
+                    {
+                      "type": "text",
+                      "id": "cjkQW",
+                      "name": "s2ttlB",
+                      "fill": "#EAEAF0",
+                      "content": "Genera accesos digitales",
+                      "fontFamily": "Inter",
+                      "fontSize": 22,
+                      "fontWeight": "semibold"
+                    },
+                    {
+                      "type": "text",
+                      "id": "qq4vQ",
+                      "name": "s2txtB",
+                      "fill": "#BEBECC",
+                      "content": "Con una experiencia personal.",
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "OK0w8",
+                  "name": "Paso 3",
+                  "width": "fill_container",
+                  "fill": "#121223",
+                  "cornerRadius": 18,
+                  "layout": "vertical",
+                  "gap": 10,
+                  "padding": 18,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "i2bCD",
+                      "name": "s2numC",
+                      "fill": "#7A5CFF",
+                      "content": "03",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "bold"
+                    },
+                    {
+                      "type": "text",
+                      "id": "RsJh7",
+                      "name": "s2ttlC",
+                      "fill": "#EAEAF0",
+                      "content": "Valida en puerta ",
+                      "fontFamily": "Inter",
+                      "fontSize": 22,
+                      "fontWeight": "semibold"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Qn9FX",
+                      "name": "s2txtC",
+                      "fill": "#BEBECC",
+                      "content": "Escaneo rapido con registro en tiempo real",
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "lBQr7",
+          "name": "03 Beneficios",
+          "width": "fill_container",
+          "fill": "#0B0B12",
+          "layout": "vertical",
+          "gap": 20,
+          "padding": [
+            56,
+            120
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "eahtI",
+              "name": "b3title",
+              "fill": "#EAEAF0",
+              "content": "Beneficios clave en operacion",
+              "fontFamily": "Inter",
+              "fontSize": 34,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "Fia6p",
+              "name": "Benefits Grid",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "bNFuz",
+                  "name": "Benefits Row A",
+                  "width": "fill_container",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "qJpKr",
+                      "name": "b3cardA",
+                      "width": "fill_container",
+                      "fill": "#11111E",
+                      "cornerRadius": 16,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 14,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "QRLsC",
+                          "name": "b3txtA",
+                          "fill": "#D8D8E8",
+                          "content": "Menos filas y menos broncas en puerta",
+                          "fontFamily": "Inter",
+                          "fontSize": 18,
+                          "fontWeight": "medium"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Nhrm6",
+                      "name": "b3cardB",
+                      "width": "fill_container",
+                      "fill": "#11111E",
+                      "cornerRadius": 16,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 14,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "rm03q",
+                          "name": "b3txtB",
+                          "fill": "#D8D8E8",
+                          "content": "Reduce clonaciones y reingresos",
+                          "fontFamily": "Inter",
+                          "fontSize": 18,
+                          "fontWeight": "medium"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "4dY18",
+                  "name": "Benefits Row B",
+                  "width": "fill_container",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "VkArh",
+                      "name": "b3cardC",
+                      "width": "fill_container",
+                      "fill": "#11111E",
+                      "cornerRadius": 16,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 14,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "iPm7l",
+                          "name": "b3txtC",
+                          "fill": "#D8D8E8",
+                          "content": "Escaneo rapido + Monitoreo en tiempo real",
+                          "fontFamily": "Inter",
+                          "fontSize": 18,
+                          "fontWeight": "medium"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "IA7Mt",
+                      "name": "b3cardD",
+                      "width": "fill_container",
+                      "fill": "#11111E",
+                      "cornerRadius": 16,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 14,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "hfeKe",
+                          "name": "b3txtD",
+                          "fill": "#D8D8E8",
+                          "content": "Dashboard del evento: confirmados y escaneados",
+                          "fontFamily": "Inter",
+                          "fontSize": 18,
+                          "fontWeight": "medium"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "VGt5V",
+          "name": "04 Pricing",
+          "width": "fill_container",
+          "fill": "#0D0D16",
+          "layout": "vertical",
+          "gap": 24,
+          "padding": [
+            64,
+            120
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "dtr0I",
+              "name": "p4title",
+              "fill": "#EAEAF0",
+              "content": "Elige tu modo de operacion",
+              "fontFamily": "Inter",
+              "fontSize": 36,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "text",
+              "id": "Qc09B",
+              "name": "p4sub",
+              "fill": "#B7B7C8",
+              "content": "Pago automatico o mensual manual. Cancelacion flexible.",
+              "fontFamily": "Inter",
+              "fontSize": 15,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "FIQul",
+              "name": "Pricing Row",
+              "width": "fill_container",
+              "gap": 14,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "xAx0L",
+                  "name": "Evento Individual",
+                  "width": "fill_container",
+                  "fill": "#11111E",
+                  "cornerRadius": 18,
+                  "layout": "vertical",
+                  "gap": 10,
+                  "padding": 20,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "9GZgs",
+                      "name": "p4aPlan",
+                      "fill": "#EAEAF0",
+                      "content": "Evento Individual",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "semibold"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Urukj",
+                      "name": "p4aPrice",
+                      "fill": "#FFFFFF",
+                      "content": "$750 MXN / evento",
+                      "fontFamily": "Inter",
+                      "fontSize": 34,
+                      "fontWeight": "bold"
+                    },
+                    {
+                      "type": "text",
+                      "id": "iVocr",
+                      "name": "p4aDesc",
+                      "fill": "#BEBECC",
+                      "content": "Ideal para probar en tu proximo evento.",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "WC0xR",
+                      "name": "p4aBtn",
+                      "fill": "#5B2EFF",
+                      "cornerRadius": 12,
+                      "padding": [
+                        12,
+                        14
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "sZN1J",
+                          "name": "p4aBtnTxt",
+                          "fill": "#FFFFFF",
+                          "content": "Activar 1 evento",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "semibold"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "m0Ikr",
+                  "name": "Plan Club",
+                  "width": "fill_container",
+                  "fill": "#131328",
+                  "cornerRadius": 18,
+                  "layout": "vertical",
+                  "gap": 10,
+                  "padding": 20,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "lyNZU",
+                      "name": "p4bPlan",
+                      "fill": "#FFFFFF",
+                      "content": "Plan Club",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "semibold"
+                    },
+                    {
+                      "type": "text",
+                      "id": "o5NRP",
+                      "name": "p4bPrice",
+                      "fill": "#FFFFFF",
+                      "content": "$2,999 MXN / mes",
+                      "fontFamily": "Inter",
+                      "fontSize": 34,
+                      "fontWeight": "bold"
+                    },
+                    {
+                      "type": "text",
+                      "id": "SaUOZ",
+                      "name": "p4bDesc",
+                      "fill": "#D2D2E4",
+                      "content": "Incluye 4 eventos. Recomendado para operacion continua.",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "gIlNw",
+                      "name": "p4bBtn",
+                      "fill": "#5B2EFF",
+                      "cornerRadius": 12,
+                      "padding": [
+                        12,
+                        14
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "zyakO",
+                          "name": "p4bBtnTxt",
+                          "fill": "#FFFFFF",
+                          "content": "Contratar Plan Club",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "semibold"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "819hZ",
+                  "name": "Plan Pro",
+                  "width": "fill_container",
+                  "fill": "#11111E",
+                  "cornerRadius": 18,
+                  "layout": "vertical",
+                  "gap": 10,
+                  "padding": 20,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Vc0Cc",
+                      "name": "p4cPlan",
+                      "fill": "#EAEAF0",
+                      "content": "Plan Pro",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "semibold"
+                    },
+                    {
+                      "type": "text",
+                      "id": "57I87",
+                      "name": "p4cPrice",
+                      "fill": "#FFFFFF",
+                      "content": "~$5,000 MXN / mes",
+                      "fontFamily": "Inter",
+                      "fontSize": 34,
+                      "fontWeight": "bold"
+                    },
+                    {
+                      "type": "text",
+                      "id": "sBpQs",
+                      "name": "p4cDesc",
+                      "fill": "#BEBECC",
+                      "content": "Incluye 12 eventos para venues de alta rotacion.",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "FQRE1",
+                      "name": "p4cBtn",
+                      "fill": "#1A1A2C",
+                      "cornerRadius": 12,
+                      "padding": [
+                        12,
+                        14
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "FC37c",
+                          "name": "p4cBtnTxt",
+                          "fill": "#D9D9E8",
+                          "content": "Quiero el Plan Pro",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "medium"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "JC5a1",
+          "name": "05 Comparativo",
+          "width": "fill_container",
+          "fill": "#0B0B12",
+          "layout": "vertical",
+          "gap": 20,
+          "padding": [
+            56,
+            120
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "swDja",
+              "name": "c5title",
+              "fill": "#EAEAF0",
+              "content": "Tradicional vs Pass Monkey",
+              "fontFamily": "Inter",
+              "fontSize": 34,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "99Bq4",
+              "name": "Comparativo Table",
+              "width": "fill_container",
+              "fill": "#11111E",
+              "cornerRadius": 16,
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "lF7kx",
+                  "name": "Table Head",
+                  "width": "fill_container",
+                  "height": 54,
+                  "fill": "#151529",
+                  "padding": [
+                    14,
+                    18
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Te5aq",
+                      "name": "c5headL",
+                      "fill": "#BEBECC",
+                      "content": "Tradicional",
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "semibold"
+                    },
+                    {
+                      "type": "text",
+                      "id": "oaGmU",
+                      "name": "c5headR",
+                      "fill": "#EAEAF0",
+                      "content": "Pass Monkey",
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "semibold"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "9jxFL",
+                  "name": "c5row1",
+                  "width": "fill_container",
+                  "height": 52,
+                  "fill": "#11111E",
+                  "padding": [
+                    14,
+                    18
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "rux3V",
+                      "name": "c5r1l",
+                      "fill": "#B7B7C8",
+                      "content": "Impresion y talonarios",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "TuL7d",
+                      "name": "c5r1r",
+                      "fill": "#E2E2F0",
+                      "content": "QR dinamico",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "IOGQE",
+                  "name": "c5row2",
+                  "width": "fill_container",
+                  "height": 52,
+                  "fill": "#11111E",
+                  "padding": [
+                    14,
+                    18
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "5C9zA",
+                      "name": "c5r2l",
+                      "fill": "#B7B7C8",
+                      "content": "Control manual",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "NnasF",
+                      "name": "c5r2r",
+                      "fill": "#E2E2F0",
+                      "content": "Escaneo en tiempo real",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "sAB6e",
+                  "name": "c5row3",
+                  "width": "fill_container",
+                  "height": 52,
+                  "fill": "#11111E",
+                  "padding": [
+                    14,
+                    18
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "54ibB",
+                      "name": "c5r3l",
+                      "fill": "#B7B7C8",
+                      "content": "Sin metricas",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "wVMOK",
+                      "name": "c5r3r",
+                      "fill": "#E2E2F0",
+                      "content": "Dashboard",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "G3RIp",
+                  "name": "c5row4",
+                  "width": "fill_container",
+                  "height": 52,
+                  "fill": "#11111E",
+                  "padding": [
+                    14,
+                    18
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "QJHKf",
+                      "name": "c5r4l",
+                      "fill": "#B7B7C8",
+                      "content": "Riesgo de clonacion",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "j0i6O",
+                      "name": "c5r4r",
+                      "fill": "#E2E2F0",
+                      "content": "Validacion + auditoria",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "I73bJ",
+          "name": "06 FAQ",
+          "width": "fill_container",
+          "fill": "#0D0D16",
+          "layout": "vertical",
+          "gap": 16,
+          "padding": [
+            56,
+            120
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "Wjino",
+              "name": "f6title",
+              "fill": "#EAEAF0",
+              "content": "Preguntas frecuentes",
+              "fontFamily": "Inter",
+              "fontSize": 34,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "3lCvI",
+              "name": "f6item1",
+              "width": "fill_container",
+              "fill": "#121223",
+              "cornerRadius": 14,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": [
+                14,
+                16
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "SM8zR",
+                  "name": "f6q1",
+                  "fill": "#EAEAF0",
+                  "content": "Que necesito en puerta?",
+                  "fontFamily": "Inter",
+                  "fontSize": 17,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "FoQtQ",
+                  "name": "f6a1",
+                  "fill": "#BEBECC",
+                  "content": "1 celular por scanner.",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "fx128",
+              "name": "f6item2",
+              "width": "fill_container",
+              "fill": "#121223",
+              "cornerRadius": 14,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": [
+                14,
+                16
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "m0YWG",
+                  "name": "f6q2",
+                  "fill": "#EAEAF0",
+                  "content": "Puedo usarlo solo una vez?",
+                  "fontFamily": "Inter",
+                  "fontSize": 17,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "4sSi1",
+                  "name": "f6a2",
+                  "fill": "#BEBECC",
+                  "content": "Si, $750 por evento.",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "nXCNO",
+              "name": "f7item3",
+              "width": "fill_container",
+              "fill": "#121223",
+              "cornerRadius": 14,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": [
+                14,
+                16
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "yrIl5",
+                  "name": "f7q3",
+                  "fill": "#EAEAF0",
+                  "content": "Cuanto tarda en activarse?",
+                  "fontFamily": "Inter",
+                  "fontSize": 17,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "RJKPJ",
+                  "name": "f7a3",
+                  "fill": "#BEBECC",
+                  "content": "Inmediato tras pago.",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "x8WKf",
+              "name": "f7item4",
+              "width": "fill_container",
+              "fill": "#121223",
+              "cornerRadius": 14,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": [
+                14,
+                16
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "jisCk",
+                  "name": "f7q4",
+                  "fill": "#EAEAF0",
+                  "content": "Funciona sin internet?",
+                  "fontFamily": "Inter",
+                  "fontSize": 17,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "vBjoh",
+                  "name": "f7a4",
+                  "fill": "#BEBECC",
+                  "content": "Requiere conexion activa.",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "gJLxi",
+              "name": "f7item5",
+              "width": "fill_container",
+              "fill": "#121223",
+              "cornerRadius": 14,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": [
+                14,
+                16
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "GYpYz",
+                  "name": "f7q5",
+                  "fill": "#EAEAF0",
+                  "content": "Puedo cambiar a plan mensual despues?",
+                  "fontFamily": "Inter",
+                  "fontSize": 17,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "IbLKb",
+                  "name": "f7a5",
+                  "fill": "#BEBECC",
+                  "content": "Si, upgrade desde el panel.",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "W2GeR",
+          "name": "07 CTA Final",
+          "width": "fill_container",
+          "fill": "#0B0B12",
+          "layout": "vertical",
+          "gap": 18,
+          "padding": [
+            56,
+            120
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "yLRQP",
+              "name": "f7ctaTitle",
+              "fill": "#FFFFFF",
+              "content": "Listo para tu siguiente evento?",
+              "fontFamily": "Inter",
+              "fontSize": 40,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "text",
+              "id": "BBQ9X",
+              "name": "f7ctaSub",
+              "fill": "#C2C2D2",
+              "content": "Activa hoy por $750 y opera en minutos.",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "jX6gz",
+              "name": "f7ctaRow",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "5Rtxo",
+                  "name": "f7ctaPrim",
+                  "fill": "#5B2EFF",
+                  "cornerRadius": 14,
+                  "padding": [
+                    14,
+                    24
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "EBpcw",
+                      "name": "f7ctaPrimTxt",
+                      "fill": "#FFFFFF",
+                      "content": "Activar 1 evento por $750",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "semibold"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "n6BPx",
+                  "name": "f7ctaSec",
+                  "fill": "#131326",
+                  "cornerRadius": 14,
+                  "padding": [
+                    14,
+                    24
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "X3nxN",
+                      "name": "f7ctaSecTxt",
+                      "fill": "#D7D7E6",
+                      "content": "Agendar demo",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "medium"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "YVtYv",
+          "name": "08 Footer",
+          "width": "fill_container",
+          "fill": "#090910",
+          "layout": "vertical",
+          "gap": 16,
+          "padding": [
+            40,
+            120
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "dgqWq",
+              "name": "ft8logo",
+              "fill": "#F0F0FA",
+              "content": "PASS MONKEY",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "text",
+              "id": "3FZaf",
+              "name": "ft8tag",
+              "fill": "#A3A3B4",
+              "content": "Control de acceso profesional para eventos nocturnos.",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "4hI73",
+              "name": "ft8links",
+              "width": "fill_container",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "tH26w",
+                  "name": "ft8l1",
+                  "fill": "#9A9AAC",
+                  "content": "Aviso de privacidad",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "pjpVH",
+                  "name": "ft8l2",
+                  "fill": "#9A9AAC",
+                  "content": "Terminos",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "ImojU",
+                  "name": "ft8l3",
+                  "fill": "#BFBFD0",
+                  "content": "contacto@passmonkey.club",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "Ma29U",
+      "x": 2448,
+      "y": 0,
+      "name": "Pass Monkey Landing - Mobile 390",
+      "width": 390,
+      "fill": "#0B0B12",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "a98ud",
+          "name": "01 Hero Mobile",
+          "width": "fill_container",
+          "fill": "#0B0B12",
+          "layout": "vertical",
+          "gap": 16,
+          "padding": [
+            40,
+            20
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "tFVFO",
+              "name": "mh1badge",
+              "fill": "#7A5CFF",
+              "content": "OPERACION NOCTURNA",
+              "fontFamily": "Inter",
+              "fontSize": 11,
+              "fontWeight": "medium"
+            },
+            {
+              "type": "text",
+              "id": "RutXK",
+              "name": "mh1title",
+              "fill": "#F1F1FB",
+              "content": "Deja de imprimir boletos.",
+              "fontFamily": "Inter",
+              "fontSize": 42,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "text",
+              "id": "wz5Ff",
+              "name": "mh1sub",
+              "fill": "#C5C5D6",
+              "content": "Controla accesos en tiempo real con QR dinamico y escaneo profesional en puerta.",
+              "fontFamily": "Inter",
+              "fontSize": 17,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "54Ur2",
+              "name": "mh1ctaA",
+              "width": "fill_container",
+              "fill": "#5B2EFF",
+              "cornerRadius": 12,
+              "padding": [
+                13,
+                16
+              ],
+              "justifyContent": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "BPQG3",
+                  "name": "mh1ctaATxt",
+                  "fill": "#FFFFFF",
+                  "content": "Activar 1 evento por $750",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "semibold"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "vUwzw",
+              "name": "mh1ctaB",
+              "width": "fill_container",
+              "fill": "#141428",
+              "cornerRadius": 12,
+              "padding": [
+                13,
+                16
+              ],
+              "justifyContent": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "BuJef",
+                  "name": "mh1ctaBTxt",
+                  "fill": "#D7D7E6",
+                  "content": "Ver planes mensuales",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "medium"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "9OWGo",
+              "name": "mh1micro",
+              "fill": "#9999AA",
+              "content": "Activo en minutos. Sin contratos.",
+              "fontFamily": "Inter",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "kbrVv",
+              "name": "mh1media",
+              "metadata": {
+                "type": "unsplash",
+                "username": "rbnsnlk",
+                "link": "https://unsplash.com/@rbnsnlk",
+                "author": "Luke Robinson"
+              },
+              "width": "fill_container",
+              "height": 240,
+              "fill": {
+                "type": "image",
+                "enabled": true,
+                "url": "https://images.unsplash.com/photo-1761902695213-c1071f8a2ba3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzEyMTgxOTN8&ixlib=rb-4.1.0&q=80&w=1080",
+                "mode": "fill"
+              },
+              "cornerRadius": 18,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "pNRNz",
+                  "name": "mh1ok",
+                  "fill": "#0F2A18",
+                  "cornerRadius": 999,
+                  "padding": [
+                    7,
+                    10
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "iiRuq",
+                      "name": "mh1okTxt",
+                      "fill": "#00E676",
+                      "content": "VALIDADO",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "bold"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "gfaJg",
+          "name": "02 Como Funciona Mobile",
+          "width": "fill_container",
+          "fill": "#0D0D16",
+          "layout": "vertical",
+          "gap": 16,
+          "padding": [
+            36,
+            20
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "icbA3",
+              "name": "ms2title",
+              "fill": "#ECECF6",
+              "content": "Digitaliza tu proximo evento en 3 pasos",
+              "fontFamily": "Inter",
+              "fontSize": 28,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "K1Ecr",
+              "name": "ms2c1",
+              "width": "fill_container",
+              "fill": "#121223",
+              "cornerRadius": 14,
+              "layout": "vertical",
+              "gap": 6,
+              "padding": 14,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "I0DNc",
+                  "name": "ms2c1n",
+                  "fill": "#7A5CFF",
+                  "content": "01",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "YeMlZ",
+                  "name": "ms2c1t",
+                  "fill": "#ECECF6",
+                  "content": "Crea tu evento",
+                  "fontFamily": "Inter",
+                  "fontSize": 18,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "SbfGl",
+                  "name": "ms2c1d",
+                  "fill": "#BABACB",
+                  "content": "Configura fecha y acceso.",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "FUdjA",
+              "name": "ms2c2",
+              "width": "fill_container",
+              "fill": "#121223",
+              "cornerRadius": 14,
+              "layout": "vertical",
+              "gap": 6,
+              "padding": 14,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "AXTwc",
+                  "name": "ms2c2n",
+                  "fill": "#7A5CFF",
+                  "content": "02",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "5oa0A",
+                  "name": "ms2c2t",
+                  "fill": "#ECECF6",
+                  "content": "Genera accesos digitales",
+                  "fontFamily": "Inter",
+                  "fontSize": 18,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "M7HyC",
+                  "name": "ms2c2d",
+                  "fill": "#BABACB",
+                  "content": "Entrega QR dinamico.",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "rzRRl",
+              "name": "ms2c3",
+              "width": "fill_container",
+              "fill": "#121223",
+              "cornerRadius": 14,
+              "layout": "vertical",
+              "gap": 6,
+              "padding": 14,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "AEEpo",
+                  "name": "ms2c3n",
+                  "fill": "#7A5CFF",
+                  "content": "03",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "5j1hm",
+                  "name": "ms2c3t",
+                  "fill": "#ECECF6",
+                  "content": "Valida en puerta en segundos",
+                  "fontFamily": "Inter",
+                  "fontSize": 18,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "bPBgx",
+                  "name": "ms2c3d",
+                  "fill": "#BABACB",
+                  "content": "Escaneo rapido y auditoria.",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "KEYSQ",
+          "name": "03 Beneficios Mobile",
+          "width": "fill_container",
+          "fill": "#0B0B12",
+          "layout": "vertical",
+          "gap": 14,
+          "padding": [
+            32,
+            20
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "KqLpY",
+              "name": "mb3title",
+              "fill": "#ECECF6",
+              "content": "Beneficios clave",
+              "fontFamily": "Inter",
+              "fontSize": 28,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "u6o7A",
+              "name": "mb3b1",
+              "width": "fill_container",
+              "fill": "#11111E",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "padding": [
+                12,
+                14
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "YFc51",
+                  "name": "mb3t1",
+                  "fill": "#DCDCEC",
+                  "content": "Menos filas y menos broncas en puerta",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "medium"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "cl32I",
+              "name": "mb3b2",
+              "width": "fill_container",
+              "fill": "#11111E",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "padding": [
+                12,
+                14
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "XJioD",
+                  "name": "mb3t2",
+                  "fill": "#DCDCEC",
+                  "content": "Reduce clonaciones y reingresos",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "medium"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "chVCu",
+              "name": "mb3b3",
+              "width": "fill_container",
+              "fill": "#11111E",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "padding": [
+                12,
+                14
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "3D2bq",
+                  "name": "mb3t3",
+                  "fill": "#DCDCEC",
+                  "content": "Escaneo rapido + auditoria de accesos",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "medium"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "EtD2m",
+              "name": "mb3b4",
+              "width": "fill_container",
+              "fill": "#11111E",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "padding": [
+                12,
+                14
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "ObTep",
+                  "name": "mb3t4",
+                  "fill": "#DCDCEC",
+                  "content": "Dashboard con confirmados y escaneados",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "medium"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "ErLob",
+          "name": "04 Pricing Mobile",
+          "width": "fill_container",
+          "fill": "#0D0D16",
+          "layout": "vertical",
+          "gap": 14,
+          "padding": [
+            36,
+            20
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "U8y4q",
+              "name": "mp4title",
+              "fill": "#F0F0FA",
+              "content": "Planes y precios",
+              "fontFamily": "Inter",
+              "fontSize": 30,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "text",
+              "id": "ALFUe",
+              "name": "mp4sub",
+              "fill": "#B8B8C9",
+              "content": "Pago automatico o mensual manual. Cancelacion flexible.",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "FFH0R",
+              "name": "mp4a",
+              "width": "fill_container",
+              "fill": "#11111E",
+              "cornerRadius": 14,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "w50aY",
+                  "name": "mp4aPlan",
+                  "fill": "#EAEAF5",
+                  "content": "Evento Individual",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "R73OS",
+                  "name": "mp4aPrice",
+                  "fill": "#FFFFFF",
+                  "content": "$750 MXN / evento",
+                  "fontFamily": "Inter",
+                  "fontSize": 30,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "EfbXN",
+                  "name": "mp4aDesc",
+                  "fill": "#BCBCCD",
+                  "content": "Ideal para probar en tu proximo evento.",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "rM12q",
+                  "name": "mp4aBtn",
+                  "width": "fill_container",
+                  "fill": "#5B2EFF",
+                  "cornerRadius": 10,
+                  "padding": [
+                    11,
+                    12
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "qS11O",
+                      "name": "mp4aBtnTxt",
+                      "fill": "#FFFFFF",
+                      "content": "Activar 1 evento",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "semibold"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "oBbKC",
+              "name": "mp4b",
+              "width": "fill_container",
+              "fill": "#131328",
+              "cornerRadius": 14,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Y08ll",
+                  "name": "mp4bPlan",
+                  "fill": "#FFFFFF",
+                  "content": "Plan Club",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "givkC",
+                  "name": "mp4bPrice",
+                  "fill": "#FFFFFF",
+                  "content": "$2,999 MXN / mes",
+                  "fontFamily": "Inter",
+                  "fontSize": 30,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "sU1oy",
+                  "name": "mp4bDesc",
+                  "fill": "#D8D8EA",
+                  "content": "Incluye 4 eventos.",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "AOjqD",
+                  "name": "mp4bBtn",
+                  "width": "fill_container",
+                  "fill": "#5B2EFF",
+                  "cornerRadius": 10,
+                  "padding": [
+                    11,
+                    12
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "vufRj",
+                      "name": "mp4bBtnTxt",
+                      "fill": "#FFFFFF",
+                      "content": "Contratar Plan Club",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "semibold"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "rGz2x",
+              "name": "mp4c",
+              "width": "fill_container",
+              "fill": "#11111E",
+              "cornerRadius": 14,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "duymm",
+                  "name": "mp4cPlan",
+                  "fill": "#EAEAF5",
+                  "content": "Plan Pro",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "ieMow",
+                  "name": "mp4cPrice",
+                  "fill": "#FFFFFF",
+                  "content": "~$5,000 MXN / mes",
+                  "fontFamily": "Inter",
+                  "fontSize": 30,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "lX5AF",
+                  "name": "mp4cDesc",
+                  "fill": "#BCBCCD",
+                  "content": "Incluye 12 eventos.",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "8zUEA",
+                  "name": "mp4cBtn",
+                  "width": "fill_container",
+                  "fill": "#15152A",
+                  "cornerRadius": 10,
+                  "padding": [
+                    11,
+                    12
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "EjVUH",
+                      "name": "mp4cBtnTxt",
+                      "fill": "#D8D8E8",
+                      "content": "Quiero el Plan Pro",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "medium"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "kS81f",
+          "name": "05 Comparativo Mobile",
+          "width": "fill_container",
+          "fill": "#0B0B12",
+          "layout": "vertical",
+          "gap": 14,
+          "padding": [
+            32,
+            20
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "XQDsN",
+              "name": "mc5title",
+              "fill": "#EFEFFA",
+              "content": "Tradicional vs Pass Monkey",
+              "fontFamily": "Inter",
+              "fontSize": 28,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "9RoNB",
+              "name": "mc5card1",
+              "width": "fill_container",
+              "fill": "#11111E",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "gap": 6,
+              "padding": [
+                12,
+                14
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "uig0L",
+                  "name": "mc5c1a",
+                  "fill": "#B8B8CA",
+                  "content": "Impresion y talonarios",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "lUExj",
+                  "name": "mc5c1b",
+                  "fill": "#E7E7F4",
+                  "content": "Pass Monkey: QR dinamico",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "semibold"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "w24oM",
+              "name": "mc5card2",
+              "width": "fill_container",
+              "fill": "#11111E",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "gap": 6,
+              "padding": [
+                12,
+                14
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "OZRP2",
+                  "name": "mc5c2a",
+                  "fill": "#B8B8CA",
+                  "content": "Control manual",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "De80q",
+                  "name": "mc5c2b",
+                  "fill": "#E7E7F4",
+                  "content": "Pass Monkey: escaneo en tiempo real",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "semibold"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "zRuUC",
+              "name": "mc5card3",
+              "width": "fill_container",
+              "fill": "#11111E",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "gap": 6,
+              "padding": [
+                12,
+                14
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "DgcLG",
+                  "name": "mc5c3a",
+                  "fill": "#B8B8CA",
+                  "content": "Sin metricas",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "rKKUN",
+                  "name": "mc5c3b",
+                  "fill": "#E7E7F4",
+                  "content": "Pass Monkey: dashboard",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "semibold"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "2bMAH",
+              "name": "mc5card4",
+              "width": "fill_container",
+              "fill": "#11111E",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "gap": 6,
+              "padding": [
+                12,
+                14
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "YOm03",
+                  "name": "mc5c4a",
+                  "fill": "#B8B8CA",
+                  "content": "Riesgo de clonacion",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "bAjPg",
+                  "name": "mc5c4b",
+                  "fill": "#E7E7F4",
+                  "content": "Pass Monkey: validacion + auditoria",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "semibold"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "h3v4E",
+          "name": "06 FAQ Mobile",
+          "width": "fill_container",
+          "fill": "#0D0D16",
+          "layout": "vertical",
+          "gap": 12,
+          "padding": [
+            32,
+            20
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "DJdLb",
+              "name": "mf6title",
+              "fill": "#EFEFFA",
+              "content": "FAQ",
+              "fontFamily": "Inter",
+              "fontSize": 28,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "VVHh6",
+              "name": "mf6i1",
+              "width": "fill_container",
+              "fill": "#121223",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "gap": 6,
+              "padding": [
+                12,
+                14
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "3vCcX",
+                  "name": "mf6q1",
+                  "fill": "#ECECF8",
+                  "content": "Que necesito en puerta?",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "htEoe",
+                  "name": "mf6a1",
+                  "fill": "#BCBCCD",
+                  "content": "1 celular por scanner.",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "cVZd9",
+              "name": "mf6i2",
+              "width": "fill_container",
+              "fill": "#121223",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "gap": 6,
+              "padding": [
+                12,
+                14
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Wvp7B",
+                  "name": "mf6q2",
+                  "fill": "#ECECF8",
+                  "content": "Puedo usarlo solo una vez?",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "X25yP",
+                  "name": "mf6a2",
+                  "fill": "#BCBCCD",
+                  "content": "Si, $750 por evento.",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "gvIoN",
+              "name": "mf7i3",
+              "width": "fill_container",
+              "fill": "#121223",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "gap": 6,
+              "padding": [
+                12,
+                14
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "FbSyJ",
+                  "name": "mf7q3",
+                  "fill": "#ECECF8",
+                  "content": "Cuanto tarda en activarse?",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "IyLVp",
+                  "name": "mf7a3",
+                  "fill": "#BCBCCD",
+                  "content": "Inmediato tras pago.",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "EDYVn",
+              "name": "mf7i4",
+              "width": "fill_container",
+              "fill": "#121223",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "gap": 6,
+              "padding": [
+                12,
+                14
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "556V6",
+                  "name": "mf7q4",
+                  "fill": "#ECECF8",
+                  "content": "Funciona sin internet?",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "3VlPV",
+                  "name": "mf7a4",
+                  "fill": "#BCBCCD",
+                  "content": "Requiere conexion activa.",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "AE7tX",
+              "name": "mf7i5",
+              "width": "fill_container",
+              "fill": "#121223",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "gap": 6,
+              "padding": [
+                12,
+                14
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "rKY5Q",
+                  "name": "mf7q5",
+                  "fill": "#ECECF8",
+                  "content": "Puedo cambiar a plan mensual despues?",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "kP80H",
+                  "name": "mf7a5",
+                  "fill": "#BCBCCD",
+                  "content": "Si, upgrade desde el panel.",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "mYlx4",
+          "name": "07 CTA Final Mobile",
+          "width": "fill_container",
+          "fill": "#0B0B12",
+          "layout": "vertical",
+          "gap": 14,
+          "padding": [
+            32,
+            20
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "MQdlo",
+              "name": "mf7ctaT",
+              "fill": "#FFFFFF",
+              "content": "Activa tu siguiente evento",
+              "fontFamily": "Inter",
+              "fontSize": 30,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "text",
+              "id": "zhKWn",
+              "name": "mf7ctaS",
+              "fill": "#C5C5D6",
+              "content": "Empieza con $750 por evento.",
+              "fontFamily": "Inter",
+              "fontSize": 15,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "2SRLH",
+              "name": "mf7ctaA",
+              "width": "fill_container",
+              "fill": "#5B2EFF",
+              "cornerRadius": 12,
+              "padding": [
+                13,
+                14
+              ],
+              "justifyContent": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "GQq4V",
+                  "name": "mf7ctaAT",
+                  "fill": "#FFFFFF",
+                  "content": "Activar 1 evento por $750",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "semibold"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "2msiQ",
+              "name": "mf7ctaB",
+              "width": "fill_container",
+              "fill": "#141428",
+              "cornerRadius": 12,
+              "padding": [
+                13,
+                14
+              ],
+              "justifyContent": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "SBvC6",
+                  "name": "mf7ctaBT",
+                  "fill": "#D7D7E6",
+                  "content": "Agendar demo",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "medium"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "SpuQK",
+          "name": "08 Footer Mobile",
+          "width": "fill_container",
+          "fill": "#090910",
+          "layout": "vertical",
+          "gap": 12,
+          "padding": [
+            28,
+            20
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "8b0mT",
+              "name": "mt8logo",
+              "fill": "#F1F1FB",
+              "content": "PASS MONKEY",
+              "fontFamily": "Inter",
+              "fontSize": 17,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "text",
+              "id": "Nr19N",
+              "name": "mt8tag",
+              "fill": "#A3A3B4",
+              "content": "Control de acceso profesional.",
+              "fontFamily": "Inter",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "N2jIo",
+              "name": "mt8l1",
+              "fill": "#9A9AAC",
+              "content": "Aviso de privacidad",
+              "fontFamily": "Inter",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "9apNv",
+              "name": "mt8l2",
+              "fill": "#9A9AAC",
+              "content": "Terminos",
+              "fontFamily": "Inter",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "Vuu2u",
+              "name": "mt8l3",
+              "fill": "#BFBFD0",
+              "content": "contacto@passmonkey.club",
+              "fontFamily": "Inter",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "RQA0D",
+      "x": 1560,
+      "y": 0,
+      "name": "Pass Monkey Landing - Tablet 768",
+      "width": 768,
+      "fill": "#0B0B12",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "text",
+          "id": "btNQB",
+          "name": "tabTitle",
+          "fill": "#7A5CFF",
+          "content": "Tablet 768",
+          "fontFamily": "Inter",
+          "fontSize": 14,
+          "fontWeight": "bold"
+        },
+        {
+          "type": "frame",
+          "id": "CEhGN",
+          "name": "01 Hero Tablet",
+          "width": "fill_container",
+          "fill": "#0B0B12",
+          "layout": "vertical",
+          "gap": 14,
+          "padding": [
+            36,
+            40
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "e0LEK",
+              "name": "thBadge",
+              "fill": "#7A5CFF",
+              "content": "OPERACION NOCTURNA PROFESIONAL",
+              "fontFamily": "Inter",
+              "fontSize": 12,
+              "fontWeight": "medium"
+            },
+            {
+              "type": "text",
+              "id": "tKPte",
+              "name": "thTitle",
+              "fill": "#F0F0FA",
+              "content": "Deja de imprimir boletos.",
+              "fontFamily": "Inter",
+              "fontSize": 48,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "text",
+              "id": "DcpDA",
+              "name": "thSub",
+              "fill": "#C6C6D7",
+              "content": "Controla accesos en tiempo real con QR dinamico y escaneo profesional en puerta.",
+              "fontFamily": "Inter",
+              "fontSize": 19,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "YCCMh",
+              "name": "thCta1",
+              "fill": "#5B2EFF",
+              "cornerRadius": 12,
+              "padding": [
+                12,
+                18
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "gT6DQ",
+                  "name": "thCta1Txt",
+                  "fill": "#FFFFFF",
+                  "content": "Activar 1 evento por $750",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "semibold"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "k9qRe",
+              "name": "thCta2",
+              "fill": "#141428",
+              "cornerRadius": 12,
+              "padding": [
+                12,
+                18
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "PtniN",
+                  "name": "thCta2Txt",
+                  "fill": "#D7D7E6",
+                  "content": "Ver planes mensuales",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "medium"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "c1j5P",
+              "name": "thMedia",
+              "metadata": {
+                "type": "unsplash",
+                "username": "arrn",
+                "link": "https://unsplash.com/@arrn",
+                "author": "ArrN Capture"
+              },
+              "width": "fill_container",
+              "height": 240,
+              "fill": {
+                "type": "image",
+                "enabled": true,
+                "url": "https://images.unsplash.com/photo-1636308093602-b1f355e8720d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzEyNTM1OTR8&ixlib=rb-4.1.0&q=80&w=1080",
+                "mode": "fill"
+              },
+              "cornerRadius": 16,
+              "layout": "vertical",
+              "padding": 12
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "lsrFh",
+          "name": "02 Como Funciona Tablet",
+          "width": "fill_container",
+          "fill": "#0D0D16",
+          "layout": "vertical",
+          "gap": 12,
+          "padding": [
+            32,
+            40
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "31v48",
+              "name": "tHowTitle",
+              "fill": "#EFEFFA",
+              "content": "Digitaliza tu proximo evento en 3 pasos",
+              "fontFamily": "Inter",
+              "fontSize": 30,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "4SLgM",
+              "name": "tHow1",
+              "width": "fill_container",
+              "fill": "#121223",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "padding": [
+                10,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "dj0WO",
+                  "name": "tHow1T",
+                  "fill": "#EDEDF8",
+                  "content": "01 Crea tu evento",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "semibold"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "FxjW4",
+              "name": "tHow2",
+              "width": "fill_container",
+              "fill": "#121223",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "padding": [
+                10,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "bq94p",
+                  "name": "tHow2T",
+                  "fill": "#EDEDF8",
+                  "content": "02 Genera accesos digitales",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "semibold"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "dnnY3",
+              "name": "tHow3",
+              "width": "fill_container",
+              "fill": "#121223",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "padding": [
+                10,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Tpkz8",
+                  "name": "tHow3T",
+                  "fill": "#EDEDF8",
+                  "content": "03 Valida en puerta en segundos",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "semibold"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "7YrAf",
+          "name": "03 Beneficios Tablet",
+          "width": "fill_container",
+          "fill": "#0B0B12",
+          "layout": "vertical",
+          "gap": 10,
+          "padding": [
+            32,
+            40
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "5MOTZ",
+              "name": "tBenTitle",
+              "fill": "#EFEFFA",
+              "content": "Beneficios clave",
+              "fontFamily": "Inter",
+              "fontSize": 30,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "nBpjA",
+              "name": "tBen1",
+              "width": "fill_container",
+              "fill": "#11111E",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "padding": [
+                10,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "BoYfp",
+                  "name": "tBen1T",
+                  "fill": "#DCDCEC",
+                  "content": "Menos filas y menos broncas en puerta",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "GcJnC",
+              "name": "tBen2",
+              "width": "fill_container",
+              "fill": "#11111E",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "padding": [
+                10,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "YYeVz",
+                  "name": "tBen2T",
+                  "fill": "#DCDCEC",
+                  "content": "Reduce clonaciones y reingresos",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "RRmY2",
+              "name": "tBen3",
+              "width": "fill_container",
+              "fill": "#11111E",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "padding": [
+                10,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "f2l6p",
+                  "name": "tBen3T",
+                  "fill": "#DCDCEC",
+                  "content": "Escaneo rapido + auditoria de accesos",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "NSzny",
+          "name": "04 Pricing Tablet",
+          "width": "fill_container",
+          "fill": "#0D0D16",
+          "layout": "vertical",
+          "gap": 10,
+          "padding": [
+            32,
+            40
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "rdjC6",
+              "name": "tPriceTitle",
+              "fill": "#EFEFFA",
+              "content": "Planes y precios",
+              "fontFamily": "Inter",
+              "fontSize": 30,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "oTVbd",
+              "name": "tPA",
+              "width": "fill_container",
+              "fill": "#11111E",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 14,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "WWFWA",
+                  "name": "tPAT",
+                  "fill": "#EAEAF5",
+                  "content": "Evento Individual",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "jqjgK",
+                  "name": "tPAP",
+                  "fill": "#FFFFFF",
+                  "content": "$750 MXN / evento",
+                  "fontFamily": "Inter",
+                  "fontSize": 28,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "6inTA",
+                  "name": "tPAB",
+                  "fill": "#5B2EFF",
+                  "cornerRadius": 10,
+                  "padding": [
+                    10,
+                    12
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "fNHFh",
+                      "name": "tPABT",
+                      "fill": "#FFFFFF",
+                      "content": "Activar 1 evento",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "semibold"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "S5cWJ",
+              "name": "tPB",
+              "width": "fill_container",
+              "fill": "#131328",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 14,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "z9pIh",
+                  "name": "tPBT",
+                  "fill": "#FFFFFF",
+                  "content": "Plan Club",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "Bh5cb",
+                  "name": "tPBP",
+                  "fill": "#FFFFFF",
+                  "content": "$2,999 MXN / mes",
+                  "fontFamily": "Inter",
+                  "fontSize": 28,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "3XDTS",
+                  "name": "tPBB",
+                  "fill": "#5B2EFF",
+                  "cornerRadius": 10,
+                  "padding": [
+                    10,
+                    12
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ntVW4",
+                      "name": "tPBBT",
+                      "fill": "#FFFFFF",
+                      "content": "Contratar Plan Club",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "semibold"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "JaPTX",
+              "name": "tPC",
+              "width": "fill_container",
+              "fill": "#11111E",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 14,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "8DMPs",
+                  "name": "tPCT",
+                  "fill": "#EAEAF5",
+                  "content": "Plan Pro",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "nTdoc",
+                  "name": "tPCP",
+                  "fill": "#FFFFFF",
+                  "content": "~$5,000 MXN / mes",
+                  "fontFamily": "Inter",
+                  "fontSize": 28,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "WCGAC",
+                  "name": "tPCB",
+                  "fill": "#15152A",
+                  "cornerRadius": 10,
+                  "padding": [
+                    10,
+                    12
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "8K4Io",
+                      "name": "tPCBT",
+                      "fill": "#D8D8E8",
+                      "content": "Quiero el Plan Pro",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "medium"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "D0cdy",
+          "name": "05 Comparativo Tablet",
+          "width": "fill_container",
+          "fill": "#0B0B12",
+          "layout": "vertical",
+          "gap": 10,
+          "padding": [
+            32,
+            40
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "onLSV",
+              "name": "tCompTitle",
+              "fill": "#EFEFFA",
+              "content": "Tradicional vs Pass Monkey",
+              "fontFamily": "Inter",
+              "fontSize": 30,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "EA25u",
+              "name": "tCompBox",
+              "width": "fill_container",
+              "fill": "#11111E",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "gap": 6,
+              "padding": [
+                12,
+                14
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "ZtsjS",
+                  "name": "tCompL1",
+                  "fill": "#DADAEA",
+                  "content": "Impresion y talonarios -> QR dinamico",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "mNBei",
+                  "name": "tCompL2",
+                  "fill": "#DADAEA",
+                  "content": "Control manual -> Escaneo en tiempo real",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "NmxEu",
+                  "name": "tCompL3",
+                  "fill": "#DADAEA",
+                  "content": "Sin metricas -> Dashboard",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "gzt9V",
+                  "name": "tCompL4",
+                  "fill": "#DADAEA",
+                  "content": "Riesgo de clonacion -> Validacion + auditoria",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "bbFMC",
+          "name": "06 FAQ Tablet",
+          "width": "fill_container",
+          "fill": "#0D0D16",
+          "layout": "vertical",
+          "gap": 8,
+          "padding": [
+            32,
+            40
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "hPueM",
+              "name": "tFaqTitle",
+              "fill": "#EFEFFA",
+              "content": "FAQ",
+              "fontFamily": "Inter",
+              "fontSize": 30,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "LZxlB",
+              "name": "tFaq1",
+              "width": "fill_container",
+              "fill": "#121223",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "gap": 5,
+              "padding": [
+                10,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "LP1u9",
+                  "name": "tFaq1Q",
+                  "fill": "#ECECF8",
+                  "content": "Que necesito en puerta?",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "qJSsz",
+                  "name": "tFaq1A",
+                  "fill": "#BCBCCD",
+                  "content": "1 celular por scanner.",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "qOArs",
+              "name": "tFaq2",
+              "width": "fill_container",
+              "fill": "#121223",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "gap": 5,
+              "padding": [
+                10,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "yxBCe",
+                  "name": "tFaq2Q",
+                  "fill": "#ECECF8",
+                  "content": "Puedo usarlo solo una vez?",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "oclk9",
+                  "name": "tFaq2A",
+                  "fill": "#BCBCCD",
+                  "content": "Si, $750 por evento.",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "4GwqJ",
+              "name": "tFaq3",
+              "width": "fill_container",
+              "fill": "#121223",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "gap": 5,
+              "padding": [
+                10,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "wdl4J",
+                  "name": "tFaq3Q",
+                  "fill": "#ECECF8",
+                  "content": "Funciona sin internet?",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "LiaYx",
+                  "name": "tFaq3A",
+                  "fill": "#BCBCCD",
+                  "content": "Requiere conexion activa.",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "hoNYA",
+          "name": "07 CTA Final Tablet",
+          "width": "fill_container",
+          "fill": "#0B0B12",
+          "layout": "vertical",
+          "gap": 10,
+          "padding": [
+            32,
+            40
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "Parh0",
+              "name": "tFinalT",
+              "fill": "#FFFFFF",
+              "content": "Listo para tu siguiente evento?",
+              "fontFamily": "Inter",
+              "fontSize": 34,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "text",
+              "id": "fD51o",
+              "name": "tFinalS",
+              "fill": "#C4C4D5",
+              "content": "Activa hoy por $750 y opera en minutos.",
+              "fontFamily": "Inter",
+              "fontSize": 16,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "KWEVS",
+              "name": "tFinalA",
+              "fill": "#5B2EFF",
+              "cornerRadius": 12,
+              "padding": [
+                12,
+                18
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "sI4qV",
+                  "name": "tFinalAT",
+                  "fill": "#FFFFFF",
+                  "content": "Activar 1 evento por $750",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "semibold"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "QOPnN",
+              "name": "tFinalB",
+              "fill": "#141428",
+              "cornerRadius": 12,
+              "padding": [
+                12,
+                18
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "H8MlJ",
+                  "name": "tFinalBT",
+                  "fill": "#D7D7E6",
+                  "content": "Agendar demo",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "medium"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "jXWgk",
+          "name": "08 Footer Tablet",
+          "width": "fill_container",
+          "fill": "#090910",
+          "layout": "vertical",
+          "gap": 6,
+          "padding": [
+            28,
+            40
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "v5bQI",
+              "name": "tFooterL",
+              "fill": "#F1F1FB",
+              "content": "PASS MONKEY",
+              "fontFamily": "Inter",
+              "fontSize": 16,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "text",
+              "id": "L1N8P",
+              "name": "tFooterT",
+              "fill": "#A3A3B4",
+              "content": "Aviso de privacidad | Terminos | contacto@passmonkey.club",
+              "fontFamily": "Inter",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "gjqp8",
+      "x": 0,
+      "y": 3600,
+      "name": "Hero Desktop - Fallback Imagen",
+      "width": 1440,
+      "fill": "#0B0B12",
+      "layout": "vertical",
+      "gap": 18,
+      "padding": [
+        56,
+        120
+      ],
+      "children": [
+        {
+          "type": "text",
+          "id": "noBFs",
+          "name": "heroFbTitle",
+          "fill": "#7A5CFF",
+          "content": "Hero fallback sin video",
+          "fontFamily": "Inter",
+          "fontSize": 14,
+          "fontWeight": "bold"
+        },
+        {
+          "type": "frame",
+          "id": "cqo5q",
+          "name": "hfWrap",
+          "width": "fill_container",
+          "gap": 30,
+          "children": [
+            {
+              "type": "frame",
+              "id": "Org5O",
+              "name": "hfLeft",
+              "width": 620,
+              "layout": "vertical",
+              "gap": 14,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "8wi2M",
+                  "name": "hfBadge",
+                  "fill": "#7A5CFF",
+                  "content": "MODO FALLBACK (SIN VIDEO)",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "medium"
+                },
+                {
+                  "type": "text",
+                  "id": "gDbti",
+                  "name": "hfTitle",
+                  "fill": "#F0F0FA",
+                  "content": "Deja de imprimir\nboletos.",
+                  "fontFamily": "Inter",
+                  "fontSize": 58,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "3qxsv",
+                  "name": "hfSub",
+                  "fill": "#C4C4D5",
+                  "content": "Controla accesos en tiempo real con QR dinamico y escaneo profesional en puerta.",
+                  "fontFamily": "Inter",
+                  "fontSize": 21,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "g6pa9",
+                  "name": "hfCta",
+                  "fill": "#5B2EFF",
+                  "cornerRadius": 12,
+                  "padding": [
+                    14,
+                    20
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "3GETj",
+                      "name": "hfCtaTxt",
+                      "fill": "#FFFFFF",
+                      "content": "Activar 1 evento por $750",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "semibold"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "X6Ytg",
+              "name": "hfRight",
+              "metadata": {
+                "type": "unsplash",
+                "username": "far5n10v",
+                "link": "https://unsplash.com/@far5n10v",
+                "author": "Far Chinberdiev"
+              },
+              "width": "fill_container",
+              "height": 430,
+              "fill": {
+                "type": "image",
+                "enabled": true,
+                "url": "https://images.unsplash.com/photo-1765077127629-a4814969e0d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzEyNTM2NTN8&ixlib=rb-4.1.0&q=80&w=1080",
+                "mode": "fill"
+              },
+              "cornerRadius": 20,
+              "layout": "vertical",
+              "gap": 10,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "qCEBx",
+                  "name": "hfPoster",
+                  "fill": "#0F1D3A",
+                  "cornerRadius": 999,
+                  "padding": [
+                    7,
+                    10
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "a9JAd",
+                      "name": "hfPosterTxt",
+                      "fill": "#8AB4FF",
+                      "content": "POSTER ESTATICO",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "bold"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "Y668H",
+          "name": "hfLegal",
+          "fill": "#9D9DAE",
+          "content": "Fallback recomendado para conexiones lentas y dispositivos low-end.",
+          "fontFamily": "Inter",
+          "fontSize": 13,
+          "fontWeight": "normal"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "LhdJd",
+      "x": 1560,
+      "y": 3600,
+      "name": "FAQ - Expanded State",
+      "width": 1440,
+      "fill": "#0D0D16",
+      "layout": "vertical",
+      "gap": 14,
+      "padding": [
+        56,
+        120
+      ],
+      "children": [
+        {
+          "type": "text",
+          "id": "mbkTR",
+          "name": "faqExpTitle",
+          "fill": "#7A5CFF",
+          "content": "FAQ estado expandido",
+          "fontFamily": "Inter",
+          "fontSize": 14,
+          "fontWeight": "bold"
+        },
+        {
+          "type": "text",
+          "id": "TnHSB",
+          "name": "feTitle",
+          "fill": "#F0F0FA",
+          "content": "Preguntas frecuentes (estado expandido)",
+          "fontFamily": "Inter",
+          "fontSize": 36,
+          "fontWeight": "bold"
+        },
+        {
+          "type": "frame",
+          "id": "q4BG1",
+          "name": "feItem1",
+          "width": "fill_container",
+          "fill": "#121223",
+          "cornerRadius": 14,
+          "layout": "vertical",
+          "gap": 8,
+          "padding": [
+            16,
+            18
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "KC10y",
+              "name": "feQ1",
+              "fill": "#ECECF8",
+              "content": "Que necesito en puerta?  (abierto)",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "semibold"
+            },
+            {
+              "type": "text",
+              "id": "KkVk3",
+              "name": "feA1",
+              "fill": "#C0C0D1",
+              "content": "Necesitas 1 celular por scanner y conexion activa para validacion en tiempo real.",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "x58zO",
+          "name": "feItem2",
+          "width": "fill_container",
+          "fill": "#121223",
+          "cornerRadius": 14,
+          "layout": "vertical",
+          "gap": 8,
+          "padding": [
+            16,
+            18
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "49Vwz",
+              "name": "feQ2",
+              "fill": "#ECECF8",
+              "content": "Puedo usarlo solo una vez?  (abierto)",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "semibold"
+            },
+            {
+              "type": "text",
+              "id": "Yj0Yp",
+              "name": "feA2",
+              "fill": "#C0C0D1",
+              "content": "Si. Puedes activar un unico evento por $750 MXN sin contrato mensual.",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "JxCNb",
+          "name": "feItem3",
+          "width": "fill_container",
+          "fill": "#121223",
+          "cornerRadius": 14,
+          "layout": "vertical",
+          "padding": [
+            16,
+            18
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "K8cjF",
+              "name": "feQ3",
+              "fill": "#ECECF8",
+              "content": "Cuanto tarda en activarse?  (cerrado)",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "semibold"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "uQhw9",
+          "name": "feItem4",
+          "width": "fill_container",
+          "fill": "#121223",
+          "cornerRadius": 14,
+          "layout": "vertical",
+          "padding": [
+            16,
+            18
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "lhR9Q",
+              "name": "feQ4",
+              "fill": "#ECECF8",
+              "content": "Funciona sin internet?  (cerrado)",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "semibold"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "6NjEg",
+          "name": "feItem5",
+          "width": "fill_container",
+          "fill": "#121223",
+          "cornerRadius": 14,
+          "layout": "vertical",
+          "padding": [
+            16,
+            18
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "bOAYR",
+              "name": "feQ5",
+              "fill": "#ECECF8",
+              "content": "Puedo cambiar a plan mensual despues?  (cerrado)",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "semibold"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "ksz3R",
+      "x": 4680,
+      "y": 3600,
+      "name": "Mobile - Sticky CTA Viewport",
+      "width": 390,
+      "height": 844,
+      "fill": "#0B0B12",
+      "layout": "vertical",
+      "gap": 12,
+      "padding": [
+        24,
+        16
+      ],
+      "children": [
+        {
+          "type": "text",
+          "id": "JNLbm",
+          "name": "mStickyTitle",
+          "fill": "#7A5CFF",
+          "content": "Mobile sticky CTA",
+          "fontFamily": "Inter",
+          "fontSize": 13,
+          "fontWeight": "bold"
+        },
+        {
+          "type": "frame",
+          "id": "anUHB",
+          "name": "msBody",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 10,
+          "children": [
+            {
+              "type": "text",
+              "id": "oioKh",
+              "name": "msH",
+              "fill": "#F0F0FA",
+              "content": "Deja de imprimir boletos.",
+              "fontFamily": "Inter",
+              "fontSize": 34,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "text",
+              "id": "y8lVm",
+              "name": "msS",
+              "fill": "#BFC0D1",
+              "content": "Scroll en progreso... CTA fijo al fondo.",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "eatCR",
+              "name": "msCard1",
+              "width": "fill_container",
+              "height": 140,
+              "fill": "#121223",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "padding": [
+                10,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "GpTDj",
+                  "name": "msCard1T",
+                  "fill": "#E8E8F4",
+                  "content": "Pricing preview",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "semibold"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "OpFWm",
+              "name": "msCard2",
+              "width": "fill_container",
+              "height": 140,
+              "fill": "#121223",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "padding": [
+                10,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "mtwnc",
+                  "name": "msCard2T",
+                  "fill": "#E8E8F4",
+                  "content": "FAQ preview",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "semibold"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "if3XO",
+              "name": "msCard3",
+              "width": "fill_container",
+              "height": 140,
+              "fill": "#121223",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "padding": [
+                10,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "L3ZuA",
+                  "name": "msCard3T",
+                  "fill": "#E8E8F4",
+                  "content": "Comparativo preview",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "semibold"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "hWkfn",
+          "name": "msSticky",
+          "width": "fill_container",
+          "fill": "#101021",
+          "cornerRadius": 12,
+          "padding": 12,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "sNd02",
+              "name": "msStickyTxt",
+              "fill": "#E8E8F6",
+              "content": "Desde $750 MXN",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "semibold"
+            },
+            {
+              "type": "frame",
+              "id": "vcx4y",
+              "name": "msStickyBtn",
+              "fill": "#5B2EFF",
+              "cornerRadius": 10,
+              "padding": [
+                9,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Ddoff",
+                  "name": "msStickyBtnTxt",
+                  "fill": "#FFFFFF",
+                  "content": "Activar evento",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "semibold"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "b5CiZ",
+      "x": 0,
+      "y": 4564,
+      "name": "Agendar Demo - Estados",
+      "width": 1200,
+      "fill": "#0B0B12",
+      "layout": "vertical",
+      "gap": 18,
+      "padding": [
+        48,
+        56
+      ],
+      "children": [
+        {
+          "type": "text",
+          "id": "XPgAi",
+          "name": "demoStatesTitle",
+          "fill": "#7A5CFF",
+          "content": "Agendar demo: loading/success/error",
+          "fontFamily": "Inter",
+          "fontSize": 14,
+          "fontWeight": "bold"
+        },
+        {
+          "type": "frame",
+          "id": "Wy0ZN",
+          "name": "dsRow",
+          "width": "fill_container",
+          "gap": 16,
+          "children": [
+            {
+              "type": "frame",
+              "id": "JXOpv",
+              "name": "Estado loading",
+              "width": "fill_container",
+              "fill": "#121223",
+              "cornerRadius": 14,
+              "layout": "vertical",
+              "gap": 10,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "OsxDJ",
+                  "name": "dsLoadTitle",
+                  "fill": "#EFEFFA",
+                  "content": "Loading",
+                  "fontFamily": "Inter",
+                  "fontSize": 18,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "ZJcnf",
+                  "name": "dsLoadF1",
+                  "width": "fill_container",
+                  "height": 46,
+                  "fill": "#0F0F1A",
+                  "cornerRadius": 10,
+                  "layout": "vertical",
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "uis8z",
+                      "name": "dsLoadF1T",
+                      "fill": "#7E7E92",
+                      "content": "Nombre del venue",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "87Zho",
+                  "name": "dsLoadF2",
+                  "width": "fill_container",
+                  "height": 46,
+                  "fill": "#0F0F1A",
+                  "cornerRadius": 10,
+                  "layout": "vertical",
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "CXc6H",
+                      "name": "dsLoadF2T",
+                      "fill": "#7E7E92",
+                      "content": "Telefono",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "rQwRZ",
+                  "name": "dsLoadB",
+                  "width": "fill_container",
+                  "fill": "#44446A",
+                  "cornerRadius": 10,
+                  "padding": [
+                    11,
+                    12
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "rJRwl",
+                      "name": "dsLoadBT",
+                      "fill": "#D2D2E2",
+                      "content": "Enviando...",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "semibold"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "qYPts",
+              "name": "Estado success",
+              "width": "fill_container",
+              "fill": "#121223",
+              "cornerRadius": 14,
+              "layout": "vertical",
+              "gap": 10,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "WKTv6",
+                  "name": "dsOkTitle",
+                  "fill": "#EFEFFA",
+                  "content": "Success",
+                  "fontFamily": "Inter",
+                  "fontSize": 18,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "5gBVP",
+                  "name": "dsOkMsg",
+                  "width": "fill_container",
+                  "fill": "#0F2A18",
+                  "cornerRadius": 10,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ma9G8",
+                      "name": "dsOkMsgT1",
+                      "fill": "#00E676",
+                      "content": "Recibido",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "semibold"
+                    },
+                    {
+                      "type": "text",
+                      "id": "6y42O",
+                      "name": "dsOkMsgT2",
+                      "fill": "#C8EFD9",
+                      "content": "Tu solicitud fue enviada. Te contactamos hoy.",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "E7Zvb",
+                  "name": "dsOkB",
+                  "width": "fill_container",
+                  "fill": "#2A2A42",
+                  "cornerRadius": 10,
+                  "padding": [
+                    11,
+                    12
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "x2Un4",
+                      "name": "dsOkBT",
+                      "fill": "#D5D5E7",
+                      "content": "Enviar otra solicitud",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "medium"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "APevQ",
+              "name": "Estado error",
+              "width": "fill_container",
+              "fill": "#121223",
+              "cornerRadius": 14,
+              "layout": "vertical",
+              "gap": 10,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "QDDwy",
+                  "name": "dsErrTitle",
+                  "fill": "#EFEFFA",
+                  "content": "Error",
+                  "fontFamily": "Inter",
+                  "fontSize": 18,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "cwuqp",
+                  "name": "dsErrMsg",
+                  "width": "fill_container",
+                  "fill": "#2C1518",
+                  "cornerRadius": 10,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "HFeCD",
+                      "name": "dsErrMsgT1",
+                      "fill": "#FF7B7B",
+                      "content": "No se pudo enviar",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "semibold"
+                    },
+                    {
+                      "type": "text",
+                      "id": "kIIZS",
+                      "name": "dsErrMsgT2",
+                      "fill": "#F1C5CB",
+                      "content": "Intenta de nuevo o escribe a contacto@passmonkey.club",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ZBudU",
+                  "name": "dsErrB",
+                  "width": "fill_container",
+                  "fill": "#5B2EFF",
+                  "cornerRadius": 10,
+                  "padding": [
+                    11,
+                    12
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "GlT7a",
+                      "name": "dsErrBT",
+                      "fill": "#FFFFFF",
+                      "content": "Reintentar",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "semibold"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "GPrgI",
+      "x": 3120,
+      "y": 3600,
+      "name": "Pricing - Hover Focus States",
+      "width": 1440,
+      "fill": "#0D0D16",
+      "layout": "vertical",
+      "gap": 18,
+      "padding": [
+        56,
+        120
+      ],
+      "children": [
+        {
+          "type": "text",
+          "id": "EAHti",
+          "name": "pricingStateTitle",
+          "fill": "#7A5CFF",
+          "content": "Pricing estados interactivos",
+          "fontFamily": "Inter",
+          "fontSize": 14,
+          "fontWeight": "bold"
+        },
+        {
+          "type": "text",
+          "id": "8mTDP",
+          "name": "psTitle",
+          "fill": "#F0F0FA",
+          "content": "Pricing: default / hover / focus",
+          "fontFamily": "Inter",
+          "fontSize": 36,
+          "fontWeight": "bold"
+        },
+        {
+          "type": "frame",
+          "id": "9UNBr",
+          "name": "psRow",
+          "width": "fill_container",
+          "gap": 16,
+          "children": [
+            {
+              "type": "frame",
+              "id": "G6sGQ",
+              "name": "psDefault",
+              "width": "fill_container",
+              "fill": "#11111E",
+              "cornerRadius": 14,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "vaPlb",
+                  "name": "psDefaultTag",
+                  "fill": "#9B9BB0",
+                  "content": "Default",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "OeQAt",
+                  "name": "psDefaultPlan",
+                  "fill": "#ECECF8",
+                  "content": "Evento Individual",
+                  "fontFamily": "Inter",
+                  "fontSize": 17,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "frame",
+                  "id": "DFgq1",
+                  "name": "psDefaultBtn",
+                  "fill": "#1B1B2E",
+                  "cornerRadius": 10,
+                  "padding": [
+                    9,
+                    12
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "miDfp",
+                      "name": "psDefaultBtnT",
+                      "fill": "#D0D0E0",
+                      "content": "Activar",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "0RM3x",
+              "name": "psHover",
+              "width": "fill_container",
+              "fill": "#131328",
+              "cornerRadius": 14,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "nbrus",
+                  "name": "psHoverTag",
+                  "fill": "#AFAFD1",
+                  "content": "Hover",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "vq0sJ",
+                  "name": "psHoverPlan",
+                  "fill": "#FFFFFF",
+                  "content": "Plan Club",
+                  "fontFamily": "Inter",
+                  "fontSize": 17,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "frame",
+                  "id": "NgRuK",
+                  "name": "psHoverBtn",
+                  "fill": "#5B2EFF",
+                  "cornerRadius": 10,
+                  "padding": [
+                    9,
+                    12
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "yITk7",
+                      "name": "psHoverBtnT",
+                      "fill": "#FFFFFF",
+                      "content": "Contratar",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "semibold"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "jhhUc",
+              "name": "psFocus",
+              "width": "fill_container",
+              "fill": "#15152C",
+              "cornerRadius": 14,
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "VGchO",
+                  "name": "psFocusTag",
+                  "fill": "#BFAEFF",
+                  "content": "Focus / Selected",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "ozFmm",
+                  "name": "psFocusPlan",
+                  "fill": "#FFFFFF",
+                  "content": "Plan Pro",
+                  "fontFamily": "Inter",
+                  "fontSize": 17,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "Zg0xv",
+                  "name": "psFocusHint",
+                  "fill": "#CFCFE2",
+                  "content": "Borde destacado + glow controlado",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "hDAzl",
+      "x": 1320,
+      "y": 4564,
+      "name": "Legal - Aviso y Terminos",
+      "width": 1440,
+      "fill": "#0B0B12",
+      "layout": "vertical",
+      "gap": 18,
+      "padding": [
+        56,
+        120
+      ],
+      "children": [
+        {
+          "type": "text",
+          "id": "wj5dw",
+          "name": "legalViewsTitle",
+          "fill": "#7A5CFF",
+          "content": "Vistas legales wireframe",
+          "fontFamily": "Inter",
+          "fontSize": 14,
+          "fontWeight": "bold"
+        },
+        {
+          "type": "text",
+          "id": "6Cpwp",
+          "name": "lvHead",
+          "fill": "#F0F0FA",
+          "content": "Destinos legales (wireframe)",
+          "fontFamily": "Inter",
+          "fontSize": 36,
+          "fontWeight": "bold"
+        },
+        {
+          "type": "frame",
+          "id": "06aMo",
+          "name": "lvRow",
+          "width": "fill_container",
+          "gap": 16,
+          "children": [
+            {
+              "type": "frame",
+              "id": "o4UhP",
+              "name": "Aviso de privacidad",
+              "width": "fill_container",
+              "fill": "#11111E",
+              "cornerRadius": 14,
+              "layout": "vertical",
+              "gap": 10,
+              "padding": 18,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "amNp8",
+                  "name": "lvAvisoT",
+                  "fill": "#EFEFFA",
+                  "content": "Aviso de privacidad",
+                  "fontFamily": "Inter",
+                  "fontSize": 24,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "DdTKt",
+                  "name": "lvAvisoS",
+                  "fill": "#9E9EB0",
+                  "content": "Ultima actualizacion: Febrero 2026",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "8U0n5",
+                  "name": "lvAvisoB1",
+                  "fill": "#DCDCEC",
+                  "content": "1. Datos que recopilamos",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "FHTUP",
+                  "name": "lvAvisoP1",
+                  "fill": "#BFC0D1",
+                  "content": "Datos de contacto, uso de plataforma y eventos para operacion y soporte.",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "icWSa",
+                  "name": "lvAvisoB2",
+                  "fill": "#DCDCEC",
+                  "content": "2. Uso de datos",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "sZ5Xe",
+                  "name": "lvAvisoP2",
+                  "fill": "#BFC0D1",
+                  "content": "Se usan para validacion de accesos, facturacion y mejora de servicio.",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "0qIHk",
+                  "name": "lvAvisoB3",
+                  "fill": "#DCDCEC",
+                  "content": "3. Contacto",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "T0a8v",
+                  "name": "lvAvisoP3",
+                  "fill": "#BFC0D1",
+                  "content": "contacto@passmonkey.club",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "bq7nc",
+              "name": "Terminos",
+              "width": "fill_container",
+              "fill": "#11111E",
+              "cornerRadius": 14,
+              "layout": "vertical",
+              "gap": 10,
+              "padding": 18,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "6H2Th",
+                  "name": "lvTermsT",
+                  "fill": "#EFEFFA",
+                  "content": "Terminos y condiciones",
+                  "fontFamily": "Inter",
+                  "fontSize": 24,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "RWMjj",
+                  "name": "lvTermsS",
+                  "fill": "#9E9EB0",
+                  "content": "Ultima actualizacion: Febrero 2026",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "FQxfO",
+                  "name": "lvTermsB1",
+                  "fill": "#DCDCEC",
+                  "content": "1. Alcance del servicio",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "ZAzB8",
+                  "name": "lvTermsP1",
+                  "fill": "#BFC0D1",
+                  "content": "Pass Monkey provee control de acceso digital para eventos y clubes.",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "HDsyZ",
+                  "name": "lvTermsB2",
+                  "fill": "#DCDCEC",
+                  "content": "2. Pago y cancelacion",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "0bOEU",
+                  "name": "lvTermsP2",
+                  "fill": "#BFC0D1",
+                  "content": "Pago por evento o mensual. Cancelacion flexible segun plan contratado.",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "Nje8z",
+                  "name": "lvTermsB3",
+                  "fill": "#DCDCEC",
+                  "content": "3. Limitaciones",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "semibold"
+                },
+                {
+                  "type": "text",
+                  "id": "0kRJl",
+                  "name": "lvTermsP3",
+                  "fill": "#BFC0D1",
+                  "content": "El servicio requiere conexion activa para operacion en tiempo real.",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "tb7zg",
+      "x": 2880,
+      "y": 4564,
+      "name": "Components + Tokens",
+      "width": 1440,
+      "fill": "#0D0D16",
+      "layout": "vertical",
+      "gap": 20,
+      "padding": [
+        56,
+        120
+      ],
+      "children": [
+        {
+          "type": "text",
+          "id": "6cVre",
+          "name": "compTokensTitle",
+          "fill": "#7A5CFF",
+          "content": "Componentes y tokens para handoff",
+          "fontFamily": "Inter",
+          "fontSize": 14,
+          "fontWeight": "bold"
+        },
+        {
+          "type": "text",
+          "id": "AajvB",
+          "name": "ctHead",
+          "fill": "#F0F0FA",
+          "content": "UI Components",
+          "fontFamily": "Inter",
+          "fontSize": 36,
+          "fontWeight": "bold"
+        },
+        {
+          "type": "frame",
+          "id": "4lh1W",
+          "name": "Buttons",
+          "width": "fill_container",
+          "fill": "#11111E",
+          "cornerRadius": 14,
+          "layout": "vertical",
+          "gap": 10,
+          "padding": 16,
+          "children": [
+            {
+              "type": "text",
+              "id": "mGBI5",
+              "name": "ctBtnsT",
+              "fill": "#ECECF8",
+              "content": "Buttons",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "e88wb",
+              "name": "ctBtnsRow",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "2FoNC",
+                  "name": "ctBtnPrimary",
+                  "fill": "#5B2EFF",
+                  "cornerRadius": 10,
+                  "padding": [
+                    10,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "iLzNr",
+                      "name": "ctBtnPrimaryT",
+                      "fill": "#FFFFFF",
+                      "content": "Primary",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "semibold"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "cg4Ww",
+                  "name": "ctBtnSec",
+                  "fill": "#141428",
+                  "cornerRadius": 10,
+                  "padding": [
+                    10,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "69DJW",
+                      "name": "ctBtnSecT",
+                      "fill": "#D7D7E6",
+                      "content": "Secondary",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "medium"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ZVBM5",
+                  "name": "ctBtnGhost",
+                  "fill": "#11111E",
+                  "cornerRadius": 10,
+                  "padding": [
+                    10,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "RNJh7",
+                      "name": "ctBtnGhostT",
+                      "fill": "#BDBDD0",
+                      "content": "Ghost",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "medium"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "tZXGC",
+          "name": "Cards",
+          "width": "fill_container",
+          "fill": "#11111E",
+          "cornerRadius": 14,
+          "layout": "vertical",
+          "gap": 10,
+          "padding": 16,
+          "children": [
+            {
+              "type": "text",
+              "id": "t2zht",
+              "name": "ctCardsT",
+              "fill": "#ECECF8",
+              "content": "Cards",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "EOAg0",
+              "name": "ctCardsRow",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "eqXnb",
+                  "name": "ctCardA",
+                  "width": "fill_container",
+                  "fill": "#121223",
+                  "cornerRadius": 12,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "BE4Lj",
+                      "name": "ctCardAT",
+                      "fill": "#ECECF8",
+                      "content": "Pricing Card",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "semibold"
+                    },
+                    {
+                      "type": "text",
+                      "id": "teVnV",
+                      "name": "ctCardAD",
+                      "fill": "#FFFFFF",
+                      "content": "$2,999 MXN / mes",
+                      "fontFamily": "Inter",
+                      "fontSize": 20,
+                      "fontWeight": "bold"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "6pf0B",
+                  "name": "ctCardB",
+                  "width": "fill_container",
+                  "fill": "#121223",
+                  "cornerRadius": 12,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "jFgED",
+                      "name": "ctCardBT",
+                      "fill": "#FFFFFF",
+                      "content": "Highlighted Card",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "semibold"
+                    },
+                    {
+                      "type": "text",
+                      "id": "oqIPE",
+                      "name": "ctCardBD",
+                      "fill": "#D3D3E8",
+                      "content": "Estado recomendado",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "DTA7O",
+          "name": "Inputs",
+          "width": "fill_container",
+          "fill": "#11111E",
+          "cornerRadius": 14,
+          "layout": "vertical",
+          "gap": 10,
+          "padding": 16,
+          "children": [
+            {
+              "type": "text",
+              "id": "JV4Ol",
+              "name": "ctInputsT",
+              "fill": "#ECECF8",
+              "content": "Inputs",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "bj27C",
+              "name": "ctInputRow",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "J7AIE",
+                  "name": "ctInputA",
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "#0F0F1A",
+                  "cornerRadius": 10,
+                  "layout": "vertical",
+                  "padding": [
+                    11,
+                    12
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "DFKuW",
+                      "name": "ctInputAT",
+                      "fill": "#7F7F93",
+                      "content": "Nombre",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "kfISY",
+                  "name": "ctInputB",
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "#0F0F1A",
+                  "cornerRadius": 10,
+                  "layout": "vertical",
+                  "padding": [
+                    11,
+                    12
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "DWZKK",
+                      "name": "ctInputBT",
+                      "fill": "#AFAFD1",
+                      "content": "Telefono (focus)",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "wUHtZ",
+          "name": "tkHead",
+          "fill": "#F0F0FA",
+          "content": "Design Tokens",
+          "fontFamily": "Inter",
+          "fontSize": 36,
+          "fontWeight": "bold"
+        },
+        {
+          "type": "frame",
+          "id": "dfN8z",
+          "name": "Color Tokens",
+          "width": "fill_container",
+          "fill": "#11111E",
+          "cornerRadius": 14,
+          "layout": "vertical",
+          "gap": 10,
+          "padding": 16,
+          "children": [
+            {
+              "type": "text",
+              "id": "CmkHc",
+              "name": "tkColorsT",
+              "fill": "#ECECF8",
+              "content": "Colors",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "bCVb0",
+              "name": "tkSwRow",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "C6fIx",
+                  "name": "tkSw1",
+                  "width": "fill_container",
+                  "height": 120,
+                  "fill": "#0B0B12",
+                  "cornerRadius": 10,
+                  "layout": "vertical",
+                  "padding": 10,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "YpJnV",
+                      "name": "tkSw1T",
+                      "fill": "#FFFFFF",
+                      "content": "bg/0 #0B0B12",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "evggb",
+                  "name": "tkSw2",
+                  "width": "fill_container",
+                  "height": 120,
+                  "fill": "#11111E",
+                  "cornerRadius": 10,
+                  "layout": "vertical",
+                  "padding": 10,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "QQElp",
+                      "name": "tkSw2T",
+                      "fill": "#FFFFFF",
+                      "content": "bg/1 #11111E",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mBzhX",
+                  "name": "tkSw3",
+                  "width": "fill_container",
+                  "height": 120,
+                  "fill": "#5B2EFF",
+                  "cornerRadius": 10,
+                  "layout": "vertical",
+                  "padding": 10,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "7HWrK",
+                      "name": "tkSw3T",
+                      "fill": "#FFFFFF",
+                      "content": "brand #5B2EFF",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "j9rXt",
+                  "name": "tkSw4",
+                  "width": "fill_container",
+                  "height": 120,
+                  "fill": "#7A5CFF",
+                  "cornerRadius": 10,
+                  "layout": "vertical",
+                  "padding": 10,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "qqsit",
+                      "name": "tkSw4T",
+                      "fill": "#FFFFFF",
+                      "content": "accent #7A5CFF",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "wNhec",
+                  "name": "tkSw5",
+                  "width": "fill_container",
+                  "height": 120,
+                  "fill": "#00E676",
+                  "cornerRadius": 10,
+                  "layout": "vertical",
+                  "padding": 10,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Ngi1f",
+                      "name": "tkSw5T",
+                      "fill": "#072212",
+                      "content": "success #00E676",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ClAEl",
+                  "name": "tkSw6",
+                  "width": "fill_container",
+                  "height": 120,
+                  "fill": "#FF4D4D",
+                  "cornerRadius": 10,
+                  "layout": "vertical",
+                  "padding": 10,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ChnAx",
+                      "name": "tkSw6T",
+                      "fill": "#2B0C0C",
+                      "content": "danger #FF4D4D",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "exKXd",
+          "name": "Type Tokens",
+          "width": "fill_container",
+          "fill": "#11111E",
+          "cornerRadius": 14,
+          "layout": "vertical",
+          "gap": 8,
+          "padding": 16,
+          "children": [
+            {
+              "type": "text",
+              "id": "RUYhu",
+              "name": "tkTypeT",
+              "fill": "#ECECF8",
+              "content": "Typography",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "text",
+              "id": "JAk3p",
+              "name": "tkType1",
+              "fill": "#F0F0FA",
+              "content": "H1 52-64 / 700-800",
+              "fontFamily": "Inter",
+              "fontSize": 32,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "text",
+              "id": "DlTVJ",
+              "name": "tkType2",
+              "fill": "#E3E3F0",
+              "content": "H2 32-40 / 700",
+              "fontFamily": "Inter",
+              "fontSize": 24,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "text",
+              "id": "IBURY",
+              "name": "tkType3",
+              "fill": "#C7C7D8",
+              "content": "Body 16-18 / 400-500",
+              "fontFamily": "Inter",
+              "fontSize": 16,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "9Rkf6",
+          "name": "Spacing Radius Motion",
+          "width": "fill_container",
+          "fill": "#11111E",
+          "cornerRadius": 14,
+          "layout": "vertical",
+          "gap": 6,
+          "padding": 16,
+          "children": [
+            {
+              "type": "text",
+              "id": "l1LU4",
+              "name": "tkSpaceT",
+              "fill": "#ECECF8",
+              "content": "Spacing / Radius / Motion",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "text",
+              "id": "QA9QU",
+              "name": "tkSpace1",
+              "fill": "#C7C7D8",
+              "content": "Spacing: 8 / 12 / 16 / 24 / 32 / 56",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "xdqh7",
+              "name": "tkSpace2",
+              "fill": "#C7C7D8",
+              "content": "Radius: 12 / 14 / 18 / 24",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "qaKhf",
+              "name": "tkSpace3",
+              "fill": "#C7C7D8",
+              "content": "Motion: 0.6-0.9s, ease power2.out, reduced-motion fallback",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

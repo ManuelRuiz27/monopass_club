@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { gsap } from 'gsap'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { rpApi } from '../api'
 import { RpStateView } from '../components/RpStateView'
 import { Button } from '@/components/ui'
 import { useToast } from '@/components/ToastProvider'
+import { usePrefersReducedMotion } from '@/lib/motion/usePrefersReducedMotion'
 
 type GeneratedState = {
   ticketId: string
@@ -39,11 +41,81 @@ export function RpGeneratedPage() {
   const navigate = useNavigate()
   const { state } = useLocation()
   const toast = useToast()
+  const screenRef = useRef<HTMLDivElement | null>(null)
+  const prefersReducedMotion = usePrefersReducedMotion()
   const [ticketImageUrl, setTicketImageUrl] = useState<string | null>(null)
   const [imageError, setImageError] = useState<string | null>(null)
   const [isLoadingImage, setIsLoadingImage] = useState(false)
 
   const generatedState = useMemo(() => (isGeneratedState(state) ? state : null), [state])
+
+  useLayoutEffect(() => {
+    if (prefersReducedMotion || !generatedState) return
+
+    const scope = screenRef.current
+    if (!scope) return
+
+    const select = gsap.utils.selector(scope)
+    const actionButtons = gsap.utils.toArray<HTMLElement>('.rp-generated-actions > *', scope)
+    const timeline = gsap.timeline({ defaults: { ease: 'power2.out' } })
+
+    timeline
+      .fromTo(
+        select('.rp-generated-success__icon-shell'),
+        { autoAlpha: 0, scale: 0.84 },
+        { autoAlpha: 1, scale: 1, duration: 0.26, clearProps: 'opacity,transform' },
+      )
+      .fromTo(
+        select('.rp-generated-success__title, .rp-generated-success__subtitle'),
+        { autoAlpha: 0, y: 14 },
+        { autoAlpha: 1, y: 0, duration: 0.24, stagger: 0.06, clearProps: 'opacity,transform' },
+        '-=0.12',
+      )
+      .fromTo(
+        select('.rp-generated-ticket'),
+        { autoAlpha: 0, y: 16 },
+        { autoAlpha: 1, y: 0, duration: 0.28, clearProps: 'opacity,transform' },
+        '-=0.1',
+      )
+
+    if (actionButtons.length > 0) {
+      timeline.fromTo(
+        actionButtons,
+        { autoAlpha: 0, y: 12 },
+        { autoAlpha: 1, y: 0, duration: 0.2, stagger: 0.05, clearProps: 'opacity,transform' },
+        '-=0.12',
+      )
+    }
+
+    timeline.fromTo(
+      select('.rp-generated-screen__back'),
+      { autoAlpha: 0 },
+      { autoAlpha: 1, duration: 0.2, clearProps: 'opacity' },
+      '-=0.08',
+    )
+
+    return () => {
+      timeline.kill()
+    }
+  }, [generatedState, prefersReducedMotion])
+
+  useLayoutEffect(() => {
+    if (prefersReducedMotion || !ticketImageUrl) return
+
+    const scope = screenRef.current
+    const image = scope?.querySelector<HTMLElement>('.rp-generated-ticket__image')
+    if (!image) return
+
+    const tween = gsap.fromTo(
+      image,
+      { autoAlpha: 0, scale: 0.96 },
+      { autoAlpha: 1, scale: 1, duration: 0.22, ease: 'power2.out', clearProps: 'opacity,transform' },
+    )
+
+    return () => {
+      tween.kill()
+    }
+  }, [prefersReducedMotion, ticketImageUrl])
 
   useEffect(() => {
     if (!generatedState) return
@@ -141,7 +213,7 @@ export function RpGeneratedPage() {
   }
 
   return (
-    <div className="rp-generated-screen">
+    <div ref={screenRef} className="rp-generated-screen">
       <section className="rp-generated-success">
         <div className="rp-generated-success__icon-shell" aria-hidden="true">
           <span className="material-symbols-outlined rp-generated-success__icon">check</span>

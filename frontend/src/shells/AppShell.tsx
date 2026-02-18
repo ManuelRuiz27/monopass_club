@@ -1,6 +1,10 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { useLayoutEffect, useRef } from 'react'
+import { gsap } from 'gsap'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '@/features/auth/AuthContext'
 import type { UserRole } from '@/features/auth/AuthContext'
+import { useGsapInteractiveScale } from '@/lib/motion/useGsapInteractiveScale'
+import { usePrefersReducedMotion } from '@/lib/motion/usePrefersReducedMotion'
 
 const navByRole: Record<UserRole, Array<{ to: string; label: string; icon: string }>> = {
   MANAGER: [
@@ -38,9 +42,35 @@ const secondaryNav: Record<UserRole, Array<{ to: string; label: string; icon: st
 
 export function AppShell() {
   const { session, logout } = useAuth()
+  const location = useLocation()
+  const bottomNavRef = useRef<HTMLElement | null>(null)
+  const prefersReducedMotion = usePrefersReducedMotion()
   const role: UserRole = session?.role ?? 'MANAGER'
   const navItems = navByRole[role]
   const secondaryItems = secondaryNav[role]
+
+  useGsapInteractiveScale(bottomNavRef, '.bottom-nav-item', role, { hoverScale: 1.03, pressScale: 0.97 })
+
+  useLayoutEffect(() => {
+    if (prefersReducedMotion) return
+
+    const activeItem = bottomNavRef.current?.querySelector<HTMLElement>('.bottom-nav-item.active')
+    if (!activeItem) return
+
+    const timeline = gsap.timeline({ defaults: { ease: 'power2.out' } })
+    timeline
+      .fromTo(activeItem, { scale: 0.96, autoAlpha: 0.88 }, { scale: 1, autoAlpha: 1, duration: 0.22 })
+      .fromTo(
+        activeItem.querySelector('.bottom-nav-icon'),
+        { y: 2 },
+        { y: 0, duration: 0.18, clearProps: 'transform' },
+        0,
+      )
+
+    return () => {
+      timeline.kill()
+    }
+  }, [location.pathname, prefersReducedMotion])
 
   return (
     <div className="app-shell-unified">
@@ -54,7 +84,7 @@ export function AppShell() {
         </div>
       </header>
 
-      <nav className="app-bottom-nav">
+      <nav ref={bottomNavRef} className="app-bottom-nav">
         {navItems.map((item) => (
           <NavLink
             key={item.to}

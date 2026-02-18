@@ -1,8 +1,11 @@
-import { useMemo } from 'react'
+import { useLayoutEffect, useMemo, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { gsap } from 'gsap'
 import { useSearchParams } from 'react-router-dom'
 import { scannerApi } from '../api'
 import { Button, CardEmptyState, PageErrorState, PageLoadingState } from '@/components/ui'
+import { useGsapCountUp } from '@/lib/motion/useGsapCountUp'
+import { usePrefersReducedMotion } from '@/lib/motion/usePrefersReducedMotion'
 
 type SortBy = 'event' | 'rp' | 'general' | 'vip' | 'other' | 'total'
 type SortDir = 'asc' | 'desc'
@@ -29,6 +32,8 @@ function compareString(a: string, b: string, dir: SortDir) {
 }
 
 export function ScannerCutsPage() {
+  const pageRef = useRef<HTMLDivElement | null>(null)
+  const prefersReducedMotion = usePrefersReducedMotion()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const eventFilter = searchParams.get('event') ?? ''
@@ -142,8 +147,57 @@ export function ScannerCutsPage() {
     setSearchParams(new URLSearchParams())
   }
 
+  const cutsMotionKey = summary
+    ? [summary.totalGeneral, summary.totalVip, summary.totalOther, summary.total, rpRows.length, detailSelection?.eventId ?? '-'].join('|')
+    : 'empty'
+
+  useGsapCountUp(pageRef, '.scanner-cuts-kpi__value[data-count-target]', cutsMotionKey)
+
+  useLayoutEffect(() => {
+    if (prefersReducedMotion) return
+
+    const scope = pageRef.current
+    if (!scope) return
+
+    const context = gsap.context(() => {
+      const timeline = gsap.timeline({ defaults: { ease: 'power2.out' } })
+      timeline
+        .fromTo(
+          '.scanner-cuts-page__title, .scanner-cuts-page__subtitle',
+          { autoAlpha: 0, y: 10 },
+          { autoAlpha: 1, y: 0, duration: 0.22, stagger: 0.06, clearProps: 'opacity,transform' },
+        )
+        .fromTo(
+          '.scanner-cuts-filters',
+          { autoAlpha: 0, y: 14 },
+          { autoAlpha: 1, y: 0, duration: 0.24, clearProps: 'opacity,transform' },
+          '-=0.08',
+        )
+
+      if (summary) {
+        timeline.fromTo(
+          '.scanner-cuts-kpi',
+          { autoAlpha: 0, y: 18 },
+          { autoAlpha: 1, y: 0, duration: 0.24, stagger: 0.05, clearProps: 'opacity,transform' },
+          '-=0.1',
+        )
+      }
+
+      if (rpRows.length > 0) {
+        timeline.fromTo(
+          '.scanner-cuts-table-wrap',
+          { autoAlpha: 0, y: 14 },
+          { autoAlpha: 1, y: 0, duration: 0.26, clearProps: 'opacity,transform' },
+          '-=0.08',
+        )
+      }
+    }, scope)
+
+    return () => context.revert()
+  }, [cutsMotionKey, prefersReducedMotion, rpRows.length, summary])
+
   return (
-    <div className="scanner-cuts-page">
+    <div ref={pageRef} className="scanner-cuts-page">
       <h3 className="scanner-cuts-page__title">Cortes en tiempo real</h3>
       <p className="text-muted scanner-cuts-page__subtitle">
         Resumen por evento y RP durante la operacion.
@@ -254,19 +308,27 @@ export function ScannerCutsPage() {
         <div className="card-grid scanner-cuts-kpis">
           <article className="card scanner-cuts-kpi">
             <h4 className="scanner-cuts-kpi__title">Total general</h4>
-            <strong className="scanner-cuts-kpi__value">{summary.totalGeneral}</strong>
+            <strong className="scanner-cuts-kpi__value" data-count-target={summary.totalGeneral}>
+              {summary.totalGeneral}
+            </strong>
           </article>
           <article className="card scanner-cuts-kpi">
             <h4 className="scanner-cuts-kpi__title">Total VIP</h4>
-            <strong className="scanner-cuts-kpi__value">{summary.totalVip}</strong>
+            <strong className="scanner-cuts-kpi__value" data-count-target={summary.totalVip}>
+              {summary.totalVip}
+            </strong>
           </article>
           <article className="card scanner-cuts-kpi">
             <h4 className="scanner-cuts-kpi__title">Total otro</h4>
-            <strong className="scanner-cuts-kpi__value">{summary.totalOther}</strong>
+            <strong className="scanner-cuts-kpi__value" data-count-target={summary.totalOther}>
+              {summary.totalOther}
+            </strong>
           </article>
           <article className="card scanner-cuts-kpi">
             <h4 className="scanner-cuts-kpi__title">Total escaneados</h4>
-            <strong className="scanner-cuts-kpi__value">{summary.total}</strong>
+            <strong className="scanner-cuts-kpi__value" data-count-target={summary.total}>
+              {summary.total}
+            </strong>
           </article>
         </div>
       ) : null}

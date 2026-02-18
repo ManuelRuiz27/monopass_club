@@ -6,13 +6,36 @@ import { env } from './config/env'
 import { registerRoutes } from './http/routes'
 import authPlugin from './plugins/auth'
 
+function buildCorsOriginMatcher() {
+  const value = env.CORS_ALLOWED_ORIGINS.trim()
+  if (value === '*' || value.length === 0) {
+    return (_origin: string | undefined, callback: (error: Error | null, allow: boolean) => void) =>
+      callback(null, true)
+  }
+
+  const allowList = new Set(
+    value
+      .split(',')
+      .map((origin) => origin.trim())
+      .filter((origin) => origin.length > 0),
+  )
+
+  return (origin: string | undefined, callback: (error: Error | null, allow: boolean) => void) => {
+    if (!origin) {
+      callback(null, true)
+      return
+    }
+    callback(null, allowList.has(origin))
+  }
+}
+
 export async function buildServer() {
   const app = Fastify({
     logger: true,
   })
 
   await app.register(cors, {
-    origin: true,
+    origin: buildCorsOriginMatcher(),
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   })
   await app.register(sensible)

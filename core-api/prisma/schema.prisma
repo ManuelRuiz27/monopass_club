@@ -25,6 +25,35 @@ enum TicketStatus {
   SCANNED
 }
 
+enum LandingOrderStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum LandingProvisioningStatus {
+  NOT_STARTED
+  PROVISIONED
+  FAILED
+}
+
+enum LicensePlanType {
+  EVENT
+  BASE
+  PRO
+}
+
+enum LicenseBillingType {
+  MANUAL
+  SUBSCRIPTION
+}
+
+enum LicenseStatus {
+  ACTIVE
+  GRACE
+  SUSPENDED
+}
+
 model User {
   id              String           @id
   name            String
@@ -41,6 +70,7 @@ model User {
   rpProfile       RpProfile?       @relation("RpUser")
   scannerProfile  ScannerProfile?  @relation("ScannerUser")
   rpGroups        RpGroup[]        @relation("ManagerRpGroups")
+  licenses        License[]        @relation("ManagerLicenses")
 }
 
 model ManagerSetting {
@@ -62,6 +92,7 @@ model Club {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   events    Event[]
+  licenses  License[] @relation("ClubLicenses")
 }
 
 model Event {
@@ -190,4 +221,72 @@ model RpGroup {
   members   RpProfile[]
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+}
+
+model Lead {
+  id        String   @id @default(uuid())
+  name      String
+  role      String?
+  city      String
+  venues    Int?
+  phone     String
+  email     String?
+  instagram String?
+  club      String?
+  eventDate DateTime?
+  estimatedVolume Int?
+  utmSource String?
+  utmMedium String?
+  utmCampaign String?
+  utmTerm String?
+  utmContent String?
+  createdAt DateTime @default(now())
+}
+
+model LandingOrder {
+  id                   String             @id
+  provider             String
+  providerPreferenceId String?
+  paymentId            String?            @unique
+  amount               Int
+  currency             String
+  status               LandingOrderStatus @default(PENDING)
+  clubName             String
+  city                 String
+  ownerName            String
+  ownerEmail           String
+  phone                String
+  utmSource            String?
+  utmMedium            String?
+  utmCampaign          String?
+  utmTerm              String?
+  utmContent           String?
+  paidAt               DateTime?
+  provisioningStatus   LandingProvisioningStatus @default(NOT_STARTED)
+  managerUserId        String?
+  clubId               String?
+  eventId              String?
+  licenseId            String?
+  provisioningError    String?
+  provisionedAt        DateTime?
+  credentialsEmailSentAt DateTime?
+  credentialsEmailError  String?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+}
+
+model License {
+  id            String             @id
+  manager       User               @relation("ManagerLicenses", fields: [managerUserId], references: [id], onDelete: Cascade)
+  managerUserId String
+  club          Club?              @relation("ClubLicenses", fields: [clubId], references: [id], onDelete: SetNull)
+  clubId        String?
+  planType      LicensePlanType
+  billingType   LicenseBillingType
+  status        LicenseStatus      @default(ACTIVE)
+  periodStart   DateTime
+  periodEnd     DateTime
+  eventsRemaining Int?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
 }

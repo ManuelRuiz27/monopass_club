@@ -1,5 +1,5 @@
 {
-  "version": "2.7",
+  "version": "2.8",
   "children": [
     {
       "type": "frame",
@@ -24997,6 +24997,1779 @@
               ]
             }
           ]
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "4JliA",
+      "x": 4720,
+      "y": -80,
+      "name": "Section · GSAP Preview",
+      "fill": "$gold-primary",
+      "content": "GSAP PREVIEW",
+      "fontFamily": "Manrope",
+      "fontSize": 24,
+      "fontWeight": "600",
+      "letterSpacing": 4
+    },
+    {
+      "type": "text",
+      "id": "rk4oS",
+      "x": 4720,
+      "y": -42,
+      "name": "GSAP Subtitle",
+      "fill": "$text-secondary",
+      "content": "Propuesta visual de motion para RP + Scanner",
+      "fontFamily": "Manrope",
+      "fontSize": 14,
+      "fontWeight": "500"
+    },
+    {
+      "type": "text",
+      "id": "KQV0W",
+      "x": 4720,
+      "y": 80,
+      "name": "GSAP Group RP",
+      "fill": "$text-primary",
+      "content": "RP · Transicion entre rutas",
+      "fontFamily": "Playfair Display",
+      "fontSize": 22,
+      "fontWeight": "normal"
+    },
+    {
+      "type": "text",
+      "id": "w4c64",
+      "x": 4720,
+      "y": 1020,
+      "name": "GSAP Group Scanner",
+      "fill": "$text-primary",
+      "content": "Scanner · Secuencia de validacion",
+      "fontFamily": "Playfair Display",
+      "fontSize": 22,
+      "fontWeight": "normal"
+    },
+    {
+      "type": "frame",
+      "id": "EL8Xa",
+      "x": 4720,
+      "y": 140,
+      "name": "RP · Mis Eventos · GSAP",
+      "width": 375,
+      "height": 812,
+      "fill": "$bg-page",
+      "children": [
+        {
+          "type": "frame",
+          "id": "6zlNY",
+          "name": "nav",
+          "width": "fill_container",
+          "height": 80,
+          "fill": "$bg-sidebar",
+          "stroke": {
+            "thickness": 1,
+            "fill": "$bg-border"
+          },
+          "padding": [
+            12,
+            0
+          ],
+          "justifyContent": "space_around",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "k9C5U",
+              "name": "nav1",
+              "layout": "vertical",
+              "gap": 4,
+              "padding": [
+                8,
+                16
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "k5Bkc",
+                  "name": "nav1Icon",
+                  "width": 22,
+                  "height": 22,
+                  "iconFontName": "qr-code",
+                  "iconFontFamily": "lucide",
+                  "fill": "$rp-primary"
+                },
+                {
+                  "type": "text",
+                  "id": "MeVfs",
+                  "name": "nav1Text",
+                  "fill": "$rp-primary",
+                  "content": "Generar",
+                  "fontFamily": "Manrope",
+                  "fontSize": 11,
+                  "fontWeight": "500"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "N1Ekx",
+              "name": "nav2",
+              "layout": "vertical",
+              "gap": 4,
+              "padding": [
+                8,
+                16
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "sZ7cV",
+                  "name": "nav2Icon",
+                  "width": 22,
+                  "height": 22,
+                  "iconFontName": "history",
+                  "iconFontFamily": "lucide",
+                  "fill": "$text-tertiary"
+                },
+                {
+                  "type": "text",
+                  "id": "J0CN9",
+                  "name": "nav2Text",
+                  "fill": "$text-tertiary",
+                  "content": "Historial",
+                  "fontFamily": "Manrope",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "RQV6B",
+              "name": "nav3",
+              "layout": "vertical",
+              "gap": 4,
+              "padding": [
+                8,
+                16
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "Qz7FU",
+                  "name": "nav3Icon",
+                  "width": 22,
+                  "height": 22,
+                  "iconFontName": "user",
+                  "iconFontFamily": "lucide",
+                  "fill": "$text-tertiary"
+                },
+                {
+                  "type": "text",
+                  "id": "FHPFb",
+                  "name": "nav3Text",
+                  "fill": "$text-tertiary",
+                  "content": "Perfil",
+                  "fontFamily": "Manrope",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "oQbIm",
+          "name": "content",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 24,
+          "padding": [
+            48,
+            24,
+            24,
+            24
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "QC76Z",
+              "name": "header",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Hsxcf",
+                  "fill": "$text-primary",
+                  "content": "Mis Eventos",
+                  "fontFamily": "Playfair Display",
+                  "fontSize": 28,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "m5T5f",
+              "name": "eventList",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Ad2Oy",
+                  "name": "card1",
+                  "width": "fill_container",
+                  "stroke": {
+                    "thickness": 1,
+                    "fill": "$rp-primary"
+                  },
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": 20,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "I9VtT",
+                      "fill": "$text-primary",
+                      "content": "Club Noir - Viernes",
+                      "fontFamily": "Manrope",
+                      "fontSize": 16,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ItMeU",
+                      "name": "row1",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "7BJ3O",
+                          "fill": "$text-secondary",
+                          "content": "Accesos restantes:",
+                          "fontFamily": "Manrope",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "TtMLZ",
+                          "fill": "$rp-primary",
+                          "content": "12 / 50",
+                          "fontFamily": "Manrope",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ocfNk",
+                  "name": "card2",
+                  "width": "fill_container",
+                  "stroke": {
+                    "thickness": 1,
+                    "fill": "$bg-border"
+                  },
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": 20,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "NTN7e",
+                      "fill": "$text-primary",
+                      "content": "Eclipse - Sábado",
+                      "fontFamily": "Manrope",
+                      "fontSize": 16,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "zzRbH",
+                      "name": "row2",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "vzHNd",
+                          "fill": "$text-secondary",
+                          "content": "Accesos restantes:",
+                          "fontFamily": "Manrope",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "qYGnP",
+                          "fill": "$text-primary",
+                          "content": "45 / 50",
+                          "fontFamily": "Manrope",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "P4ggx",
+      "x": 5195,
+      "y": 140,
+      "name": "RP · Generar Acceso · GSAP",
+      "width": 375,
+      "height": 812,
+      "fill": "$bg-page",
+      "layout": "vertical",
+      "justifyContent": "space_between",
+      "children": [
+        {
+          "type": "frame",
+          "id": "Ryy40",
+          "name": "content",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 32,
+          "padding": [
+            48,
+            24,
+            24,
+            24
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "YjCgV",
+              "name": "rpHeader",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "3pkly",
+                  "name": "rpLogoSection",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "oJ025",
+                      "name": "rpLogoMark",
+                      "width": 32,
+                      "height": 32,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "$rp-primary"
+                      },
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "zwCqO",
+                          "name": "rpLogoLetter",
+                          "fill": "$rp-primary",
+                          "content": "P",
+                          "fontFamily": "Playfair Display",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "v6amQ",
+                      "name": "rpLogoText",
+                      "fill": "$text-primary",
+                      "content": "PassMonkey",
+                      "fontFamily": "Playfair Display",
+                      "fontSize": 18,
+                      "fontWeight": "normal",
+                      "letterSpacing": 1
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "aX2J1",
+                  "name": "rpAvatar",
+                  "width": 36,
+                  "height": 36,
+                  "stroke": {
+                    "thickness": 1,
+                    "fill": "$bg-border"
+                  },
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "UwNQ8",
+                      "name": "rpAvatarInit",
+                      "fill": "$rp-primary",
+                      "content": "JD",
+                      "fontFamily": "Manrope",
+                      "fontSize": 11,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "3ulyS",
+              "name": "rpTitle",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "v1RZd",
+                  "name": "rpTitleText",
+                  "fill": "$text-primary",
+                  "content": "Generar Acceso",
+                  "fontFamily": "Playfair Display",
+                  "fontSize": 32,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "Ierl3",
+                  "name": "rpSubText",
+                  "fill": "$text-secondary",
+                  "content": "Crea un nuevo pase para invitados",
+                  "fontFamily": "Manrope",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "5DZTS",
+              "name": "rpEventCard",
+              "width": "fill_container",
+              "stroke": {
+                "thickness": 1,
+                "fill": "$rp-primary"
+              },
+              "layout": "vertical",
+              "gap": 12,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Isp9M",
+                  "name": "rpEventLabel",
+                  "fill": "$rp-primary",
+                  "content": "EVENTO ACTUAL",
+                  "fontFamily": "Manrope",
+                  "fontSize": 10,
+                  "fontWeight": "600",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "nbbq2",
+                  "name": "rpEventName",
+                  "fill": "$text-primary",
+                  "content": "Noche de Inauguración",
+                  "fontFamily": "Playfair Display",
+                  "fontSize": 18,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "d8spd",
+                  "name": "rpEventMeta",
+                  "fill": "$text-tertiary",
+                  "content": "Club Noir · Viernes 12 Ene",
+                  "fontFamily": "Manrope",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "HWJOw",
+              "name": "guestSection",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "qKCvK",
+                  "name": "guestLabel",
+                  "fill": "$text-secondary",
+                  "content": "TIPO DE INVITADO",
+                  "fontFamily": "Manrope",
+                  "fontSize": 10,
+                  "fontWeight": "600",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "frame",
+                  "id": "z5K0p",
+                  "name": "guestCards",
+                  "width": "fill_container",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "MxBOF",
+                      "name": "guestGeneral",
+                      "width": "fill_container",
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "$bg-border"
+                      },
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 16,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "ir0L6",
+                          "name": "guestGenIcon",
+                          "width": 20,
+                          "height": 20,
+                          "iconFontName": "user",
+                          "iconFontFamily": "lucide",
+                          "fill": "$text-tertiary"
+                        },
+                        {
+                          "type": "text",
+                          "id": "uLYLj",
+                          "name": "guestGenText",
+                          "fill": "$text-secondary",
+                          "content": "General",
+                          "fontFamily": "Manrope",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "9Pn5V",
+                      "name": "guestVip",
+                      "width": "fill_container",
+                      "fill": "$rp-tint-10",
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "$rp-primary"
+                      },
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 16,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "HF8zW",
+                          "name": "guestVipIcon",
+                          "width": 20,
+                          "height": 20,
+                          "iconFontName": "crown",
+                          "iconFontFamily": "lucide",
+                          "fill": "$rp-primary"
+                        },
+                        {
+                          "type": "text",
+                          "id": "oxdeN",
+                          "name": "guestVipText",
+                          "fill": "$rp-primary",
+                          "content": "VIP",
+                          "fontFamily": "Manrope",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "N6DAq",
+                      "name": "guestOtro",
+                      "width": "fill_container",
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "$bg-border"
+                      },
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 16,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "VnzX6",
+                          "name": "guestOtroIcon",
+                          "width": 20,
+                          "height": 20,
+                          "iconFontName": "star",
+                          "iconFontFamily": "lucide",
+                          "fill": "$text-tertiary"
+                        },
+                        {
+                          "type": "text",
+                          "id": "wFNt2",
+                          "name": "guestOtroText",
+                          "fill": "$text-secondary",
+                          "content": "Otro",
+                          "fontFamily": "Manrope",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "QWrOy",
+              "name": "notesInput",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "ZkxSm",
+                  "name": "notesLabel",
+                  "fill": "$text-secondary",
+                  "content": "Notas (opcional)",
+                  "fontFamily": "Manrope",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "frame",
+                  "id": "dDAGd",
+                  "name": "notesField",
+                  "width": "fill_container",
+                  "height": 80,
+                  "stroke": {
+                    "thickness": 1,
+                    "fill": "$bg-border"
+                  },
+                  "padding": 16,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "zbLcl",
+                      "name": "notesPlaceholder",
+                      "fill": "$text-tertiary",
+                      "content": "Agregar nota especial...",
+                      "fontFamily": "Manrope",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "pG9CQ",
+              "name": "ctaButton",
+              "width": "fill_container",
+              "fill": "$green-primary",
+              "gap": 10,
+              "padding": [
+                16,
+                0
+              ],
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "GAXZG",
+                  "name": "ctaIcon",
+                  "width": 18,
+                  "height": 18,
+                  "iconFontName": "qr-code",
+                  "iconFontFamily": "lucide",
+                  "fill": "$text-on-gold"
+                },
+                {
+                  "type": "text",
+                  "id": "sWWJa",
+                  "name": "ctaText",
+                  "fill": "$text-on-gold",
+                  "content": "Generar Acceso",
+                  "fontFamily": "Manrope",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "LPxy5",
+          "name": "bottom-nav",
+          "width": "fill_container",
+          "height": 80,
+          "fill": "$bg-sidebar",
+          "stroke": {
+            "thickness": 1,
+            "fill": "$bg-border"
+          },
+          "padding": [
+            12,
+            0
+          ],
+          "justifyContent": "space_around",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "Q83iH",
+              "name": "nav1",
+              "layout": "vertical",
+              "gap": 4,
+              "padding": [
+                8,
+                16
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "29B6S",
+                  "name": "nav1Icon",
+                  "width": 22,
+                  "height": 22,
+                  "iconFontName": "qr-code",
+                  "iconFontFamily": "lucide",
+                  "fill": "$rp-primary"
+                },
+                {
+                  "type": "text",
+                  "id": "rsCNm",
+                  "name": "nav1Text",
+                  "fill": "$rp-primary",
+                  "content": "Generar",
+                  "fontFamily": "Manrope",
+                  "fontSize": 11,
+                  "fontWeight": "500"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "HwwcA",
+              "name": "nav2",
+              "layout": "vertical",
+              "gap": 4,
+              "padding": [
+                8,
+                16
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "1AUMK",
+                  "name": "nav2Icon",
+                  "width": 22,
+                  "height": 22,
+                  "iconFontName": "history",
+                  "iconFontFamily": "lucide",
+                  "fill": "$text-tertiary"
+                },
+                {
+                  "type": "text",
+                  "id": "bFhVa",
+                  "name": "nav2Text",
+                  "fill": "$text-tertiary",
+                  "content": "Historial",
+                  "fontFamily": "Manrope",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "LBmFu",
+              "name": "nav3",
+              "layout": "vertical",
+              "gap": 4,
+              "padding": [
+                8,
+                16
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "yXv7H",
+                  "name": "nav3Icon",
+                  "width": 22,
+                  "height": 22,
+                  "iconFontName": "user",
+                  "iconFontFamily": "lucide",
+                  "fill": "$text-tertiary"
+                },
+                {
+                  "type": "text",
+                  "id": "cJ50o",
+                  "name": "nav3Text",
+                  "fill": "$text-tertiary",
+                  "content": "Perfil",
+                  "fontFamily": "Manrope",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "u5koq",
+      "x": 4720,
+      "y": 1080,
+      "name": "Scanner · Escanear · GSAP",
+      "width": 375,
+      "height": 812,
+      "fill": "$bg-page",
+      "layout": "vertical",
+      "justifyContent": "space_between",
+      "children": [
+        {
+          "type": "frame",
+          "id": "nK3iq",
+          "name": "scanHeader",
+          "width": "fill_container",
+          "padding": [
+            48,
+            24,
+            24,
+            24
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "tF98v",
+              "name": "scanLogo",
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Ai85w",
+                  "name": "scanLogoMark",
+                  "width": 28,
+                  "height": 28,
+                  "stroke": {
+                    "thickness": 1,
+                    "fill": "$staff-primary"
+                  },
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "uyeRe",
+                      "name": "scanLogoLetter",
+                      "fill": "$staff-primary",
+                      "content": "P",
+                      "fontFamily": "Playfair Display",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "lVmgG",
+                  "name": "scanLogoText",
+                  "fill": "$text-primary",
+                  "content": "Scanner",
+                  "fontFamily": "Playfair Display",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "icon_font",
+              "id": "qlr1W",
+              "name": "scanLogout",
+              "width": 20,
+              "height": 20,
+              "iconFontName": "log-out",
+              "iconFontFamily": "lucide",
+              "fill": "$text-tertiary"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "ncYKI",
+          "name": "scanContent",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 24,
+          "padding": [
+            0,
+            24
+          ],
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "j4fAf",
+              "name": "scanArea",
+              "width": 280,
+              "height": 280,
+              "stroke": {
+                "thickness": 2,
+                "fill": "$staff-primary"
+              },
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "juzkM",
+                  "name": "scanAreaInner",
+                  "width": 240,
+                  "height": 240,
+                  "fill": "#1A1A1A",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "lRXpC",
+                      "name": "scanIcon",
+                      "width": 80,
+                      "height": 80,
+                      "iconFontName": "scan",
+                      "iconFontFamily": "lucide",
+                      "fill": "$text-tertiary"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "dBQA9",
+              "name": "scanInstructions",
+              "layout": "vertical",
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Rvu2m",
+                  "name": "scanTitle",
+                  "fill": "$text-primary",
+                  "content": "Apunta al código QR",
+                  "fontFamily": "Playfair Display",
+                  "fontSize": 18,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "3XiT7",
+                  "name": "scanSub",
+                  "fill": "$text-tertiary",
+                  "content": "La cámara detectará automáticamente el acceso",
+                  "textAlign": "center",
+                  "fontFamily": "Manrope",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "7TN83",
+          "name": "scanFooter",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 16,
+          "padding": 24,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "dv5oQ",
+              "name": "scanEvent",
+              "width": "fill_container",
+              "stroke": {
+                "thickness": 1,
+                "fill": "$bg-border"
+              },
+              "gap": 12,
+              "padding": 16,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "eUXJU",
+                  "name": "scanEventIcon",
+                  "width": 16,
+                  "height": 16,
+                  "iconFontName": "calendar",
+                  "iconFontFamily": "lucide",
+                  "fill": "$staff-primary"
+                },
+                {
+                  "type": "text",
+                  "id": "LfggT",
+                  "name": "scanEventText",
+                  "fill": "$text-secondary",
+                  "content": "Noche de Inauguración · Club Noir",
+                  "fontFamily": "Manrope",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "6H6if",
+      "x": 5195,
+      "y": 1080,
+      "name": "Scanner · Valido · GSAP",
+      "width": 375,
+      "height": 812,
+      "fill": "$bg-page",
+      "layout": "vertical",
+      "justifyContent": "space_between",
+      "children": [
+        {
+          "type": "frame",
+          "id": "brK5n",
+          "name": "validHeader",
+          "width": "fill_container",
+          "padding": [
+            48,
+            24,
+            24,
+            24
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "x6sOS",
+              "name": "validLogo",
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "MHFtP",
+                  "name": "validLogoMark",
+                  "width": 28,
+                  "height": 28,
+                  "stroke": {
+                    "thickness": 1,
+                    "fill": "$success"
+                  },
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "q64D8",
+                      "name": "validLogoLetter",
+                      "fill": "$success",
+                      "content": "P",
+                      "fontFamily": "Playfair Display",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "wpU9M",
+                  "name": "validLogoText",
+                  "fill": "$text-primary",
+                  "content": "Scanner",
+                  "fontFamily": "Playfair Display",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "TzvHD",
+          "name": "validContent",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 32,
+          "padding": [
+            0,
+            24
+          ],
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "xdYnt",
+              "name": "validIcon",
+              "width": 120,
+              "height": 120,
+              "fill": "$success-tint",
+              "stroke": {
+                "thickness": 2,
+                "fill": "$success"
+              },
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "iMZIf",
+                  "name": "validIconInner",
+                  "width": 56,
+                  "height": 56,
+                  "iconFontName": "check",
+                  "iconFontFamily": "lucide",
+                  "fill": "$success"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "HZJeC",
+              "name": "validInfo",
+              "layout": "vertical",
+              "gap": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "AvDwA",
+                  "name": "validTitle",
+                  "fill": "$success",
+                  "content": "Acceso Válido",
+                  "fontFamily": "Playfair Display",
+                  "fontSize": 28,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "nAA6I",
+                  "name": "validBadge",
+                  "fill": "$staff-primary",
+                  "padding": [
+                    8,
+                    20
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "4INsw",
+                      "name": "validBadgeText",
+                      "fill": "$text-on-gold",
+                      "content": "VIP",
+                      "fontFamily": "Manrope",
+                      "fontSize": 14,
+                      "fontWeight": "700",
+                      "letterSpacing": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "SlOCK",
+              "name": "validNote",
+              "width": "fill_container",
+              "stroke": {
+                "thickness": 1,
+                "fill": "$bg-border"
+              },
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "jQsyj",
+                  "name": "validNoteLabel",
+                  "fill": "$text-tertiary",
+                  "content": "NOTA",
+                  "fontFamily": "Manrope",
+                  "fontSize": 10,
+                  "fontWeight": "600",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "MlgNx",
+                  "name": "validNoteText",
+                  "fill": "$text-primary",
+                  "content": "Mesa reservada sector VIP - Atención especial",
+                  "fontFamily": "Manrope",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "pjnUo",
+          "name": "validFooter",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 12,
+          "padding": 24,
+          "children": [
+            {
+              "type": "frame",
+              "id": "8Jgzg",
+              "name": "confirmBtn",
+              "width": "fill_container",
+              "height": 56,
+              "fill": "$success",
+              "gap": 10,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "zUdqK",
+                  "name": "confirmIcon",
+                  "width": 20,
+                  "height": 20,
+                  "iconFontName": "check-circle",
+                  "iconFontFamily": "lucide",
+                  "fill": "$text-on-gold"
+                },
+                {
+                  "type": "text",
+                  "id": "73ge0",
+                  "name": "confirmText",
+                  "fill": "$text-on-gold",
+                  "content": "Confirmar Entrada",
+                  "fontFamily": "Manrope",
+                  "fontSize": 16,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "od6jA",
+              "name": "cancelBtn",
+              "width": "fill_container",
+              "height": 48,
+              "stroke": {
+                "thickness": 1,
+                "fill": "$bg-border"
+              },
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "tE2c8",
+                  "name": "cancelText",
+                  "fill": "$text-secondary",
+                  "content": "Escanear otro",
+                  "fontFamily": "Manrope",
+                  "fontSize": 14,
+                  "fontWeight": "500"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "qtcp7",
+      "x": 5670,
+      "y": 1080,
+      "name": "Scanner · Invalido · GSAP",
+      "width": 375,
+      "height": 812,
+      "fill": "$bg-page",
+      "layout": "vertical",
+      "justifyContent": "space_between",
+      "children": [
+        {
+          "type": "frame",
+          "id": "l51rH",
+          "name": "invHeader",
+          "width": "fill_container",
+          "padding": [
+            48,
+            24,
+            24,
+            24
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "e9Cox",
+              "name": "invLogo",
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "S8bj9",
+                  "name": "invLogoMark",
+                  "width": 28,
+                  "height": 28,
+                  "stroke": {
+                    "thickness": 1,
+                    "fill": "$error"
+                  },
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "MU81t",
+                      "name": "invLogoLetter",
+                      "fill": "$error",
+                      "content": "P",
+                      "fontFamily": "Playfair Display",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "wjVZn",
+                  "name": "invLogoText",
+                  "fill": "$text-primary",
+                  "content": "Scanner",
+                  "fontFamily": "Playfair Display",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "MT7jZ",
+          "name": "invContent",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 32,
+          "padding": [
+            0,
+            24
+          ],
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "SNaiw",
+              "name": "invIcon",
+              "width": 120,
+              "height": 120,
+              "fill": "#000000",
+              "stroke": {
+                "thickness": 2,
+                "fill": "$error"
+              },
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "JhaOb",
+                  "name": "invIconInner",
+                  "width": 56,
+                  "height": 56,
+                  "iconFontName": "x",
+                  "iconFontFamily": "lucide",
+                  "fill": "$error"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "DkCrS",
+              "name": "invInfo",
+              "layout": "vertical",
+              "gap": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "JPHrC",
+                  "name": "invTitle",
+                  "fill": "$error",
+                  "content": "Acceso Inválido",
+                  "fontFamily": "Playfair Display",
+                  "fontSize": 28,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "To5qG",
+                  "name": "invReason",
+                  "fill": "$text-secondary",
+                  "content": "Este código ya fue utilizado",
+                  "fontFamily": "Manrope",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "fBG5b",
+              "name": "invDetails",
+              "width": "fill_container",
+              "fill": "#000000",
+              "stroke": {
+                "thickness": 1,
+                "fill": "$error"
+              },
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Pz2VX",
+                  "name": "invDetailsLabel",
+                  "fill": "$error",
+                  "content": "INFORMACIÓN",
+                  "fontFamily": "Manrope",
+                  "fontSize": 10,
+                  "fontWeight": "600",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "frame",
+                  "id": "Kzwn9",
+                  "name": "invDetailsRow1",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "KZvLy",
+                      "name": "invDetailsKey1",
+                      "fill": "$text-secondary",
+                      "content": "Escaneado:",
+                      "fontFamily": "Manrope",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "SmcO3",
+                      "name": "invDetailsVal1",
+                      "fill": "$text-primary",
+                      "content": "Hoy 23:45",
+                      "fontFamily": "Manrope",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "uReie",
+                  "name": "invDetailsRow2",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "sVUCR",
+                      "name": "invDetailsKey2",
+                      "fill": "$text-secondary",
+                      "content": "Tipo:",
+                      "fontFamily": "Manrope",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "2lNj6",
+                      "name": "invDetailsVal2",
+                      "fill": "$staff-primary",
+                      "content": "VIP",
+                      "fontFamily": "Manrope",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "WhTcL",
+          "name": "invFooter",
+          "width": "fill_container",
+          "layout": "vertical",
+          "padding": 24,
+          "children": [
+            {
+              "type": "frame",
+              "id": "iVrSj",
+              "name": "invRetryBtn",
+              "width": "fill_container",
+              "height": 56,
+              "stroke": {
+                "thickness": 1,
+                "fill": "$bg-border"
+              },
+              "gap": 10,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "lRCDE",
+                  "name": "invRetryIcon",
+                  "width": 18,
+                  "height": 18,
+                  "iconFontName": "scan",
+                  "iconFontFamily": "lucide",
+                  "fill": "$text-secondary"
+                },
+                {
+                  "type": "text",
+                  "id": "JDw9M",
+                  "name": "invRetryText",
+                  "fill": "$text-primary",
+                  "content": "Escanear otro código",
+                  "fontFamily": "Manrope",
+                  "fontSize": 14,
+                  "fontWeight": "500"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "NWYE6",
+      "x": 6145,
+      "y": 180,
+      "name": "GSAP Specs · Route",
+      "width": 460,
+      "fill": "$bg-sidebar",
+      "stroke": {
+        "thickness": 1,
+        "fill": "$bg-border"
+      },
+      "layout": "vertical",
+      "gap": 10,
+      "padding": 20,
+      "children": [
+        {
+          "type": "text",
+          "id": "nTPPe",
+          "name": "Route Specs Title",
+          "fill": "$text-primary",
+          "content": "Specs GSAP · Route Transition",
+          "fontFamily": "Manrope",
+          "fontSize": 14,
+          "fontWeight": "700"
+        },
+        {
+          "type": "text",
+          "id": "DS9kv",
+          "name": "Route Specs 1",
+          "fill": "$text-secondary",
+          "content": "Exit actual: 0.22s, y -16, opacity 1 → 0, ease power2.inOut",
+          "fontFamily": "Manrope",
+          "fontSize": 12,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "8kuev",
+          "name": "Route Specs 2",
+          "fill": "$text-secondary",
+          "content": "Enter nueva: 0.28s, y 24 → 0, opacity 0 → 1, delay 0.05s",
+          "fontFamily": "Manrope",
+          "fontSize": 12,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "EJGFd",
+          "name": "Route Specs 3",
+          "fill": "$text-secondary",
+          "content": "Cards en stagger: 0.06s entre items para mejorar lectura",
+          "fontFamily": "Manrope",
+          "fontSize": 12,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "GXDks",
+          "name": "Route Specs 4",
+          "fill": "$text-secondary",
+          "content": "Bottom nav: active pill con scale 0.96 → 1 y color blend",
+          "fontFamily": "Manrope",
+          "fontSize": 12,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "Hv9Uy",
+          "name": "Route Specs 5",
+          "fill": "$text-secondary",
+          "content": "Fallback A11y: con prefers-reduced-motion usar solo fade de 0.12s",
+          "fontFamily": "Manrope",
+          "fontSize": 12,
+          "fontWeight": "normal"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "UpiJn",
+      "x": 6145,
+      "y": 1120,
+      "name": "GSAP Specs · Scanner",
+      "width": 460,
+      "fill": "$bg-sidebar",
+      "stroke": {
+        "thickness": 1,
+        "fill": "$bg-border"
+      },
+      "layout": "vertical",
+      "gap": 10,
+      "padding": 20,
+      "children": [
+        {
+          "type": "text",
+          "id": "Yi9U6",
+          "name": "Scanner Specs Title",
+          "fill": "$text-primary",
+          "content": "Specs GSAP · Scanner Flow",
+          "fontFamily": "Manrope",
+          "fontSize": 14,
+          "fontWeight": "700"
+        },
+        {
+          "type": "text",
+          "id": "08COI",
+          "name": "Scanner Specs 1",
+          "fill": "$text-secondary",
+          "content": "Beam loop en scanArea: yoyo infinito, 1.2s, ease sine.inOut",
+          "fontFamily": "Manrope",
+          "fontSize": 12,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "L3rgu",
+          "name": "Scanner Specs 2",
+          "fill": "$text-secondary",
+          "content": "Detectado: flash de borde 0.18s + shake sutil x ±4 por 0.16s",
+          "fontFamily": "Manrope",
+          "fontSize": 12,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "Fic6y",
+          "name": "Scanner Specs 3",
+          "fill": "$text-secondary",
+          "content": "Valido/Invalido: timeline 0.42s con icon pop y texto stagger 0.05s",
+          "fontFamily": "Manrope",
+          "fontSize": 12,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "lhr40",
+          "name": "Scanner Specs 4",
+          "fill": "$text-secondary",
+          "content": "CTA footer: hover/tap con scale 0.98 y duration 0.15s",
+          "fontFamily": "Manrope",
+          "fontSize": 12,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "LeGpH",
+          "name": "Scanner Specs 5",
+          "fill": "$text-secondary",
+          "content": "Fallback A11y: desactivar loop del beam y mantener feedback por color",
+          "fontFamily": "Manrope",
+          "fontSize": 12,
+          "fontWeight": "normal"
         }
       ]
     }
