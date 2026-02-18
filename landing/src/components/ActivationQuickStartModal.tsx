@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useRef, useState } from 'react'
+import { type FormEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
 import { createLandingActivation } from '../lib/publicApi.ts'
 import { trackLandingEvent } from '../lib/analytics.ts'
@@ -35,10 +35,10 @@ export function ActivationQuickStartModal({ open, onClose }: ActivationQuickStar
   const [sending, setSending] = useState(false)
   const startedRef = useRef(false)
 
-  function handleClose(reason: 'backdrop' | 'button' | 'escape') {
+  const handleClose = useCallback((reason: 'backdrop' | 'button' | 'escape') => {
     trackLandingEvent('activation_modal_close', { reason })
     onClose()
-  }
+  }, [onClose])
 
   useEffect(() => {
     if (!open) {
@@ -56,7 +56,7 @@ export function ActivationQuickStartModal({ open, onClose }: ActivationQuickStar
     return () => {
       document.body.style.overflow = originalOverflow
     }
-  }, [open, handleClose])
+  }, [open])
 
   useEffect(() => {
     if (!open) return
@@ -67,7 +67,7 @@ export function ActivationQuickStartModal({ open, onClose }: ActivationQuickStar
 
     window.addEventListener('keydown', handleEscape)
     return () => window.removeEventListener('keydown', handleEscape)
-  }, [open])
+  }, [open, handleClose])
 
   if (!open) return null
 

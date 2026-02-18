@@ -37,7 +37,7 @@ export function Faq() {
   return (
     <section className="section-light" id="faq">
       <div className="container content-stack">
-        <h2 className="section-title">Preguntas frecuentes</h2>
+        <h2 className="section-title">Dudas antes de prender la noche</h2>
         <div className="faq-list">
           {faqItems.map((item, index) => {
             const open = openIndex === index

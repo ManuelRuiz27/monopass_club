@@ -7,7 +7,7 @@ type StickyMobileCtaProps = {
 export function StickyMobileCta({ onActivateClick }: StickyMobileCtaProps) {
   return (
     <div className="sticky-mobile-cta" role="region" aria-label="Accion principal">
-      <span>Desde $750 MXN</span>
+      <span>Modo rave desde $750 MXN</span>
       <button
         type="button"
         className="btn btn--primary"
@@ -16,7 +16,7 @@ export function StickyMobileCta({ onActivateClick }: StickyMobileCtaProps) {
           onActivateClick()
         }}
       >
-        Activar evento
+        ACTIVAR
       </button>
     </div>
   )

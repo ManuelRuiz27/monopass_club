@@ -1,18 +1,18 @@
 const roleCards = [
   {
     role: 'Manager / Dueno',
-    pain: 'Necesita visibilidad de accesos y control de operacion en vivo.',
-    outcome: 'Panel con confirmados, escaneados y trazabilidad por evento.',
+    pain: 'Quiere una noche llena sin perder control de puerta.',
+    outcome: 'Panel en vivo con accesos claros y ritmo operativo estable.',
   },
   {
     role: 'Equipo RP',
-    pain: 'Comparte accesos por WhatsApp y requiere seguimiento claro.',
-    outcome: 'Flujo de generacion y control de tickets sin hojas sueltas.',
+    pain: 'Necesita mover invitados rapido y sin confusiones.',
+    outcome: 'Accesos listos para compartir con imagen oficial del evento.',
   },
   {
     role: 'Staff Scanner',
-    pain: 'Debe validar rapido aun con fila y baja luz.',
-    outcome: 'Escaneo agil con respuesta inmediata y auditoria en puerta.',
+    pain: 'Debe mantener la fila fluyendo bajo presion real.',
+    outcome: 'Validacion inmediata para una entrada limpia y continua.',
   },
 ]
 
@@ -20,8 +20,8 @@ export function RoleFit() {
   return (
     <section className="section-dark" id="roles">
       <div className="container content-stack">
-        <h2 className="section-title">Hecho para equipos reales de operacion nocturna</h2>
-        <p className="section-subtitle">No es solo un QR. Es flujo operativo para manager, RP y scanner.</p>
+        <h2 className="section-title">Cada rol entra en sincronia de club grande</h2>
+        <p className="section-subtitle">Tu equipo deja de improvisar y empieza a operar como marca premium.</p>
         <div className="cards-grid cards-grid--three">
           {roleCards.map((card) => (
             <article key={card.role} className="panel-card">

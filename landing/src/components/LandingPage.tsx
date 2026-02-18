@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Hero } from './Hero.tsx'
+import { TheTape } from './TheTape.tsx'
 import { HowItWorks } from './HowItWorks.tsx'
 import { Benefits } from './Benefits.tsx'
 import { Pricing } from './Pricing.tsx'
@@ -17,6 +18,7 @@ import { trackLandingEvent } from '../lib/analytics.ts'
 
 const TRACKED_SECTION_IDS = [
   'hero',
+  'tape',
   'como-funciona',
   'beneficios',
   'roles',
@@ -64,6 +66,7 @@ export function LandingPage() {
   return (
     <>
       <Hero onActivateClick={() => setActivationModalOpen(true)} />
+      <TheTape />
       <HowItWorks />
       <Benefits />
       <RoleFit />

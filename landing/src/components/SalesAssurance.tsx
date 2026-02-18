@@ -5,22 +5,22 @@ type SalesAssuranceProps = {
 }
 
 const assurances = [
-  'Activacion guiada y checklist operativo previo al evento.',
-  'Sin permanencia forzada: pagas por evento o mensual segun operacion.',
-  'Soporte para equipo manager, RP y scanner durante implementacion.',
-  'Estatus de orden y provisioning visibles despues del checkout.',
+  'Activacion guiada para que no pierdas tiempo antes de abrir puertas.',
+  'Sin amarrarte: pagas por evento o mensual segun tu ritmo.',
+  'Soporte real para manager, RP y staff en la implementacion.',
+  'Estatus de orden claro para que tu equipo se mueva sin dudas.',
 ]
 
 export function SalesAssurance({ onActivateClick }: SalesAssuranceProps) {
   return (
     <section className="section-dark" id="respaldo">
       <div className="container content-stack">
-        <h2 className="section-title">Compra con menos riesgo operativo</h2>
+        <h2 className="section-title">Entras rapido, operas seguro, vendes mejor</h2>
         <div className="assurance-box">
           <div className="assurance-box__content">
             <p className="section-subtitle">
-              Tu equipo no necesita aprender otro sistema complejo. El flujo esta disenado para arrancar rapido y operar
-              bajo presion real de puerta.
+              No necesitas un proyecto eterno para mejorar la puerta. Activas, entrenas a tu equipo y empiezas a ver
+              orden desde la primera noche.
             </p>
             <ul className="assurance-list">
               {assurances.map((item) => (
@@ -37,14 +37,14 @@ export function SalesAssurance({ onActivateClick }: SalesAssuranceProps) {
                 onActivateClick()
               }}
             >
-              Activar ahora
+              ACTIVAR NOCHE AHORA
             </button>
             <a
               href="#formulario"
               className="btn btn--secondary"
               onClick={() => trackLandingEvent('cta_schedule_demo_click', { location: 'assurance' })}
             >
-              Quiero llamada de 15 min
+              QUIERO ASESORIA EXPRESS
             </a>
           </div>
         </div>

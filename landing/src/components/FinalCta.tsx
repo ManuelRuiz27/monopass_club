@@ -8,8 +8,8 @@ export function FinalCta({ onActivateClick }: FinalCtaProps) {
   return (
     <section className="section-dark" id="cta-final">
       <div className="container final-cta">
-        <h2>Tu siguiente evento puede operar sin fugas ni caos en puerta</h2>
-        <p>Empieza por $750 o escala a plan mensual cuando ya tengas flujo recurrente.</p>
+        <h2>Si quieres sold out real, deja el papel y domina la puerta</h2>
+        <p>Activa hoy y conviertete en el club que cobra mejor, entra mas rapido y se ve mas premium.</p>
         <div className="final-cta__actions">
           <button
             type="button"
@@ -18,15 +18,15 @@ export function FinalCta({ onActivateClick }: FinalCtaProps) {
               trackLandingEvent('cta_activate_event_click', { location: 'final_cta' })
               onActivateClick()
             }}
-          >
-            Activar 1 evento
+            >
+            ACTIVAR 1 EVENTO
           </button>
           <a
             href="#formulario"
             className="btn btn--secondary"
             onClick={() => trackLandingEvent('cta_schedule_demo_click', { location: 'final_cta' })}
           >
-            Agendar demo
+            HABLAR CON VENTAS
           </a>
         </div>
       </div>

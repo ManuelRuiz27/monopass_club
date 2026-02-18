@@ -141,8 +141,8 @@ export function LeadForm() {
       <section className="lead" id="formulario">
         <div className="lead__success">
           <span className="lead__success-icon">OK</span>
-          <h3>Solicitud recibida</h3>
-          <p>Tu demo fue registrada. Nuestro equipo te contacta para activar tu evento.</p>
+          <h3>Tu acceso quedo en lista prioritaria</h3>
+          <p>Ventas te contacta para activar tu fecha y dejar tu puerta lista.</p>
         </div>
       </section>
     )
@@ -150,9 +150,13 @@ export function LeadForm() {
 
   return (
     <section className="lead" id="formulario">
-      <h2 className="lead__title">Agenda demo operativa</h2>
+      <div className="lead__brand">
+        <img src="/assets/logos/pass-monkey-mascot-3d.png" alt="" aria-hidden="true" />
+        <img src="/assets/logos/pass-monkey-neon-letters.png" alt="Pass Monkey" />
+      </div>
+      <h2 className="lead__title">Agenda tu acceso VIP a Pass Monkey</h2>
       <p className="lead__subtitle">
-        Dejanos datos del siguiente evento y te guiamos para activar Pass Monkey.
+        Comparte tu siguiente fecha y te llevamos de flyer a puerta en modo premium.
       </p>
 
       <form
@@ -234,7 +238,7 @@ export function LeadForm() {
             disabled={sending}
             data-action="activation"
           >
-            {sending && submitAction === 'activation' ? 'Conectando checkout...' : 'Activar 1 evento'}
+            {sending && submitAction === 'activation' ? 'Conectando checkout...' : 'ACTIVAR 1 EVENTO'}
           </button>
           <button
             type="submit"
@@ -242,7 +246,7 @@ export function LeadForm() {
             disabled={sending}
             data-action="lead"
           >
-            {sending && submitAction === 'lead' ? 'Enviando...' : 'Agendar demo'}
+            {sending && submitAction === 'lead' ? 'Enviando...' : 'AGENDAR DEMO'}
           </button>
         </div>
       </form>

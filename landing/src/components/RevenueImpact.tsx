@@ -36,14 +36,14 @@ export function RevenueImpact({ onActivateClick }: RevenueImpactProps) {
   return (
     <section className="section-light" id="roi">
       <div className="container content-stack">
-        <h2 className="section-title">Calcula impacto economico estimado</h2>
+        <h2 className="section-title">Mide cuanto dinero te deja una puerta ordenada</h2>
         <p className="section-subtitle">
-          Si reduces fugas operativas, puedes recuperar margen desde el primer evento.
+          Cuando tu acceso fluye mejor, tu noche vende mejor.
         </p>
 
         <div className="cards-grid cards-grid--two">
           <article className="panel-card">
-            <h3>Escenario</h3>
+            <h3>Tu escenario</h3>
             <label className="roi-field" htmlFor="roi-attendees">
               Asistentes por evento
               <input
@@ -85,7 +85,7 @@ export function RevenueImpact({ onActivateClick }: RevenueImpactProps) {
           </article>
 
           <article className="panel-card panel-card--highlight">
-            <h3>Resultado estimado</h3>
+            <h3>Potencial de recuperacion</h3>
             <div className="roi-metrics">
               <p>
                 Recuperacion potencial por evento
@@ -112,7 +112,7 @@ export function RevenueImpact({ onActivateClick }: RevenueImpactProps) {
                 onActivateClick()
               }}
             >
-              Probar en mi siguiente evento
+              QUIERO ESTE NIVEL DE CONTROL
             </button>
           </article>
         </div>
