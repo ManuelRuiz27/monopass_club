@@ -2,32 +2,20 @@ import { useState } from 'react'
 
 const faqItems = [
   {
-    q: 'Que necesito en puerta?',
-    a: 'Necesitas 1 celular por scanner y conexion activa para validacion en tiempo real.',
+    q: '¿Es complicado para mi staff?',
+    a: 'No. Solo escanean con la cámara del celular desde la app.',
   },
   {
-    q: 'Puedo usarlo solo una vez?',
-    a: 'Si. Puedes activar un unico evento por $750 MXN sin contrato mensual.',
+    q: '¿Qué pasa si se va el internet?',
+    a: 'El sistema tiene modo offline por evento.',
   },
   {
-    q: 'Cuanto tarda en activarse?',
-    a: 'La activacion inicia al confirmar pago y puedes seguir el estatus de orden/provisioning en la pagina de checkout.',
+    q: '¿Cómo sé que realmente funciona?',
+    a: 'En el primer evento verás el corte detallado por RP y accesos reales escaneados.',
   },
   {
-    q: 'Funciona sin internet?',
-    a: 'No. Requiere conexion activa para validar accesos en tiempo real.',
-  },
-  {
-    q: 'Puedo cambiar a plan mensual despues?',
-    a: 'Si. Puedes migrar a Plan Club o Plan Pro desde el panel.',
-  },
-  {
-    q: 'Esto solo sirve para el scanner?',
-    a: 'No. Incluye flujo operativo para manager, equipo RP y scanner en un mismo sistema.',
-  },
-  {
-    q: 'Que pasa si quiero ayuda antes del evento?',
-    a: 'Te apoyamos en configuracion y checklist operativo para que tu equipo llegue listo a puerta.',
+    q: '¿Esto reemplaza mi flujo en efectivo?',
+    a: 'No. Solo reemplaza el talonario físico y ordena tu operación.',
   },
 ]
 
@@ -37,7 +25,7 @@ export function Faq() {
   return (
     <section className="section-light" id="faq">
       <div className="container content-stack">
-        <h2 className="section-title">Dudas antes de prender la noche</h2>
+        <h2 className="section-title">Preguntas frecuentes</h2>
         <div className="faq-list">
           {faqItems.map((item, index) => {
             const open = openIndex === index
@@ -50,7 +38,7 @@ export function Faq() {
                   aria-expanded={open}
                 >
                   <span>{item.q}</span>
-                  <span>{open ? '-' : '+'}</span>
+                  <span>{open ? '−' : '+'}</span>
                 </button>
                 {open && <p className="faq-answer">{item.a}</p>}
               </article>

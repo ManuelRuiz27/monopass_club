@@ -3,7 +3,7 @@ import { getLandingPricing, type LandingPricing } from '../lib/publicApi.ts'
 import { trackLandingEvent } from '../lib/analytics.ts'
 
 const fallbackPricing: LandingPricing = {
-  event_price: 750,
+  event_price: 700,
   base_price: 2999,
   pro_price: 5000,
   currency: 'MXN',
@@ -18,12 +18,12 @@ function formatPrice(value: number, currency: string) {
 }
 
 type PricingProps = {
-  onActivateClick: () => void
+  onScheduleMeeting?: () => void
 }
 
-export function Pricing({ onActivateClick }: PricingProps) {
+export function Pricing({ onScheduleMeeting }: PricingProps = {}) {
   const [pricing, setPricing] = useState<LandingPricing>(fallbackPricing)
-  const [selectedPlan, setSelectedPlan] = useState<'event' | 'club' | 'pro' | null>('club')
+  const [selectedPlan, setSelectedPlan] = useState<'event' | 'club' | 'pro' | null>('event')
 
   useEffect(() => {
     let mounted = true
@@ -31,7 +31,7 @@ export function Pricing({ onActivateClick }: PricingProps) {
       .then((response) => {
         if (mounted) setPricing(response)
       })
-      .catch(() => {})
+      .catch(() => { })
 
     return () => {
       mounted = false
@@ -41,30 +41,28 @@ export function Pricing({ onActivateClick }: PricingProps) {
   return (
     <section className="section-light" id="pricing">
       <div className="container content-stack">
-        <img
-          src="/assets/logos/pass-monkey-neon-letters.png"
-          alt=""
-          aria-hidden="true"
-          className="pricing__mark"
-        />
-        <h2 className="section-title">Elige tu nivel de noche</h2>
-        <p className="section-subtitle">Empieza hoy y sube de nivel cuando tu agenda se ponga en modo sold out.</p>
+        <h2 className="section-title">Precio de introducción</h2>
+        <p className="section-subtitle">Después: Modelo por evento o migración a plan mensual.</p>
         <div className="pricing-grid">
-          <article className={`panel-card pricing-card${selectedPlan === 'event' ? ' pricing-card--selected' : ''}`}>
-            <span className="panel-tag">GUEST LIST</span>
-            <h3>{formatPrice(pricing.event_price, pricing.currency)} / evento</h3>
-            <p>Entrada directa para activar tu siguiente fecha sin riesgo.</p>
+          <article className={`panel-card pricing-card panel-card--highlight${selectedPlan === 'event' ? ' pricing-card--selected' : ''}`}>
+            <span className="panel-tag">NUEVO CLUB</span>
+            <h3>{formatPrice(pricing.event_price, pricing.currency)} / primer evento</h3>
+            <p><strong>Garantía "Double-Blind":</strong> Si a las 4 AM nuestros números no cuadran con tu papel, te devolvemos tu dinero.</p>
             <button
               type="button"
               className="btn btn--primary"
               onClick={() => {
                 setSelectedPlan('event')
                 trackLandingEvent('pricing_plan_selected', { plan: 'event' })
-                trackLandingEvent('cta_activate_event_click', { location: 'pricing' })
-                onActivateClick()
+                trackLandingEvent('cta_schedule_demo_click', { location: 'pricing_event' })
+                if (onScheduleMeeting) {
+                  onScheduleMeeting()
+                  return
+                }
+                document.getElementById('formulario')?.scrollIntoView({ behavior: 'smooth' })
               }}
             >
-              ACTIVAR AHORA
+              AGENDAR REUNION
             </button>
             <div className="pricing-card__burst" aria-hidden="true">
               <span />
@@ -75,11 +73,11 @@ export function Pricing({ onActivateClick }: PricingProps) {
             </div>
           </article>
 
-          <article className={`panel-card pricing-card panel-card--highlight${selectedPlan === 'club' ? ' pricing-card--selected' : ''}`}>
-            <span className="pricing-card__badge">MOST WANTED</span>
-            <span className="panel-tag">VIP TABLE</span>
+          <article className={`panel-card pricing-card${selectedPlan === 'club' ? ' pricing-card--selected' : ''}`}>
+            <span className="pricing-card__badge">MENSUAL</span>
+            <span className="panel-tag">PLAN CLUB</span>
             <h3>{formatPrice(pricing.base_price, pricing.currency)} / mes</h3>
-            <p>4 eventos al mes con experiencia premium en puerta.</p>
+            <p>Para clubs con agenda regular. 4 eventos al mes con soporte incluido.</p>
             <a
               href="#formulario"
               className="btn btn--primary"
@@ -89,7 +87,7 @@ export function Pricing({ onActivateClick }: PricingProps) {
                 trackLandingEvent('cta_schedule_demo_click', { location: 'pricing' })
               }}
             >
-              RESERVAR VIP TABLE
+              AGENDAR REUNION
             </a>
             <div className="pricing-card__burst" aria-hidden="true">
               <span />
@@ -101,9 +99,9 @@ export function Pricing({ onActivateClick }: PricingProps) {
           </article>
 
           <article className={`panel-card pricing-card${selectedPlan === 'pro' ? ' pricing-card--selected' : ''}`}>
-            <span className="panel-tag">ALL ACCESS</span>
+            <span className="panel-tag">PLAN PRO</span>
             <h3>{formatPrice(pricing.pro_price, pricing.currency)} / mes</h3>
-            <p>Hasta 12 eventos mensuales para temporadas de alta demanda.</p>
+            <p>Operación a escala. Hasta 12 eventos mensuales para temporadas fuertes.</p>
             <a
               href="#formulario"
               className="btn btn--secondary"
@@ -113,7 +111,7 @@ export function Pricing({ onActivateClick }: PricingProps) {
                 trackLandingEvent('cta_schedule_demo_click', { location: 'pricing' })
               }}
             >
-              QUIERO ALL ACCESS
+              AGENDAR REUNION
             </a>
             <div className="pricing-card__burst" aria-hidden="true">
               <span />

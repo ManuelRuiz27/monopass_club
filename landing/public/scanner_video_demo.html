@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=390, height=844, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Scanner Video Demo - Marketing UX</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            width: 390px;
+            height: 844px;
+            overflow: hidden;
+            font-family: 'Inter', system-ui, sans-serif;
+            position: relative;
+        }
+
+        /* 1. Camera Layer */
+        .camera-feed {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #1f1f1f, #0a0a0a);
+            z-index: 0;
+        }
+
+        /* Camera Noise/Grid to simulate live feed */
+        .camera-feed::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.5;
+        }
+
+        /* 2. Hands & Ticket Layer - Behind the UI */
+        .scene-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            perspective: 1000px;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ticket-wrapper {
+            position: absolute;
+            width: 300px;
+            /* Start slightly lower and rotated */
+            transform: translateY(120%) rotate(-5deg) scale(0.9);
+            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.5));
+        }
+
+        .ticket-wrapper img {
+            width: 100%;
+            border-radius: 12px;
+            /* Smooth corners */
+            display: block;
+        }
+
+        /* Animation State: Scanning Position */
+        .ticket-scanning {
+            transform: translateY(0) rotate(0deg) scale(1);
+        }
+
+        /* Animation State: Exit/Phone moves away (optional) */
+
+        /* 3. Scanner UI Overlay - "The App" */
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 20;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .scanner-header {
+            padding: 60px 20px 20px;
+            /* Safe area top */
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+            color: white;
+            text-align: center;
+        }
+
+        .scanner-title {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .scanner-footer {
+            padding: 40px 20px 50px;
+            /* Safe area bottom */
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            display: flex;
+            justify-content: center;
+        }
+
+        .scan-btn {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .scan-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 56px;
+            height: 56px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        /* The Viewfinder Box */
+        .viewfinder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 280px;
+            height: 280px;
+            border-radius: 24px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+            /* Dimming mask */
+            /* Scan corners */
+        }
+
+        .corner {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-color: white;
+            border-style: solid;
+            border-width: 0;
+        }
+
+        .tl {
+            top: -2px;
+            left: -2px;
+            border-top-width: 4px;
+            border-left-width: 4px;
+            border-radius: 24px 0 0 0;
+        }
+
+        .tr {
+            top: -2px;
+            right: -2px;
+            border-top-width: 4px;
+            border-right-width: 4px;
+            border-radius: 0 24px 0 0;
+        }
+
+        .bl {
+            bottom: -2px;
+            left: -2px;
+            border-bottom-width: 4px;
+            border-left-width: 4px;
+            border-radius: 0 0 0 24px;
+        }
+
+        .br {
+            bottom: -2px;
+            right: -2px;
+            border-bottom-width: 4px;
+            border-right-width: 4px;
+            border-radius: 0 0 24px 0;
+        }
+
+        /* Scanning Laser Effect */
+        .laser-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: #abf645;
+            /* Neon Lime */
+            box-shadow: 0 0 20px #abf645, 0 0 10px white;
+            top: 0%;
+            opacity: 0;
+            z-index: 25;
+        }
+
+        .laser-active {
+            animation: scancycle 1.5s ease-in-out infinite;
+            opacity: 1;
+        }
+
+        @keyframes scancycle {
+            0% {
+                top: 10%;
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                top: 90%;
+                opacity: 0;
+            }
+        }
+
+        /* 4. Result/Success Layer */
+        .result-screen-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 50;
+            /* We use opacity transition for smooth "app navigation" feel */
+            opacity: 0;
+            transition: opacity 0.4s ease-out;
+            background: black;
+            /* Fallback */
+            transform: scale(1.05);
+            /* Slight zoom out effect on enter */
+        }
+
+        .result-screen-overlay.visible {
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+        }
+
+        .result-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Blur UI when result comes up */
+        .blur-enter {
+            filter: blur(8px);
+            transition: filter 0.4s;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Layer 1: Simulated Camera & World -->
+    <div class="camera-feed" id="bg-layer"></div>
+
+    <div class="scene-container" id="scene-layer">
+        <div class="ticket-wrapper" id="ticket">
+            <img src="./assets/screenshots/ticket-demo.png" alt="Ticket">
+        </div>
+    </div>
+
+    <!-- Layer 2: Scanner UI (HUD) -->
+    <div class="ui-overlay" id="ui-layer">
+        <div class="scanner-header">
+            <div class="scanner-title">Escanear Ticket</div>
+        </div>
+
+        <div class="viewfinder">
+            <div class="corner tl"></div>
+            <div class="corner tr"></div>
+            <div class="corner bl"></div>
+            <div class="corner br"></div>
+            <div class="laser-line" id="laser"></div>
+        </div>
+
+        <div class="scanner-footer">
+            <div class="scan-btn"></div>
+        </div>
+    </div>
+
+    <!-- Layer 3: Result Screen -->
+    <div class="result-screen-overlay" id="result-layer">
+        <img src="./assets/screenshots/scanner-validado.png" class="result-image" alt="Acceso Valido">
+    </div>
+
+    <script>
+        const ticket = document.getElementById('ticket');
+        const laser = document.getElementById('laser');
+        const resultLayer = document.getElementById('result-layer');
+        const bgLayer = document.getElementById('bg-layer');
+        const sceneLayer = document.getElementById('scene-layer');
+        const uiLayer = document.getElementById('ui-layer');
+
+        function startDemo() {
+            // Sequence Timing:
+
+            // 0.5s: Ticket enters frame
+            setTimeout(() => {
+                ticket.classList.add('ticket-scanning');
+            }, 600);
+
+            // 1.5s: Laser starts scanning (simulated recognition)
+            setTimeout(() => {
+                laser.classList.add('laser-active');
+            }, 1400);
+
+            // 3.0s: Success! Transition to Result Screen
+            setTimeout(() => {
+                resultLayer.classList.add('visible');
+                // Optional: blur background layers
+                bgLayer.classList.add('blur-enter');
+                sceneLayer.classList.add('blur-enter');
+                uiLayer.style.opacity = '0'; // Hide UI elements
+            }, 3000);
+        }
+
+        // Auto-start
+        setTimeout(startDemo, 500);
+    </script>
+</body>
+
+</html>

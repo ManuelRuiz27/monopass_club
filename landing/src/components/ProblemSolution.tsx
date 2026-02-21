@@ -1,47 +1,62 @@
-import { useEffect } from 'react'
-import { staggerReveal } from '../animations.ts'
+import { XCircle, CheckCircle2 } from 'lucide-react'
 
 const problems = [
-    { icon: '✗', text: 'Papel y listas improvisadas' },
-    { icon: '✗', text: 'Duplicidad de accesos' },
-    { icon: '✗', text: 'Fricción en puerta' },
-    { icon: '✗', text: 'Falta de visibilidad operativa' },
+    'Talonarios físicos que se mojan o pierden',
+    'Fugas en puerta imposibles de rastrear',
+    'Cortes de RPs a las 4 AM en papel',
+    'Boletos duplicados o pasados por reja',
+    'Dependencia de imprentas cada semana',
 ]
 
 const solutions = [
-    { icon: '✦', text: 'Accesos digitales elegantes' },
-    { icon: '✦', text: 'Validación instantánea' },
-    { icon: '✦', text: 'Operación optimizada' },
-    { icon: '✦', text: 'Control por sede' },
+    'Tickets generados en segundos por WhatsApp',
+    'Control de aforo y caja en tiempo real',
+    'Corte automático por RP sin calcular nada',
+    'Escáner offline bloquea el 100% de duplicados',
+    'Inventario digital infinito sin costo de papel',
 ]
 
 export function ProblemSolution() {
-    useEffect(() => {
-        staggerReveal('.ps__col--problem', '.ps__item')
-        staggerReveal('.ps__col--solution', '.ps__item')
-    }, [])
-
     return (
-        <section className="ps" id="problema">
-            <div className="ps__grid">
-                <div className="ps__col ps__col--problem">
-                    <span className="ps__label ps__label--problem">El problema</span>
-                    {problems.map((p) => (
-                        <div key={p.text} className="ps__item">
-                            <span className="ps__icon">{p.icon}</span>
-                            {p.text}
-                        </div>
-                    ))}
+        <section className="section-dark" id="problema">
+            <div className="container content-stack">
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '-16px' }}>
+                    <span className="panel-tag" style={{ borderColor: 'rgba(255, 47, 102, 0.5)', color: 'var(--alert)' }}>
+                        EL PROBLEMA REAL
+                    </span>
                 </div>
+                <h2 className="section-title" style={{ textAlign: 'center' }}>Antes vs Después</h2>
 
-                <div className="ps__col ps__col--solution">
-                    <span className="ps__label ps__label--solution">La solución</span>
-                    {solutions.map((s) => (
-                        <div key={s.text} className="ps__item ps__item--solution">
-                            <span className="ps__icon">{s.icon}</span>
-                            {s.text}
-                        </div>
-                    ))}
+                <div className="cards-grid cards-grid--two" style={{ marginTop: '32px' }}>
+                    <article className="panel-card" style={{ borderColor: 'rgba(255, 47, 102, 0.2)', background: 'linear-gradient(160deg, rgba(255, 47, 102, 0.05), rgba(7, 7, 16, 0.8))' }}>
+                        <h3 style={{ color: 'var(--alert)', fontSize: '1.4rem', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <XCircle size={24} />
+                            El Caos Físico (Antes)
+                        </h3>
+                        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '12px' }}>
+                            {problems.map((p, i) => (
+                                <li key={i} style={{ display: 'flex', gap: '12px', color: 'var(--text-soft)', alignItems: 'start' }}>
+                                    <span style={{ color: 'var(--alert)', marginTop: '2px' }}>✗</span>
+                                    <span>{p}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </article>
+
+                    <article className="panel-card panel-card--highlight">
+                        <h3 style={{ color: 'var(--acid)', fontSize: '1.4rem', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <CheckCircle2 size={24} />
+                            Control Total (Después)
+                        </h3>
+                        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '12px' }}>
+                            {solutions.map((s, i) => (
+                                <li key={i} style={{ display: 'flex', gap: '12px', color: 'var(--text-main)', alignItems: 'start' }}>
+                                    <span style={{ color: 'var(--acid)', marginTop: '2px' }}>✓</span>
+                                    <strong>{s}</strong>
+                                </li>
+                            ))}
+                        </ul>
+                    </article>
                 </div>
             </div>
         </section>

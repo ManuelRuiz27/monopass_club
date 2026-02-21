@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pass Monkey - Card Design Handoff Demo</title>
+    <!-- Google Fonts import -->
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;700&family=Inter:wght@400;500;600;700&family=Sora:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CSS Variables - Design Tokens */
+        :root {
+            --void: #050510;
+            --void-panel: rgba(18, 18, 34, 0.74);
+            --text-main: #f4f4fb;
+            --text-soft: #b2b0c9;
+            --acid: #ccff00;
+            --alert: #ff2f66;
+            --neon-cyan: #12f5ff;
+            --neon-purple: #5b2eff;
+            --border-default: rgba(255, 255, 255, 0.14);
+            --radius-md: 14px;
+        }
+
+        /* Base Setup */
+        body {
+            background-color: var(--void);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            /* Background noise simulating the real landing page */
+            background-image: 
+                radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+            background-size: 20px 20px;
+        }
+
+        .container {
+            display: grid;
+            gap: 40px;
+            grid-template-columns: 1fr 1fr;
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .instructions {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: var(--text-soft);
+            margin-bottom: 10px;
+            font-family: 'Chakra Petch', sans-serif;
+            text-shadow: 0 0 12px rgba(91, 46, 255, 0.4);
+        }
+
+        .instructions h2 {
+            color: var(--text-main);
+            font-family: 'Sora', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 8px;
+            letter-spacing: 0.02em;
+        }
+
+        /* --- THE CARD COMPONENT CSS --- */
+        .panel-card {
+            border: 1px solid var(--border-default);
+            background:
+                linear-gradient(160deg, rgba(91, 46, 255, 0.2), rgba(7, 7, 16, 0.72) 42%),
+                linear-gradient(0deg, rgba(18, 245, 255, 0.05), rgba(18, 245, 255, 0)),
+                var(--void-panel);
+            border-radius: var(--radius-md);
+            backdrop-filter: blur(7px);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            
+            /* Transitions for smooth hover effects */
+            transition: transform 0.24s ease, border-color 0.24s ease, box-shadow 0.24s ease;
+            cursor: pointer;
+        }
+
+        /* Hover Interaction State */
+        .panel-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            border-color: rgba(255, 47, 102, 0.48);
+            box-shadow: 0 0 26px rgba(255, 47, 102, 0.16), 0 0 18px rgba(18, 245, 255, 0.14);
+        }
+
+        /* Highlighted Variant */
+        .panel-card--highlight {
+            border-color: rgba(204, 255, 0, 0.72);
+            box-shadow: 0 0 0 1px rgba(204, 255, 0, 0.24), 0 0 38px rgba(91, 46, 255, 0.28);
+        }
+
+        /* Typography inside Card */
+        .panel-card h3 {
+            margin: 0;
+            font-family: 'Sora', sans-serif;
+            font-size: 1.25rem;
+            color: var(--text-main);
+            letter-spacing: 0.01em;
+        }
+
+        .panel-card p {
+            margin: 0;
+            color: var(--text-soft);
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        /* Panel Tag (The pill badge inside) */
+        .panel-tag {
+            display: inline-flex;
+            width: fit-content;
+            border: 1px solid rgba(204, 255, 0, 0.5);
+            border-radius: 999px;
+            padding: 4px 10px;
+            color: var(--acid);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 0.72rem;
+            font-weight: 700;
+            font-family: 'Chakra Petch', sans-serif;
+            margin-bottom: 8px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <div class="instructions">
+            <h2>Handoff Demo: Panel Card</h2>
+            <p>Pasa el cursor sobre las tarjetas para ver la interacción (Hover state)</p>
+        </div>
+        
+        <!-- Base Card Example -->
+        <div class="panel-card">
+            <div class="panel-tag">Estándar</div>
+            <h3>Diseño Base</h3>
+            <p>Esta es la tarjeta con el diseño estándar. Su fondo tiene un gradiente que simula un vidrio oscuro de club nocturno, con sutiles reflejos morados y cyan. Su borde blanco se encuentra al 14% de opacidad.</p>
+        </div>
+
+        <!-- Highlight Card Example -->
+        <div class="panel-card panel-card--highlight">
+            <div class="panel-tag">Destacada</div>
+            <h3>Variante Resaltada</h3>
+            <p>Esta tarjeta tiene agregada la clase <code>--highlight</code>. Su borde y resplandor son fijos en color verde ácido y un aura morada, para llamar la atención del usuario inmediatamente sin necesidad de hover.</p>
+        </div>
+
+    </div>
+</body>
+</html>

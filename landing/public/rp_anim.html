@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RP Flow Animation</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .frame {
+            width: 390px;
+            height: 844px;
+            position: relative;
+            background: #000;
+            overflow: hidden;
+        }
+
+        .screen {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+        }
+
+        /* Scenes */
+        .scene-1 {
+            opacity: 1;
+            z-index: 1;
+        }
+
+        /* Dashboard */
+        .scene-2 {
+            z-index: 2;
+            animation: fadeInData 0.3s ease-out forwards 1.2s;
+        }
+
+        /* Form */
+        .scene-3 {
+            z-index: 3;
+            animation: fadeInData 0.3s ease-out forwards 3.0s;
+        }
+
+        /* Success */
+
+        /* Cursor */
+        .cursor {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            z-index: 10;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+            transform: translate(0, 0);
+            top: 0;
+            left: 0;
+            opacity: 0;
+        }
+
+        /* Animations */
+        @keyframes fadeInData {
+            from {
+                opacity: 0;
+                transform: scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes cursorFlow {
+            0% {
+                opacity: 0;
+                top: 110%;
+                left: 50%;
+            }
+
+            10% {
+                opacity: 1;
+                top: 80%;
+                left: 80%;
+            }
+
+            /* Enter */
+
+            /* Move to Event Card (Top Leftish) */
+            20% {
+                top: 25%;
+                left: 25%;
+                transform: scale(1);
+            }
+
+            22% {
+                transform: scale(0.8);
+            }
+
+            /* Click Event */
+            24% {
+                transform: scale(1);
+            }
+
+            /* Wait for Form Load (1.2s) */
+            30% {
+                top: 25%;
+                left: 25%;
+            }
+
+            /* Move to Guest Name Input (Middle) */
+            35% {
+                top: 35%;
+                left: 50%;
+            }
+
+            /* Typing delay... */
+
+            /* Move to Generate Button (Bottom) */
+            50% {
+                top: 65%;
+                left: 50%;
+                transform: scale(1);
+            }
+
+            52% {
+                transform: scale(0.8);
+            }
+
+            /* Click Generate */
+            54% {
+                transform: scale(1);
+            }
+
+            /* Wait for Success (3.0s) */
+            65% {
+                opacity: 0;
+            }
+
+            /* Hide cursor for final view */
+            100% {
+                opacity: 0;
+            }
+        }
+
+        .cursor {
+            animation: cursorFlow 5s linear infinite;
+        }
+
+        /* Pulse for WhatsApp Button in Scene 3 (Approx position bottom) */
+        .pulse-ring {
+            position: absolute;
+            bottom: 15%;
+            /* Approx button position */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 50px;
+            border-radius: 12px;
+            box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+            z-index: 5;
+            opacity: 0;
+            animation: pulseGreen 2s infinite 3.2s;
+        }
+
+        @keyframes pulseGreen {
+            0% {
+                transform: translateX(-50%) scale(0.95);
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+                opacity: 1;
+            }
+
+            70% {
+                transform: translateX(-50%) scale(1);
+                box-shadow: 0 0 0 20px rgba(76, 175, 80, 0);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateX(-50%) scale(0.95);
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="frame">
+        <img src="assets/screenshots/rp-dashboard.png" class="screen scene-1" alt="Dashboard">
+        <img src="assets/screenshots/rp-form.png" class="screen scene-2" alt="Form">
+        <img src="assets/screenshots/rp-success.png" class="screen scene-3" alt="Success">
+
+        <div class="pulse-ring"></div>
+
+        <!-- Touch/Click Cursor -->
+        <svg class="cursor" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="40" fill="rgba(255,255,255,0.2)" stroke="white" stroke-width="4" />
+            <circle cx="50" cy="50" r="10" fill="white" />
+        </svg>
+    </div>
+</body>
+
+</html>

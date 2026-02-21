@@ -33,11 +33,11 @@ export type LandingPricing = {
 export type LandingLeadPayload = {
   name: string
   club: string
-  city: string
+  city?: string
   phone: string
   email?: string
   eventDate?: string
-  estimatedVolume: number
+  estimatedVolume?: number
   utm?: UtmPayload
 }
 

@@ -2,9 +2,9 @@ import { useEffect } from 'react'
 import { staggerReveal, progressBarOnScroll } from '../animations.ts'
 
 const steps = [
-    { number: '01', title: 'Configura sede y evento' },
-    { number: '02', title: 'Emite accesos digitales' },
-    { number: '03', title: 'Staff valida en segundos' },
+    { number: '01', title: 'Creas tu evento' },
+    { number: '02', title: 'Asignas boletos digitales a cada RP' },
+    { number: '03', title: 'Escaneas en puerta y obtienes tu corte automático' },
 ]
 
 export function Steps() {

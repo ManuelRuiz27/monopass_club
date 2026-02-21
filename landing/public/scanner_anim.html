@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=390, height=844, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Scanner AR Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            width: 390px;
+            height: 844px;
+            overflow: hidden;
+            font-family: 'Sora', sans-serif;
+            position: relative;
+        }
+
+        /* 1. Background (Camera Simulation) */
+        .camera-feed {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #1a1a1a, #0d0d0d);
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        /* Grid / Noise */
+        .camera-feed::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background-image:
+                linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            transform: perspective(500px) rotateX(60deg) translateY(0);
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% {
+                transform: perspective(500px) rotateX(60deg) translateY(0);
+            }
+
+            100% {
+                transform: perspective(500px) rotateX(60deg) translateY(40px);
+            }
+        }
+
+        /* 2. Ticket (The Object being scanned) */
+        .ticket-hand {
+            position: absolute;
+            bottom: -500px;
+            left: 50%;
+            transform: translateX(-50%) rotate(-5deg);
+            width: 300px;
+            z-index: 10;
+            transition: transform 0.1s;
+        }
+
+        .ticket-card {
+            width: 100%;
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .ticket-qr {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            background: #000;
+            /* Placeholder QR pattern */
+            background-image: conic-gradient(from 0deg at 50% 50%, #000 0% 90deg, #fff 90deg 180deg, #000 180deg 270deg, #fff 270deg 360deg);
+            background-size: 20px 20px;
+        }
+
+        .ticket-text {
+            margin-top: 16px;
+            font-weight: bold;
+            font-size: 18px;
+            color: #000;
+        }
+
+        /* Animation Classes */
+        .hand-enter {
+            animation: handEnter 4s linear forwards;
+        }
+
+        @keyframes handEnter {
+            0% {
+                bottom: -500px;
+                transform: translateX(-50%) rotate(-10deg);
+            }
+
+            15% {
+                bottom: 180px;
+                transform: translateX(-50%) rotate(0deg);
+            }
+
+            70% {
+                bottom: 180px;
+                transform: translateX(-50%) rotate(0deg);
+            }
+
+            100% {
+                bottom: -500px;
+                transform: translateX(-50%) rotate(10deg);
+            }
+        }
+
+        /* 3. Scan Beam */
+        .scan-beam {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 280px;
+            height: 2px;
+            background: #00ff66;
+            box-shadow: 0 0 20px #00ff66;
+            z-index: 20;
+            opacity: 0;
+        }
+
+        .beam-active {
+            animation: beamScan 1s ease-in-out infinite;
+        }
+
+        @keyframes beamScan {
+            0% {
+                transform: translate(-50%, -140px);
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(-50%, 140px);
+                opacity: 0;
+            }
+        }
+
+        /* 4. UI Frame (Captured) */
+        .ui-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('./assets/screenshots/scanner-frame.png');
+            background-size: cover;
+            z-index: 30;
+            pointer-events: none;
+        }
+
+        /* 5. Result Overlays (Captured Cards) */
+        .result-card {
+            position: absolute;
+            bottom: 120px;
+            /* Position where it appears in screenshots usually */
+            left: 50%;
+            transform: translateX(-50%) translateY(100px) scale(0.9);
+            width: 350px;
+            /* Approx width of card */
+            height: auto;
+            z-index: 40;
+            opacity: 0;
+            /* The image is the CARD only, so we display it directly */
+        }
+
+        .result-card img {
+            width: 100%;
+            display: block;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-pop {
+            animation: popUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .card-exit {
+            animation: slideDown 0.4s ease-in forwards;
+        }
+
+        @keyframes popUp {
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(50px) scale(0.9);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0) scale(1);
+            }
+        }
+
+        @keyframes slideDown {
+            0% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(50px) scale(0.95);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="camera-feed"></div>
+
+    <div class="ticket-hand" id="ticket">
+        <div class="ticket-card">
+            <div class="ticket-qr"></div>
+            <div class="ticket-text">VIP ACCESS</div>
+        </div>
+    </div>
+
+    <div class="scan-beam" id="beam"></div>
+
+    <div class="ui-frame"></div>
+
+    <div id="result-container" class="result-card">
+        <img id="result-img" src="" alt="Result">
+    </div>
+
+    <script>
+        const states = [
+            { img: './assets/screenshots/scanner-card-valid.png', text: 'ANNA MARIA' },
+            { img: './assets/screenshots/scanner-card-rejected.png', text: 'USED TICKET' },
+            { img: './assets/screenshots/scanner-card-fraud.png', text: 'INVALID' },
+            { img: './assets/screenshots/scanner-card-cortes.png', text: 'VIP GUEST' }
+        ];
+
+        let currentIndex = 0;
+        const ticketEl = document.getElementById('ticket');
+        const beamEl = document.getElementById('beam');
+        const resultContainer = document.getElementById('result-container');
+        const resultImg = document.getElementById('result-img');
+        const ticketText = document.querySelector('.ticket-text');
+
+        function playCycle() {
+            const state = states[currentIndex];
+
+            // Reset Classes
+            ticketEl.classList.remove('hand-enter');
+            resultContainer.classList.remove('card-pop', 'card-exit');
+            beamEl.classList.remove('beam-active');
+
+            void ticketEl.offsetWidth; // Trigger reflow
+
+            // Update Ticket Text
+            ticketText.innerText = state.text;
+
+            // 1. Ticket Enters (0s)
+            ticketEl.classList.add('hand-enter');
+
+            // 2. Scan Beam (0.5s - 1.5s)
+            setTimeout(() => {
+                beamEl.classList.add('beam-active');
+            }, 600);
+
+            // 3. Result Pop (1.5s)
+            setTimeout(() => {
+                resultImg.src = state.img;
+                resultContainer.classList.add('card-pop');
+            }, 1400);
+
+            // 4. Result Exit (3.5s)
+            setTimeout(() => {
+                resultContainer.classList.remove('card-pop');
+                resultContainer.classList.add('card-exit');
+            }, 3200);
+
+            // Loop
+            currentIndex = (currentIndex + 1) % states.length;
+            setTimeout(playCycle, 4000); // 4s per state * 4 = 16s Total
+        }
+
+        // Start
+        setTimeout(playCycle, 100);
+
+    </script>
+</body>
+
+</html>

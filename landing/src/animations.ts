@@ -22,17 +22,17 @@ export function animateHero(): void {
         clearProps: 'all',
     })
         .from(
-            '.hero__sub',
+            '.hero__sub, .hero__subheadline',
             { y: 30, opacity: 0, duration: 0.5, clearProps: 'all' },
             '-=0.35',
         )
         .from(
-            '.hero__ctas',
+            '.hero__ctas, .hero__actions',
             { y: 20, opacity: 0, duration: 0.4, clearProps: 'all' },
             '-=0.25',
         )
         .from(
-            '.hero__media',
+            '.hero__media, .hero__visual',
             { y: 50, opacity: 0, duration: 0.7, clearProps: 'all' },
             '-=0.5',
         )

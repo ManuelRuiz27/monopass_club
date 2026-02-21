@@ -1,22 +1,21 @@
 import { trackLandingEvent } from '../lib/analytics.ts'
 
 type StickyMobileCtaProps = {
-  onActivateClick: () => void
+  onScheduleMeeting: () => void
 }
 
-export function StickyMobileCta({ onActivateClick }: StickyMobileCtaProps) {
+export function StickyMobileCta({ onScheduleMeeting }: StickyMobileCtaProps) {
   return (
     <div className="sticky-mobile-cta" role="region" aria-label="Accion principal">
-      <span>Modo rave desde $750 MXN</span>
+      <span>Agenda tu reunion</span>
       <button
-        type="button"
-        className="btn btn--primary"
+        className="btn btn--primary sticky-mobile-cta__btn"
         onClick={() => {
-          trackLandingEvent('cta_activate_event_click', { location: 'sticky_mobile' })
-          onActivateClick()
+          trackLandingEvent('cta_schedule_demo_click', { location: 'sticky_bar' })
+          onScheduleMeeting()
         }}
       >
-        ACTIVAR
+        AGENDAR
       </button>
     </div>
   )
