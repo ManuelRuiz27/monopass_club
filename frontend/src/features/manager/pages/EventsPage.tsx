@@ -20,6 +20,14 @@ function formatDate(value: string) {
   })
 }
 
+function toDayMonthInput(date: Date) {
+  return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`
+}
+
+function toTimeInput(date: Date) {
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+}
+
 function getGeneratedAccesses(event: EventDTO) {
   return event.assignments.reduce((accumulator, assignment) => accumulator + assignment.usedAccesses, 0)
 }
@@ -113,14 +121,11 @@ export function EventsPage() {
     tomorrowStart.setDate(now.getDate() + 1)
     tomorrowStart.setHours(22, 0, 0, 0)
 
-    const tomorrowEnd = new Date(tomorrowStart)
-    tomorrowEnd.setHours(tomorrowStart.getHours() + 6)
-
     setWizardInitialData({
       clubId: event.club.id,
       name: `${event.name} (Copia)`,
-      startsAt: tomorrowStart.toISOString().slice(0, 16),
-      endsAt: tomorrowEnd.toISOString().slice(0, 16),
+      eventDate: toDayMonthInput(tomorrowStart),
+      startTime: toTimeInput(tomorrowStart),
       template: {
         templateImageUrl: event.templateImageUrl ?? '',
         qrPositionX: event.qrPositionX ?? 0.5,
@@ -128,6 +133,7 @@ export function EventsPage() {
         qrSize: event.qrSize ?? 0.35,
       },
       rpAssignments: [],
+      scannerTokensCount: 0,
     })
     setWizardSessionId((current) => current + 1)
     setIsCreateEventModalOpen(true)

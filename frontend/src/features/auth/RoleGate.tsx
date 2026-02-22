@@ -17,12 +17,15 @@ export function RoleGate({ allow, children }: RoleGateProps) {
   }
 
   if (!allow.includes(session.role)) {
+    console.log(`DEBUG: RoleGate - Role ${session.role} not allowed in`, allow)
     const fallback = `/${session.role.toLowerCase()}`
     if (location.pathname === fallback) {
       return null
     }
     return <Navigate to={fallback} replace />
   }
+
+  console.log(`DEBUG: RoleGate - Role ${session.role} allowed`)
 
   return <>{children}</>
 }

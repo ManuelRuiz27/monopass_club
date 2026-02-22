@@ -77,6 +77,12 @@ export function RpGeneratedPage() {
         { autoAlpha: 1, y: 0, duration: 0.28, clearProps: 'opacity,transform' },
         '-=0.1',
       )
+      .fromTo(
+        select('.rp-generated-proof > *'),
+        { autoAlpha: 0, y: 12 },
+        { autoAlpha: 1, y: 0, duration: 0.2, stagger: 0.05, clearProps: 'opacity,transform' },
+        '-=0.1',
+      )
 
     if (actionButtons.length > 0) {
       timeline.fromTo(
@@ -170,34 +176,49 @@ export function RpGeneratedPage() {
 
   const shareMessage = `${generatedState.shareCopy} Codigo: ${generatedState.ticketId}`
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareMessage)}`
+  const salesProof = [
+    { label: 'Canal principal', value: 'WhatsApp' },
+    { label: 'Respaldo', value: 'Descarga PNG' },
+    { label: 'Hora registro', value: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) },
+  ]
 
-  const openWhatsApp = () => {
-    window.open(whatsappUrl, '_blank', 'noopener,noreferrer')
-  }
-
-  const copyShareText = async () => {
+  const trackDelivery = async (method: 'WHATSAPP' | 'DOWNLOAD') => {
     try {
-      await navigator.clipboard.writeText(shareMessage)
-      toast.showToast({ title: 'Enlace copiado', variant: 'success' })
+      await rpApi.trackTicketDelivery(generatedState.ticketId, method)
     } catch {
-      toast.showToast({ title: 'No se pudo copiar el enlace', variant: 'warning' })
+      // Tracking is best-effort and should not block RP flow.
     }
   }
 
-  const shareAccess = async () => {
-    if (navigator.share) {
+  const openWhatsApp = async () => {
+    if (ticketImageUrl && typeof navigator.share === 'function' && typeof navigator.canShare === 'function') {
       try {
-        await navigator.share({
-          title: 'Acceso generado',
-          text: shareMessage,
+        const imageResponse = await fetch(ticketImageUrl)
+        const imageBlob = await imageResponse.blob()
+        const imageFile = new File([imageBlob], `ticket-${generatedState.ticketId}.png`, {
+          type: imageBlob.type || 'image/png',
         })
-        return
+
+        if (navigator.canShare({ files: [imageFile] })) {
+          try {
+            await navigator.share({
+              title: 'Acceso generado',
+              text: shareMessage,
+              files: [imageFile],
+            })
+            await trackDelivery('WHATSAPP')
+            return
+          } catch (error) {
+            if (error instanceof DOMException && error.name === 'AbortError') return
+          }
+        }
       } catch {
-        // If the user cancels native share, we do not show an error toast.
+        // If we cannot prepare file-sharing, we fallback to WhatsApp URL sharing.
       }
     }
 
-    await copyShareText()
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer')
+    void trackDelivery('WHATSAPP')
   }
 
   const downloadImage = () => {
@@ -210,6 +231,7 @@ export function RpGeneratedPage() {
     link.href = ticketImageUrl
     link.download = `ticket-${generatedState.ticketId}.png`
     link.click()
+    void trackDelivery('DOWNLOAD')
   }
 
   return (
@@ -219,7 +241,16 @@ export function RpGeneratedPage() {
           <span className="material-symbols-outlined rp-generated-success__icon">check</span>
         </div>
         <h3 className="rp-generated-success__title">Acceso Generado</h3>
-        <p className="rp-generated-success__subtitle">El pase {generatedState.guestType} esta listo para compartir</p>
+        <p className="rp-generated-success__subtitle">El pase {generatedState.guestType} quedo listo para vender y validar en segundos.</p>
+      </section>
+
+      <section className="rp-generated-proof" aria-label="Metricas de flujo">
+        {salesProof.map((item) => (
+          <article key={item.label}>
+            <span>{item.label}</span>
+            <strong>{item.value}</strong>
+          </article>
+        ))}
       </section>
 
       <section className="rp-generated-ticket">
@@ -245,21 +276,20 @@ export function RpGeneratedPage() {
       </section>
 
       <div className="rp-generated-actions">
-        <Button type="button" variant="success" block onClick={openWhatsApp}>
-          Compartir por WhatsApp
-        </Button>
-        <Button type="button" variant="secondary" block onClick={() => void copyShareText()}>
-          Copiar enlace
-        </Button>
-        <Button type="button" block onClick={() => void shareAccess()}>
-          Compartir Acceso
+        <Button type="button" variant="success" block onClick={() => void openWhatsApp()}>
+          Compartir por WhatsApp ahora
         </Button>
         <Button type="button" variant="secondary" block onClick={downloadImage}>
           Descargar Imagen
         </Button>
       </div>
 
-      <Button type="button" variant="ghost" className="rp-generated-screen__back" onClick={() => navigate(`/rp/generate/${generatedState.assignmentId}`)}>
+      <Button
+        type="button"
+        variant="ghost"
+        className="rp-generated-screen__back"
+        onClick={() => navigate(`/rp/events?assignmentId=${generatedState.assignmentId}`)}
+      >
         {'<- Generar otro acceso'}
       </Button>
     </div>

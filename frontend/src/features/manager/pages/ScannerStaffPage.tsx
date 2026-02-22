@@ -3,9 +3,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { managerApi, type ScannerDTO } from '../api'
 import { useToast } from '@/components/ToastProvider'
 import { BottomSheet, Button, CardEmptyState, PageErrorState, PageLoadingState } from '@/components/ui'
+import {
+  buildWelcomeMessage,
+  buildWhatsappShareUrl,
+  createUserWithAutoCredentials,
+} from '../utils/userCredentials'
 
-const defaultForm = { name: 'Scanner', username: '', password: 'changeme123' }
-
+const defaultForm = { name: '' }
 function formatLastScan(value: string | null) {
   if (!value) return 'Sin registros'
   return new Date(value).toLocaleString()
@@ -16,16 +20,68 @@ export function ScannerStaffPage() {
   const queryClient = useQueryClient()
   const scannersQuery = useQuery({ queryKey: ['scanners'], queryFn: managerApi.getScanners })
   const [form, setForm] = useState(defaultForm)
+  const [recentUsernames, setRecentUsernames] = useState<string[]>([])
+  const [lastScannerInvite, setLastScannerInvite] = useState<{
+    name: string
+    username: string
+    password: string
+    message: string
+  } | null>(null)
   const [statusFilter, setStatusFilter] = useState('')
   const [pendingStatusFilter, setPendingStatusFilter] = useState('')
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false)
 
+  const takenScannerUsernames = useMemo(() => {
+    const taken = new Set<string>()
+    ;(scannersQuery.data ?? []).forEach((scanner) => taken.add(scanner.user.username.toLowerCase()))
+    recentUsernames.forEach((username) => taken.add(username.toLowerCase()))
+    return taken
+  }, [recentUsernames, scannersQuery.data])
+
   const createScanner = useMutation({
-    mutationFn: () => managerApi.createScanner(form),
-    onSuccess: () => {
+    mutationFn: async () => {
+      const name = form.name.trim()
+      if (!name) {
+        throw new Error('Escribe el nombre del scanner.')
+      }
+      const loginUrl = `${window.location.origin}/login`
+      const { username, password } = await createUserWithAutoCredentials({
+        displayName: name,
+        takenUsernames: new Set(takenScannerUsernames),
+        createUser: ({ username: generatedUsername, password: generatedPassword }) =>
+          managerApi.createScanner({
+            name,
+            username: generatedUsername,
+            password: generatedPassword,
+          }),
+      })
+
+      return {
+        name,
+        username,
+        password,
+        message: buildWelcomeMessage({
+          profileName: name,
+          username,
+          password,
+          loginUrl,
+          role: 'scanner',
+        }),
+      }
+    },
+    onSuccess: (invite) => {
       toast.showToast({ title: 'Scanner creado', variant: 'success' })
       queryClient.invalidateQueries({ queryKey: ['scanners'] })
       setForm(defaultForm)
+      setRecentUsernames((previous) => [...previous, invite.username])
+      setLastScannerInvite(invite)
+    },
+    onError: (error: unknown) => {
+      toast.showToast({
+        title: 'No se pudo crear el scanner',
+        description: error instanceof Error ? error.message : undefined,
+        variant: 'error',
+      })
     },
   })
 
@@ -52,17 +108,26 @@ export function ScannerStaffPage() {
   const showEmpty = scannersQuery.isSuccess && filteredScanners.length === 0
   const canRenderList = scannersQuery.isSuccess
 
+  const copyInviteMessage = async () => {
+    if (!lastScannerInvite) return
+    try {
+      await navigator.clipboard.writeText(lastScannerInvite.message)
+      toast.showToast({ title: 'Mensaje copiado', variant: 'success' })
+    } catch {
+      toast.showToast({ title: 'No se pudo copiar el mensaje', variant: 'warning' })
+    }
+  }
+
   return (
     <div className="manager-scanners-page">
       <header className="manager-scanners-page__header">
         <div>
           <h3 className="manager-scanners-page__title">Staff Scanner</h3>
-          <p className="text-muted manager-scanners-page__subtitle">Administra cuentas de scanner y su disponibilidad.</p>
         </div>
       </header>
 
       <section className="card manager-scanners-create">
-        <h4 className="manager-scanners-create__title">Crear scanner</h4>
+        <h4 className="manager-scanners-create__title">Crear miembro de staff</h4>
         <form
           className="form-grid manager-scanners-form"
           onSubmit={(event) => {
@@ -72,22 +137,10 @@ export function ScannerStaffPage() {
         >
           <label>
             Nombre
-            <input value={form.name} onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))} required />
-          </label>
-          <label>
-            Username
             <input
-              value={form.username}
-              onChange={(event) => setForm((prev) => ({ ...prev, username: event.target.value }))}
-              required
-            />
-          </label>
-          <label>
-            Password temporal
-            <input
-              type="password"
-              value={form.password}
-              onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
+              value={form.name}
+              onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+              placeholder="Ej. Puerta Norte"
               required
             />
           </label>
@@ -95,6 +148,24 @@ export function ScannerStaffPage() {
             {createScanner.isPending ? 'Creando...' : 'Crear scanner'}
           </Button>
         </form>
+        {lastScannerInvite ? (
+          <div className="manager-credentials-share">
+            <p className="manager-credentials-share__title">Mensaje para WhatsApp</p>
+            <textarea className="manager-credentials-share__message" value={lastScannerInvite.message} readOnly rows={4} />
+            <div className="manager-credentials-share__actions">
+              <Button type="button" variant="secondary" size="sm" onClick={copyInviteMessage}>
+                Copiar mensaje
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => window.open(buildWhatsappShareUrl(lastScannerInvite.message), '_blank', 'noopener,noreferrer')}
+              >
+                Abrir WhatsApp
+              </Button>
+            </div>
+          </div>
+        ) : null}
       </section>
 
       <section className="manager-scanners-toolbar">

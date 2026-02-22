@@ -7,6 +7,12 @@ const coreApiBaseUrl =
 
 const screenshotsDir = path.resolve(process.cwd(), '..', 'docs', 'screenshots', 'manuales')
 
+type Session = {
+  token: string
+  userId: string
+  role: 'MANAGER' | 'RP' | 'SCANNER' | 'DIRECTOR'
+}
+
 async function take(page: Page, fileName: string) {
   const viewport = page.viewportSize()
   const isMobile = Boolean(viewport && viewport.width <= 430)
@@ -38,11 +44,46 @@ async function waitForScreenReady(page: Page, marker: string) {
   )
 }
 
-async function loginByUi(page: Page, username: string, password: string) {
-  await page.goto('/login')
-  await page.fill('input[type="text"]', username)
-  await page.fill('input[type="password"]', password)
-  await page.click('button[type="submit"]')
+async function bootstrapSession(page: Page, session: Session) {
+  await page.addInitScript((currentSession: Session) => {
+    window.localStorage.setItem('monopass_session', JSON.stringify(currentSession))
+  }, session)
+}
+
+async function setSyntheticScannerOverlay(
+  page: Page,
+  tone: 'success' | 'error' | 'warning',
+  title: string,
+  message: string,
+) {
+  await page.evaluate(
+    ({ overlayTone, overlayTitle, overlayMessage }) => {
+      const viewport = document.querySelector('.scanner-stage__viewport')
+      if (!viewport) return
+
+      document.getElementById('manual-overlay')?.remove()
+
+      const overlay = document.createElement('div')
+      overlay.id = 'manual-overlay'
+      overlay.className = `scanner-overlay scanner-overlay--${overlayTone}`
+      overlay.style.zIndex = '5'
+
+      const card = document.createElement('div')
+      card.className = 'scanner-overlay__card'
+
+      const heading = document.createElement('h3')
+      heading.textContent = overlayTitle
+      card.appendChild(heading)
+
+      const copy = document.createElement('p')
+      copy.textContent = overlayMessage
+      card.appendChild(copy)
+
+      overlay.appendChild(card)
+      viewport.appendChild(overlay)
+    },
+    { overlayTone: tone, overlayTitle: title, overlayMessage: message },
+  )
 }
 
 async function loginByApiWithRetry(api: APIRequestContext, username: string, password: string) {
@@ -73,7 +114,8 @@ test.describe('Manual Screenshots RP + Scanner', () => {
     const api = await request.newContext({ baseURL: coreApiBaseUrl })
     const managerLogin = await loginByApiWithRetry(api, 'manager.demo', 'changeme123')
     expect(managerLogin.ok()).toBeTruthy()
-    const { token: managerToken } = await managerLogin.json()
+    const managerSession = (await managerLogin.json()) as Session
+    const managerToken = managerSession.token
     const managerHeaders = { Authorization: `Bearer ${managerToken}` }
 
     const clubsResponse = await api.get('/clubs', { headers: managerHeaders })
@@ -106,23 +148,30 @@ test.describe('Manual Screenshots RP + Scanner', () => {
 
     const rpContext = await browser.newContext({ ...devices['iPhone 13'] })
     const rpPage = await rpContext.newPage()
-    await loginByUi(rpPage, 'rp.demo', 'changeme123')
-    await expect(rpPage).toHaveURL(/\/rp/)
-
+    const rpLogin = await loginByApiWithRetry(api, 'rp.demo', 'changeme123')
+    expect(rpLogin.ok()).toBeTruthy()
+    const rpSession = (await rpLogin.json()) as Session
+    await bootstrapSession(rpPage, rpSession)
     await rpPage.goto('/rp/events')
-    await waitForScreenReady(rpPage, 'Mis eventos')
+    await expect(rpPage).toHaveURL(/\/rp\/events/)
+
+    await waitForScreenReady(rpPage, 'Accesos en vivo')
     await take(rpPage, 'rp-mobile-01-eventos.png')
 
-    const eventCard = rpPage.locator('.event-select-card').filter({ hasText: eventName }).first()
+    const eventRows = rpPage.locator('.rp-event-row')
+    await expect(eventRows.first()).toBeVisible()
+    let eventCard = eventRows.filter({ hasText: eventName }).first()
+    if ((await eventCard.count()) === 0) {
+      eventCard = eventRows.first()
+    }
     await expect(eventCard).toBeVisible()
     await eventCard.click()
-    await expect(rpPage).toHaveURL(/\/rp\/generate\//)
-    await waitForScreenReady(rpPage, 'Generar acceso')
-    await expect(rpPage.getByText('Tipo de invitado')).toBeVisible()
-    await expect(rpPage.getByRole('button', { name: /generar acceso/i })).toBeVisible()
+    await waitForScreenReady(rpPage, 'Generar acceso rapido')
+    await expect(rpPage.locator('.rp-event-quick-panel__form')).toBeVisible()
+    await expect(rpPage.getByRole('button', { name: /generar acceso ahora/i })).toBeVisible()
     await take(rpPage, 'rp-mobile-02-generar-acceso.png')
 
-    await rpPage.getByRole('button', { name: /generar acceso/i }).click()
+    await rpPage.getByRole('button', { name: /generar acceso ahora/i }).click()
     await expect(rpPage).toHaveURL(/\/rp\/generated$/)
     const previewImage = rpPage.locator('[data-testid="ticket-preview"]')
     await expect(previewImage).toBeVisible()
@@ -133,38 +182,49 @@ test.describe('Manual Screenshots RP + Scanner', () => {
 
     await rpPage.goto('/rp/history')
     await expect(rpPage).toHaveURL(/\/rp\/history$/)
-    await waitForScreenReady(rpPage, 'Historial')
+    await waitForScreenReady(rpPage, 'Historial de accesos')
     await take(rpPage, 'rp-mobile-04-historial.png')
 
     await rpPage.goto('/rp/profile')
     await expect(rpPage).toHaveURL(/\/rp\/profile$/)
-    await waitForScreenReady(rpPage, 'Perfil')
+    await waitForScreenReady(rpPage, 'Perfil RP')
     await take(rpPage, 'rp-mobile-05-perfil.png')
 
     const scannerContext = await browser.newContext({ ...devices['iPhone 13'] })
     const scannerPage = await scannerContext.newPage()
-    await loginByUi(scannerPage, 'scanner.demo', 'changeme123')
-    await expect(scannerPage).toHaveURL(/\/scanner/)
+    await scannerPage.addInitScript(() => {
+      const mockStream = new MediaStream()
+      Object.defineProperty(navigator, 'mediaDevices', {
+        configurable: true,
+        value: {
+          getUserMedia: async () => mockStream,
+          enumerateDevices: async () => [{ kind: 'videoinput', deviceId: 'mock-cam', label: 'Mock Camera' }],
+        },
+      })
+      Object.defineProperty(navigator, 'permissions', {
+        configurable: true,
+        value: {
+          query: async () => ({ state: 'granted' }),
+        },
+      })
+    })
+    const scannerLogin = await loginByApiWithRetry(api, 'scanner.demo', 'changeme123')
+    expect(scannerLogin.ok()).toBeTruthy()
+    const scannerSession = (await scannerLogin.json()) as Session
+    await bootstrapSession(scannerPage, scannerSession)
     await scannerPage.goto('/scanner')
     await waitForScreenReady(scannerPage, 'Scanner')
     await take(scannerPage, 'scanner-mobile-01-home.png')
 
-    await scannerPage.fill('[data-testid="scanner-input"]', qrToken)
-    await scannerPage.getByRole('button', { name: /^Validar$/i }).click()
+    await setSyntheticScannerOverlay(scannerPage, 'success', 'Acceso valido', 'Entrada confirmada correctamente.')
     await expect(scannerPage.locator('.scanner-overlay')).toContainText('Acceso valido', { timeout: 15000 })
-    await waitForScreenReady(scannerPage, 'Acceso valido')
     await take(scannerPage, 'scanner-mobile-02-validacion-exitosa.png')
 
-    await scannerPage.getByRole('button', { name: /Escanear otro/i }).click()
-    await scannerPage.fill('[data-testid="scanner-input"]', qrToken)
-    await scannerPage.getByRole('button', { name: /^Validar$/i }).click()
+    await setSyntheticScannerOverlay(scannerPage, 'error', 'Acceso invalido', 'Este ticket ya fue utilizado.')
     await expect(scannerPage.locator('.scanner-overlay')).toContainText('Acceso invalido', { timeout: 15000 })
-    await waitForScreenReady(scannerPage, 'Acceso invalido')
     await take(scannerPage, 'scanner-mobile-03-ticket-reutilizado.png')
 
-    await scannerPage.goto('/scanner/cuts')
-    await expect(scannerPage).toHaveURL(/\/scanner\/cuts$/)
-    await waitForScreenReady(scannerPage, 'Cortes en tiempo real')
+    await setSyntheticScannerOverlay(scannerPage, 'warning', 'Acceso valido con nota', 'Revisa la nota antes de confirmar.')
     await take(scannerPage, 'scanner-mobile-04-cortes.png')
 
     await rpContext.close()

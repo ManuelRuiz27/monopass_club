@@ -3,9 +3,24 @@ import { useAuth } from '@/features/auth/AuthContext'
 import { useRpAssignments } from '../hooks'
 import { Button } from '@/components/ui'
 
+function resolveRpName(rawUserId: string | undefined) {
+  if (!rawUserId) return 'Sofia Ramirez'
+  const normalized = rawUserId.trim()
+  if (!normalized) return 'Sofia Ramirez'
+  if (normalized.length >= 24 && normalized.includes('-')) return 'Sofia Ramirez'
+  return normalized
+    .replace(/[._-]+/g, ' ')
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 3)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+}
+
 export function ProfilePage() {
   const { session, logout } = useAuth()
   const { data, isLoading } = useRpAssignments()
+  const displayName = resolveRpName(session?.userId)
 
   const assignedEvent = useMemo(() => {
     if (!data?.events?.length) return null
@@ -24,7 +39,7 @@ export function ProfilePage() {
       <article className="card rp-profile-card">
         <h4 className="rp-profile-card__title">Usuario</h4>
         <p className="rp-profile-card__line">
-          <strong>ID:</strong> {session?.userId ?? 'Sin sesion'}
+          <strong>Nombre:</strong> {displayName}
         </p>
         <p className="rp-profile-card__line rp-profile-card__line--spaced">
           <strong>Rol:</strong> RP

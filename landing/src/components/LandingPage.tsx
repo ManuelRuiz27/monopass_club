@@ -1,37 +1,59 @@
-import { useEffect } from 'react'
-import { Hero } from './Hero.tsx'
-import { ProblemSolution } from './ProblemSolution.tsx'
-import { Steps } from './Steps.tsx'
-import { DashboardPreview } from './DashboardPreview.tsx'
-import { RoleBasedFlow } from './RoleBasedFlow.tsx'
-import { Benefits } from './Benefits.tsx'
-import { OfflineMode } from './OfflineMode.tsx'
-import { SocialProof } from './SocialProof.tsx'
-import { Pricing } from './Pricing.tsx'
-import { Comparison } from './Comparison.tsx'
-import { Faq } from './Faq.tsx'
-import { FinalCta } from './FinalCta.tsx'
-import { LeadForm } from './LeadForm.tsx'
-import { RedirectionCard } from './RedirectionCard.tsx'
-import { Footer } from './Footer.tsx'
-import { StickyMobileCta } from './StickyMobileCta.tsx'
+﻿import { useCallback, useEffect, useRef, useState } from 'react'
+import { HeroSection } from './HeroSection.tsx'
+import { HowItWorksSection } from './HowItWorksSection.tsx'
+import { BenefitsSection } from './BenefitsSection.tsx'
+import { PricingSection } from './PricingSection.tsx'
+import { ComparisonSection } from './ComparisonSection.tsx'
+import { FaqSection } from './FaqSection.tsx'
+import { FinalCtaSection } from './FinalCtaSection.tsx'
+import { FooterSection } from './FooterSection.tsx'
+import { ActivationModal } from './ActivationModal.tsx'
 import { trackLandingEvent } from '../lib/analytics.ts'
+import { initHeroTimeline, initScrollReveals } from '../animations.ts'
+import type { LandingPricing } from '../lib/publicApi.ts'
 
-const TRACKED_SECTION_IDS = [
-  'hero',
-  'role-flow',
-  'beneficios',
-  'pricing',
-  'comparison',
-  'faq',
-  'cta-final',
-  'formulario',
-]
+type MonthlyPlan = 'club' | 'pro' | null
+
+const TRACKED_SECTION_IDS = ['hero', 'como-funciona', 'beneficios', 'pricing', 'comparativo', 'faq', 'cta-final', 'footer']
+
+function formatCurrency(value: number, currency: string) {
+  return new Intl.NumberFormat('es-MX', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: 0,
+  }).format(value)
+}
+
+function scrollToSection(sectionId: string) {
+  document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
 
 export function LandingPage() {
-  const scrollToLeadForm = () => {
-    document.getElementById('formulario')?.scrollIntoView({ behavior: 'smooth' })
-  }
+  const [activationOpen, setActivationOpen] = useState(false)
+  const [selectedPlan, setSelectedPlan] = useState<MonthlyPlan>(null)
+  const [eventPriceLabel, setEventPriceLabel] = useState('$750')
+  const rootRef = useRef<HTMLDivElement>(null)
+
+  const handleOpenActivation = useCallback((location: string) => {
+    trackLandingEvent('cta_activate_event_click', { location })
+    setActivationOpen(true)
+  }, [])
+
+  const handleViewPricing = useCallback(() => {
+    trackLandingEvent('cta_view_pricing_click', { location: 'hero' })
+    scrollToSection('pricing')
+  }, [])
+
+  const handleSelectMonthlyPlan = useCallback((plan: 'club' | 'pro') => {
+    setSelectedPlan(plan)
+    trackLandingEvent('pricing_plan_selected', { plan })
+    trackLandingEvent('cta_schedule_demo_click', { location: `pricing_${plan}` })
+    scrollToSection('cta-final')
+  }, [])
+
+  const handlePricingResolved = useCallback((pricing: LandingPricing) => {
+    setEventPriceLabel(formatCurrency(pricing.event_price, pricing.currency))
+  }, [])
 
   useEffect(() => {
     if (!('IntersectionObserver' in window)) {
@@ -61,24 +83,45 @@ export function LandingPage() {
     return () => observer.disconnect()
   }, [])
 
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root) return
+
+    // Shared animation entrypoint: hero timeline + reveal motions with reduced-motion guards.
+    const cleanupHero = initHeroTimeline(root)
+    const cleanupReveals = initScrollReveals(root)
+
+    return () => {
+      cleanupHero()
+      cleanupReveals()
+    }
+  }, [])
+
   return (
-    <>
-      <Hero onScheduleMeeting={scrollToLeadForm} />
-      <ProblemSolution />
-      <Steps />
-      <DashboardPreview />
-      <RoleBasedFlow />
-      <Benefits />
-      <OfflineMode />
-      <SocialProof />
-      <Pricing />
-      <Comparison />
-      <Faq />
-      <FinalCta />
-      <LeadForm />
-      <RedirectionCard />
-      <Footer />
-      <StickyMobileCta onScheduleMeeting={scrollToLeadForm} />
-    </>
+    <div ref={rootRef}>
+      <HeroSection
+        eventPriceLabel={eventPriceLabel}
+        onActivateEvent={() => handleOpenActivation('hero')}
+        onViewPricing={handleViewPricing}
+      />
+      <HowItWorksSection />
+      <BenefitsSection />
+      <PricingSection
+        onActivateEvent={() => handleOpenActivation('pricing')}
+        onSelectMonthlyPlan={handleSelectMonthlyPlan}
+        onPricingResolved={handlePricingResolved}
+      />
+      <ComparisonSection />
+      <FaqSection />
+      <FinalCtaSection
+        selectedPlan={selectedPlan}
+        eventPriceLabel={eventPriceLabel}
+        onActivateEvent={() => handleOpenActivation('cta_final')}
+      />
+      <FooterSection />
+
+      <ActivationModal open={activationOpen} eventPriceLabel={eventPriceLabel} onClose={() => setActivationOpen(false)} />
+    </div>
   )
 }
+

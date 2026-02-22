@@ -4,7 +4,7 @@ import { randomUUID } from 'crypto'
 import { buildServer } from '../../server'
 import { prisma } from '../../lib/prisma'
 import { hashPassword } from '../../lib/password'
-import { UserRole } from '@prisma/client'
+import { TicketDeliveryMethod, TicketType, UserRole } from '@prisma/client'
 
 describe.sequential('Manager contract routes', () => {
   let app: Awaited<ReturnType<typeof buildServer>>
@@ -165,5 +165,92 @@ describe.sequential('Manager contract routes', () => {
 
     expect(duplicateAssignment.status).toBe(409)
     expect(duplicateAssignment.body?.message).toMatch(/ya esta asignado/i)
+  })
+
+  test('GET /events/live resume enviados y escaneados por evento activo', async () => {
+    const manager = await createManager()
+    const club = await createClub(manager.managerId)
+    const event = await createEvent(club.id)
+    const rp = await createRp(manager.managerId)
+
+    const assignment = await prisma.eventRp.create({
+      data: {
+        id: randomUUID(),
+        eventId: event.id,
+        rpId: rp.id,
+      },
+    })
+
+    const sentScannedTicket = await prisma.ticket.create({
+      data: {
+        id: randomUUID(),
+        eventId: event.id,
+        rpId: rp.id,
+        assignmentId: assignment.id,
+        guestType: TicketType.GENERAL,
+        qrToken: randomUUID(),
+      },
+    })
+
+    const sentPendingTicket = await prisma.ticket.create({
+      data: {
+        id: randomUUID(),
+        eventId: event.id,
+        rpId: rp.id,
+        assignmentId: assignment.id,
+        guestType: TicketType.VIP,
+        qrToken: randomUUID(),
+      },
+    })
+
+    await prisma.ticket.create({
+      data: {
+        id: randomUUID(),
+        eventId: event.id,
+        rpId: rp.id,
+        assignmentId: assignment.id,
+        guestType: TicketType.OTHER,
+        qrToken: randomUUID(),
+      },
+    })
+
+    await prisma.ticketDelivery.create({
+      data: {
+        id: randomUUID(),
+        ticketId: sentScannedTicket.id,
+        rpId: rp.id,
+        method: TicketDeliveryMethod.WHATSAPP,
+      },
+    })
+
+    await prisma.ticketDelivery.create({
+      data: {
+        id: randomUUID(),
+        ticketId: sentPendingTicket.id,
+        rpId: rp.id,
+        method: TicketDeliveryMethod.DOWNLOAD,
+      },
+    })
+
+    await prisma.ticketScan.create({
+      data: {
+        id: randomUUID(),
+        ticketId: sentScannedTicket.id,
+      },
+    })
+
+    const response = await request(app.server).get('/events/live').set('Authorization', `Bearer ${manager.token}`)
+
+    expect(response.status).toBe(200)
+    expect(response.body.filters.eventId).toBeNull()
+    expect(Array.isArray(response.body.events)).toBe(true)
+    expect(response.body.events).toHaveLength(1)
+    expect(response.body.events[0].eventId).toBe(event.id)
+    expect(typeof response.body.serverNow).toBe('string')
+    expect(response.body.events[0].inProgress).toBe(true)
+    expect(response.body.events[0].sentAccesses).toBe(2)
+    expect(response.body.events[0].scannedAccesses).toBe(1)
+    expect(response.body.events[0].pendingAccesses).toBe(1)
+    expect(response.body.events[0].occupancyPercent).toBe(1)
   })
 })

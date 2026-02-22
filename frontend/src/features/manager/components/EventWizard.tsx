@@ -1,26 +1,85 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { managerApi, type ClubDTO, type RpDTO } from '../api'
 import { useToast } from '@/components/ToastProvider'
 import { TemplateEditor, type TemplateConfig } from '@/components/TemplateEditor'
 import { Button } from '@/components/ui'
+import { buildWelcomeMessage, createUserWithAutoCredentials } from '../utils/userCredentials'
 
 type WizardStep = 'basics' | 'design' | 'rps' | 'confirm'
 
 export type EventFormData = {
   clubId: string
   name: string
-  startsAt: string
-  endsAt: string
+  eventDate: string
+  startTime: string
   template: TemplateConfig
   rpAssignments: Array<{ rpId: string; limit: string }>
+  scannerTokensCount: number
+}
+
+type EventWindow = {
+  startsAt: Date
+  endsAt: Date
+  durationLabel: string
+}
+
+const DEFAULT_START_TIME = '18:00'
+const DEFAULT_EVENT_NAME = 'Evento especial'
+const DEFAULT_SCANNER_TOKENS = 0
+const EVENT_DURATION_HOURS = 12
+
+const dayMonthPattern = /^(\d{1,2})\/(\d{1,2})$/
+const timePattern = /^([01]?\d|2[0-3]):([0-5]\d)$/
+
+const toDayMonth = (date: Date) =>
+  `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`
+
+const toTimeValue = (date: Date) => `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+
+const normalizeDayMonth = (value: string) => {
+  const normalized = value.trim().replace(/-/g, '/')
+  const match = normalized.match(dayMonthPattern)
+  if (!match) return normalized
+  return `${match[1].padStart(2, '0')}/${match[2].padStart(2, '0')}`
+}
+
+const buildEventWindow = (eventDate: string, startTime: string, year: number): EventWindow | null => {
+  const dayMonth = normalizeDayMonth(eventDate)
+  const dayMonthMatch = dayMonth.match(dayMonthPattern)
+  const timeMatch = startTime.trim().match(timePattern)
+  if (!dayMonthMatch || !timeMatch) return null
+
+  const day = Number(dayMonthMatch[1])
+  const month = Number(dayMonthMatch[2])
+  const hours = Number(timeMatch[1])
+  const minutes = Number(timeMatch[2])
+
+  const startsAt = new Date(year, month - 1, day, hours, minutes, 0, 0)
+  if (
+    Number.isNaN(startsAt.getTime()) ||
+    startsAt.getFullYear() !== year ||
+    startsAt.getMonth() !== month - 1 ||
+    startsAt.getDate() !== day
+  ) {
+    return null
+  }
+
+  const endsAt = new Date(startsAt)
+  if (startsAt.getMonth() === 11) {
+    endsAt.setMonth(endsAt.getMonth() + 1)
+    return { startsAt, endsAt, durationLabel: '1 mes (evento en diciembre)' }
+  }
+
+  endsAt.setHours(endsAt.getHours() + EVENT_DURATION_HOURS)
+  return { startsAt, endsAt, durationLabel: '12 horas (automatico)' }
 }
 
 const defaultFormData = (): EventFormData => ({
   clubId: '',
-  name: 'Evento especial',
-  startsAt: new Date().toISOString().slice(0, 16),
-  endsAt: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString().slice(0, 16),
+  name: DEFAULT_EVENT_NAME,
+  eventDate: toDayMonth(new Date()),
+  startTime: DEFAULT_START_TIME,
   template: {
     templateImageUrl: '',
     qrPositionX: 0.5,
@@ -28,6 +87,7 @@ const defaultFormData = (): EventFormData => ({
     qrSize: 0.35,
   },
   rpAssignments: [],
+  scannerTokensCount: DEFAULT_SCANNER_TOKENS,
 })
 
 const steps: Array<{ key: WizardStep; label: string; icon: string }> = [
@@ -40,18 +100,48 @@ const steps: Array<{ key: WizardStep; label: string; icon: string }> = [
 type EventWizardProps = {
   onComplete: () => void
   onCancel: () => void
-  initialData?: Partial<EventFormData>
+  initialData?: Partial<EventFormData> & { startsAt?: string }
+}
+
+function resolveInitialData(initialData?: Partial<EventFormData> & { startsAt?: string }): Partial<EventFormData> {
+  if (!initialData) return {}
+
+  const fromStartsAt = initialData.startsAt ? new Date(initialData.startsAt) : null
+  const derivedDate = fromStartsAt && !Number.isNaN(fromStartsAt.getTime()) ? toDayMonth(fromStartsAt) : undefined
+  const derivedTime = fromStartsAt && !Number.isNaN(fromStartsAt.getTime()) ? toTimeValue(fromStartsAt) : undefined
+
+  return {
+    ...initialData,
+    eventDate: initialData.eventDate ?? derivedDate,
+    startTime: initialData.startTime ?? derivedTime,
+  }
 }
 
 export function EventWizard({ onComplete, onCancel, initialData }: EventWizardProps) {
   const toast = useToast()
   const queryClient = useQueryClient()
+  const currentYear = new Date().getFullYear()
   const [currentStep, setCurrentStep] = useState<WizardStep>('basics')
-  const [formData, setFormData] = useState<EventFormData>({ ...defaultFormData(), ...initialData })
+  const [formData, setFormData] = useState<EventFormData>({
+    ...defaultFormData(),
+    ...resolveInitialData(initialData),
+  })
 
   const clubsQuery = useQuery({ queryKey: ['clubs'], queryFn: managerApi.getClubs })
   const rpsQuery = useQuery({ queryKey: ['rps'], queryFn: managerApi.getRps })
   const groupsQuery = useQuery({ queryKey: ['rp-groups'], queryFn: managerApi.getRpGroups })
+  const scannersQuery = useQuery({ queryKey: ['scanners'], queryFn: managerApi.getScanners })
+
+  const activeRps = useMemo(() => (rpsQuery.data ?? []).filter((rp: RpDTO) => rp.active), [rpsQuery.data])
+  const eventWindow = useMemo(
+    () => buildEventWindow(formData.eventDate, formData.startTime, currentYear),
+    [formData.eventDate, formData.startTime, currentYear],
+  )
+  const takenScannerUsernames = useMemo(() => {
+    const taken = new Set<string>()
+    ;(scannersQuery.data ?? []).forEach((scanner) => taken.add(scanner.user.username.toLowerCase()))
+    return taken
+  }, [scannersQuery.data])
 
   const loadGroup = (groupId: string) => {
     const group = groupsQuery.data?.find((item) => item.id === groupId)
@@ -63,7 +153,7 @@ export function EventWizard({ onComplete, onCancel, initialData }: EventWizardPr
       let addedCount = 0
 
       group.members.forEach((member) => {
-        const rpIsActive = rpsQuery.data?.some((rp) => rp.id === member.id && rp.active)
+        const rpIsActive = activeRps.some((rp) => rp.id === member.id)
         if (!currentIds.has(member.id) && rpIsActive) {
           nextAssignments.push({ rpId: member.id, limit: '' })
           addedCount += 1
@@ -83,7 +173,81 @@ export function EventWizard({ onComplete, onCancel, initialData }: EventWizardPr
   const finishWizard = () => {
     toast.showToast({ title: 'Evento creado exitosamente', variant: 'success' })
     queryClient.invalidateQueries({ queryKey: ['events'] })
+    queryClient.invalidateQueries({ queryKey: ['scanners'] })
     onComplete()
+  }
+
+  const createScannerTokensMutation = useMutation({
+    mutationFn: async ({ count, eventName }: { count: number; eventName: string }) => {
+      const loginUrl = `${window.location.origin}/login`
+      const takenForRun = new Set(takenScannerUsernames)
+      const invites: Array<{ name: string; username: string; password: string; message: string }> = []
+
+      for (let index = 0; index < count; index += 1) {
+        const scannerName = `Scanner ${index + 1} - ${eventName}`
+        const { username, password } = await createUserWithAutoCredentials({
+          displayName: scannerName,
+          takenUsernames: takenForRun,
+          createUser: ({ username: generatedUsername, password: generatedPassword }) =>
+            managerApi.createScanner({
+              name: scannerName,
+              username: generatedUsername,
+              password: generatedPassword,
+            }),
+        })
+        takenForRun.add(username.toLowerCase())
+        invites.push({
+          name: scannerName,
+          username,
+          password,
+          message: buildWelcomeMessage({
+            profileName: scannerName,
+            username,
+            password,
+            loginUrl,
+            role: 'scanner',
+          }),
+        })
+      }
+
+      return invites
+    },
+    onSuccess: (invites) => {
+      if (invites.length > 0) {
+        const fullMessage = invites.map((item) => item.message).join('\n\n')
+        if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+          void navigator.clipboard.writeText(fullMessage)
+        }
+        toast.showToast({
+          title: `${invites.length} acceso(s) scanner creados`,
+          description: 'Mensajes listos para compartir (copiados al portapapeles).',
+          variant: 'success',
+          durationMs: 9000,
+        })
+      }
+      finishWizard()
+    },
+    onError: (error: unknown) => {
+      toast.showToast({
+        title: 'Evento creado, pero no se pudieron generar todos los tokens scanner',
+        description: error instanceof Error ? error.message : undefined,
+        variant: 'warning',
+      })
+      finishWizard()
+    },
+  })
+
+  const finalizeAfterEvent = () => {
+    const scannerCount = Number.isFinite(formData.scannerTokensCount) ? Math.max(0, Math.floor(formData.scannerTokensCount)) : 0
+    if (scannerCount === 0) {
+      finishWizard()
+      return
+    }
+
+    createScannerTokensMutation.mutate({
+      count: scannerCount,
+      eventName: formData.name.trim() || DEFAULT_EVENT_NAME,
+    })
   }
 
   const assignRpsMutation = useMutation({
@@ -94,11 +258,11 @@ export function EventWizard({ onComplete, onCancel, initialData }: EventWizardPr
       }
     },
     onSuccess: () => {
-      finishWizard()
+      finalizeAfterEvent()
     },
     onError: () => {
       toast.showToast({ title: 'Evento creado pero hubo un error al asignar RPs', variant: 'info' })
-      finishWizard()
+      finalizeAfterEvent()
     },
   })
 
@@ -114,30 +278,36 @@ export function EventWizard({ onComplete, onCancel, initialData }: EventWizardPr
       if (formData.rpAssignments.length > 0) {
         assignRpsMutation.mutate({ eventId: variables.eventId })
       } else {
-        finishWizard()
+        finalizeAfterEvent()
       }
     },
     onError: () => {
       toast.showToast({ title: 'Evento creado pero hubo un error con la plantilla', variant: 'info' })
-      finishWizard()
+      finalizeAfterEvent()
     },
   })
 
   const createEventMutation = useMutation({
-    mutationFn: () =>
-      managerApi.createEvent({
+    mutationFn: () => {
+      const resolvedWindow = buildEventWindow(formData.eventDate, formData.startTime, currentYear)
+      if (!resolvedWindow) {
+        throw new Error(`Fecha u hora invalida. Usa formato dd/mm para ${currentYear}.`)
+      }
+
+      return managerApi.createEvent({
         clubId: formData.clubId,
         name: formData.name.trim(),
-        startsAt: new Date(formData.startsAt).toISOString(),
-        endsAt: new Date(formData.endsAt).toISOString(),
-      }),
+        startsAt: resolvedWindow.startsAt.toISOString(),
+        endsAt: resolvedWindow.endsAt.toISOString(),
+      })
+    },
     onSuccess: (event) => {
       if (formData.template.templateImageUrl) {
         updateTemplateMutation.mutate({ eventId: event.id })
       } else if (formData.rpAssignments.length > 0) {
         assignRpsMutation.mutate({ eventId: event.id })
       } else {
-        finishWizard()
+        finalizeAfterEvent()
       }
     },
     onError: (error: unknown) => {
@@ -149,13 +319,17 @@ export function EventWizard({ onComplete, onCancel, initialData }: EventWizardPr
     },
   })
 
-  const isLoading = createEventMutation.isPending || updateTemplateMutation.isPending || assignRpsMutation.isPending
+  const isLoading =
+    createEventMutation.isPending ||
+    updateTemplateMutation.isPending ||
+    assignRpsMutation.isPending ||
+    createScannerTokensMutation.isPending
   const currentStepIndex = steps.findIndex((step) => step.key === currentStep)
 
   const canProceed = () => {
     switch (currentStep) {
       case 'basics':
-        return Boolean(formData.clubId && formData.name.trim() && formData.startsAt && formData.endsAt)
+        return Boolean(formData.clubId && formData.name.trim() && eventWindow)
       case 'design':
       case 'rps':
       case 'confirm':
@@ -200,6 +374,26 @@ export function EventWizard({ onComplete, onCancel, initialData }: EventWizardPr
       ),
     }))
   }
+
+  const selectAllRps = () => {
+    setFormData((previous) => {
+      const limits = new Map(previous.rpAssignments.map((assignment) => [assignment.rpId, assignment.limit]))
+      return {
+        ...previous,
+        rpAssignments: activeRps.map((rp) => ({
+          rpId: rp.id,
+          limit: limits.get(rp.id) ?? '',
+        })),
+      }
+    })
+  }
+
+  const clearAllRps = () => {
+    setFormData((previous) => ({ ...previous, rpAssignments: [] }))
+  }
+
+  const allActiveRpsSelected =
+    activeRps.length > 0 && activeRps.every((rp) => formData.rpAssignments.some((assignment) => assignment.rpId === rp.id))
 
   const selectedClub = clubsQuery.data?.find((club) => club.id === formData.clubId)
 
@@ -252,20 +446,28 @@ export function EventWizard({ onComplete, onCancel, initialData }: EventWizardPr
                 />
               </label>
               <label>
-                Inicio
+                Fecha (dd/mm)
                 <input
-                  type="datetime-local"
-                  value={formData.startsAt}
-                  onChange={(event) => setFormData((previous) => ({ ...previous, startsAt: event.target.value }))}
+                  value={formData.eventDate}
+                  onChange={(event) => setFormData((previous) => ({ ...previous, eventDate: event.target.value }))}
+                  onBlur={(event) =>
+                    setFormData((previous) => ({
+                      ...previous,
+                      eventDate: normalizeDayMonth(event.target.value),
+                    }))
+                  }
+                  placeholder="19/02"
+                  inputMode="numeric"
                   required
                 />
               </label>
               <label>
-                Fin
+                Hora de inicio
                 <input
-                  type="datetime-local"
-                  value={formData.endsAt}
-                  onChange={(event) => setFormData((previous) => ({ ...previous, endsAt: event.target.value }))}
+                  type="time"
+                  value={formData.startTime}
+                  onChange={(event) => setFormData((previous) => ({ ...previous, startTime: event.target.value }))}
+                  step={300}
                   required
                 />
               </label>
@@ -275,17 +477,20 @@ export function EventWizard({ onComplete, onCancel, initialData }: EventWizardPr
 
         {currentStep === 'design' ? (
           <div>
-            <h3>Diseno del acceso</h3>
-            <p className="text-muted event-wizard-step__subtitle">
-              Opcional: sube una imagen de fondo y posiciona el codigo QR.
-            </p>
+            <div className="event-wizard-design__actions">
+              <Button type="button" variant="ghost" size="sm" onClick={goNext}>
+                Saltar por ahora
+              </Button>
+            </div>
             <TemplateEditor
               initialConfig={formData.template}
-              onSave={(config) => {
+              onConfigChange={(config) => {
                 setFormData((previous) => ({ ...previous, template: config }))
-                goNext()
               }}
-              onCancel={goNext}
+              onSave={() => undefined}
+              onCancel={() => undefined}
+              hideActions
+              compactMode
               eventName={formData.name}
             />
           </div>
@@ -312,47 +517,79 @@ export function EventWizard({ onComplete, onCancel, initialData }: EventWizardPr
                 </select>
               ) : null}
             </div>
+            <div className="event-wizard-rps__bulk-actions">
+              <Button type="button" variant="secondary" size="sm" onClick={selectAllRps} disabled={activeRps.length === 0 || allActiveRpsSelected}>
+                Seleccionar todos
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={clearAllRps}
+                disabled={formData.rpAssignments.length === 0}
+              >
+                Limpiar seleccion
+              </Button>
+            </div>
             <p className="text-muted event-wizard-step__subtitle">
               Selecciona los RPs que podran generar accesos para este evento.
             </p>
-            {rpsQuery.data?.filter((rp: RpDTO) => rp.active).length === 0 ? (
+            {activeRps.length === 0 ? (
               <p className="text-warning">No hay RPs activos. Puedes crear el evento y asignarlos despues.</p>
             ) : (
               <div className="rp-selection-grid">
-                {rpsQuery.data
-                  ?.filter((rp: RpDTO) => rp.active)
-                  .map((rp: RpDTO) => {
-                    const isSelected = formData.rpAssignments.some((assignment) => assignment.rpId === rp.id)
-                    const assignment = formData.rpAssignments.find((item) => item.rpId === rp.id)
+                {activeRps.map((rp: RpDTO) => {
+                  const isSelected = formData.rpAssignments.some((assignment) => assignment.rpId === rp.id)
+                  const assignment = formData.rpAssignments.find((item) => item.rpId === rp.id)
 
-                    return (
-                      <div
-                        key={rp.id}
-                        className={`rp-selection-card ${isSelected ? 'rp-selection-card--selected' : ''}`}
-                        onClick={() => toggleRpAssignment(rp.id)}
-                      >
-                        <div className="rp-selection-card__header">
-                          <strong>{rp.user.name}</strong>
-                          <input type="checkbox" checked={isSelected} readOnly />
-                        </div>
-                        <p className="text-muted rp-selection-card__username">{rp.user.username}</p>
-                        {isSelected ? (
-                          <div className="rp-selection-card__limit-wrap" onClick={(event) => event.stopPropagation()}>
-                            <input
-                              type="number"
-                              className="rp-selection-card__limit"
-                              placeholder="Limite (opcional)"
-                              value={assignment?.limit ?? ''}
-                              onChange={(event) => updateRpLimit(rp.id, event.target.value)}
-                              min={1}
-                            />
-                          </div>
-                        ) : null}
+                  return (
+                    <div
+                      key={rp.id}
+                      className={`rp-selection-card ${isSelected ? 'rp-selection-card--selected' : ''}`}
+                      onClick={() => toggleRpAssignment(rp.id)}
+                    >
+                      <div className="rp-selection-card__header">
+                        <strong>{rp.user.name}</strong>
+                        <input type="checkbox" checked={isSelected} readOnly />
                       </div>
-                    )
-                  })}
+                      <p className="text-muted rp-selection-card__username">{rp.user.username}</p>
+                      {isSelected ? (
+                        <div className="rp-selection-card__limit-wrap" onClick={(event) => event.stopPropagation()}>
+                          <input
+                            type="number"
+                            className="rp-selection-card__limit"
+                            placeholder="Limite (opcional)"
+                            value={assignment?.limit ?? ''}
+                            onChange={(event) => updateRpLimit(rp.id, event.target.value)}
+                            min={1}
+                          />
+                        </div>
+                      ) : null}
+                    </div>
+                  )
+                })}
               </div>
             )}
+
+            <div className="event-wizard-rps__scanner-tokens">
+              <h4>Tokens scanner</h4>
+              <p className="text-muted">Genera accesos para staff por token (login rapido).</p>
+              <label>
+                Cantidad de tokens
+                <input
+                  type="number"
+                  min={0}
+                  max={50}
+                  value={formData.scannerTokensCount}
+                  onChange={(event) =>
+                    setFormData((previous) => ({
+                      ...previous,
+                      scannerTokensCount: Math.min(50, Math.max(0, Number(event.target.value) || 0)),
+                    }))
+                  }
+                />
+              </label>
+            </div>
           </div>
         ) : null}
 
@@ -370,11 +607,15 @@ export function EventWizard({ onComplete, onCancel, initialData }: EventWizardPr
               </div>
               <div className="confirm-item">
                 <span className="text-muted">Inicio:</span>
-                <strong>{new Date(formData.startsAt).toLocaleString()}</strong>
+                <strong>{eventWindow ? eventWindow.startsAt.toLocaleString() : '-'}</strong>
               </div>
               <div className="confirm-item">
-                <span className="text-muted">Fin:</span>
-                <strong>{new Date(formData.endsAt).toLocaleString()}</strong>
+                <span className="text-muted">Fin automatico:</span>
+                <strong>{eventWindow ? eventWindow.endsAt.toLocaleString() : '-'}</strong>
+              </div>
+              <div className="confirm-item">
+                <span className="text-muted">Duracion:</span>
+                <strong>{eventWindow?.durationLabel ?? '-'}</strong>
               </div>
               <div className="confirm-item">
                 <span className="text-muted">Plantilla:</span>
@@ -386,33 +627,35 @@ export function EventWizard({ onComplete, onCancel, initialData }: EventWizardPr
                   {formData.rpAssignments.length > 0 ? `${formData.rpAssignments.length} RP(s)` : 'Ninguno (puedes asignar despues)'}
                 </strong>
               </div>
+              <div className="confirm-item">
+                <span className="text-muted">Tokens scanner:</span>
+                <strong>{formData.scannerTokensCount > 0 ? `${formData.scannerTokensCount} por crear` : 'Sin generar'}</strong>
+              </div>
             </div>
           </div>
         ) : null}
       </div>
 
-      {currentStep !== 'design' ? (
-        <div className="wizard-nav">
-          {currentStepIndex > 0 ? (
-            <Button type="button" variant="ghost" onClick={goPrev} disabled={isLoading}>
-              Anterior
-            </Button>
-          ) : null}
-          <div className="wizard-nav__spacer" />
-          {currentStep === 'confirm' ? (
-            <Button type="button" onClick={handleSubmit} loading={isLoading} disabled={!canProceed()}>
-              {isLoading ? 'Creando...' : 'Crear evento'}
-            </Button>
-          ) : (
-            <Button type="button" onClick={goNext} disabled={!canProceed()}>
-              Siguiente
-            </Button>
-          )}
-          <Button type="button" variant="ghost" onClick={onCancel} disabled={isLoading}>
-            Cancelar
+      <div className="wizard-nav">
+        {currentStepIndex > 0 ? (
+          <Button type="button" variant="ghost" onClick={goPrev} disabled={isLoading}>
+            Anterior
           </Button>
-        </div>
-      ) : null}
+        ) : null}
+        <div className="wizard-nav__spacer" />
+        {currentStep === 'confirm' ? (
+          <Button type="button" onClick={handleSubmit} loading={isLoading} disabled={!canProceed()}>
+            {isLoading ? 'Creando...' : 'Crear evento'}
+          </Button>
+        ) : (
+          <Button type="button" onClick={goNext} disabled={!canProceed()}>
+            Siguiente
+          </Button>
+        )}
+        <Button type="button" variant="ghost" onClick={onCancel} disabled={isLoading}>
+          Cancelar
+        </Button>
+      </div>
     </div>
   )
 }

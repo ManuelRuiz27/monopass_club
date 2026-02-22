@@ -15,7 +15,10 @@
     "test:watch": "vitest watch",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "capture:staff-scanner": "playwright test capture_staff_scanner_story.spec.ts --config playwright.screenshots.config.ts",
+    "record:scanner-hero-video": "playwright test record_scanner_hero_video.spec.ts --config playwright.screenshots.config.ts",
+    "record:manager-ops-video": "playwright test record_manager_ops_video.spec.ts --config playwright.screenshots.config.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.16",

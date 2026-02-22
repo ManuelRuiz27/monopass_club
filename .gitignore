@@ -49,3 +49,11 @@ temp/
 test-results/
 playwright-report/
 playwright/.cache/
+
+# Local recording artifacts
+frontend/videos/
+landing/public/assets/videos/scanner-demo-test.webm
+landing/public/assets/videos/frames-new/test-*.png
+
+# Local one-off debug scripts
+check_dims.js

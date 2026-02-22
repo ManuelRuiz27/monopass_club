@@ -146,6 +146,31 @@ export type RpGroupDTO = {
   }>
 }
 
+export type LiveEventDTO = {
+  eventId: string
+  eventName: string
+  startsAt: string
+  endsAt: string
+  inProgress: boolean
+  club: {
+    id: string
+    name: string
+    capacity: number
+  }
+  sentAccesses: number
+  scannedAccesses: number
+  pendingAccesses: number
+  occupancyPercent: number
+}
+
+export type LiveEventsResponse = {
+  filters: {
+    eventId: string | null
+  }
+  serverNow: string
+  events: LiveEventDTO[]
+}
+
 export const managerApi = {
   getClubs: () => coreHttpClient.get<ClubDTO[]>('/clubs'),
   createClub: (payload: { name: string; capacity: number }) => coreHttpClient.post<ClubDTO>('/clubs', payload),
@@ -153,6 +178,12 @@ export const managerApi = {
     coreHttpClient.patch<ClubDTO>(`/clubs/${clubId}`, payload),
   deleteClub: (clubId: string) => coreHttpClient.delete<void>(`/clubs/${clubId}`),
   getEvents: () => coreHttpClient.get<EventDTO[]>('/events'),
+  getLiveEvents: (params?: { eventId?: string }) =>
+    coreHttpClient.get<LiveEventsResponse>('/events/live', {
+      query: {
+        eventId: params?.eventId,
+      },
+    }),
   createEvent: (payload: { clubId: string; name: string; startsAt: string; endsAt: string }) =>
     coreHttpClient.post<EventDTO>('/events', payload),
   updateEvent: (eventId: string, payload: Partial<{ name: string; startsAt: string; endsAt: string; active: boolean }>) =>

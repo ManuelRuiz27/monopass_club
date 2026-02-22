@@ -25,6 +25,11 @@ enum TicketStatus {
   SCANNED
 }
 
+enum TicketDeliveryMethod {
+  WHATSAPP
+  DOWNLOAD
+}
+
 enum LandingOrderStatus {
   PENDING
   PAID
@@ -125,6 +130,7 @@ model RpProfile {
   updatedAt   DateTime  @updatedAt
   assignments EventRp[]
   tickets     Ticket[]
+  deliveries  TicketDelivery[]
   cuts        Cut[]
   groups      RpGroup[]
 }
@@ -171,8 +177,19 @@ model Ticket {
   status          TicketStatus            @default(PENDING)
   createdAt       DateTime                @default(now())
   updatedAt       DateTime                @updatedAt
+  deliveries      TicketDelivery[]
   scan            TicketScan?
   confirmRequests ScannerConfirmRequest[]
+}
+
+model TicketDelivery {
+  id        String               @id
+  ticket    Ticket               @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  ticketId  String
+  rp        RpProfile            @relation(fields: [rpId], references: [id], onDelete: Cascade)
+  rpId      String
+  method    TicketDeliveryMethod
+  createdAt DateTime             @default(now())
 }
 
 model TicketScan {

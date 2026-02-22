@@ -1,6 +1,8 @@
-﻿import { coreHttpClient } from '@/lib/httpClient'
+import { coreHttpClient } from '@/lib/httpClient'
+import { rpMockApi, rpMockEnabled } from './mock'
 
 export type GuestType = 'GENERAL' | 'VIP' | 'OTHER'
+export type TicketDeliveryMethod = 'WHATSAPP' | 'DOWNLOAD'
 
 export type RpEventAssignment = {
   assignmentId: string
@@ -47,10 +49,10 @@ export type TicketHistoryItem = {
   id: string
   guestType: GuestType
   displayLabel: string
-  status: string
   note: string | null
   createdAt: string
-  scannedAt: string | null
+  deliveryMethod: TicketDeliveryMethod | null
+  deliveryAt: string | null
   event: {
     id: string
     name: string
@@ -65,11 +67,22 @@ export type TicketHistoryResponse = {
 }
 
 export const rpApi = {
-  getEvents: () => coreHttpClient.get<RpEventsResponse>('/rp/events'),
-  createTicket: (payload: CreateTicketPayload) => coreHttpClient.post<CreateTicketResponse>('/tickets', payload),
+  getEvents: () => (rpMockEnabled ? rpMockApi.getEvents() : coreHttpClient.get<RpEventsResponse>('/rp/events')),
+  createTicket: (payload: CreateTicketPayload) =>
+    rpMockEnabled ? rpMockApi.createTicket(payload) : coreHttpClient.post<CreateTicketResponse>('/tickets', payload),
   getTicketHistory: (guestType?: GuestType) =>
-    coreHttpClient.get<TicketHistoryResponse>('/rp/tickets/history', {
-      query: { guestType },
-    }),
-  getTicketImage: (ticketId: string) => coreHttpClient.getBlob(`/tickets/${ticketId}/png`),
+    rpMockEnabled
+      ? rpMockApi.getTicketHistory(guestType)
+      : coreHttpClient.get<TicketHistoryResponse>('/rp/tickets/history', {
+          query: { guestType },
+        }),
+  trackTicketDelivery: (ticketId: string, method: TicketDeliveryMethod) =>
+    rpMockEnabled
+      ? rpMockApi.trackTicketDelivery(ticketId, method)
+      : coreHttpClient.post<{ ok: boolean; ticketId: string; method: TicketDeliveryMethod; deliveredAt: string }>(
+          `/rp/tickets/${ticketId}/delivery`,
+          { method },
+        ),
+  getTicketImage: (ticketId: string) =>
+    rpMockEnabled ? rpMockApi.getTicketImage(ticketId) : coreHttpClient.getBlob(`/tickets/${ticketId}/png`),
 }

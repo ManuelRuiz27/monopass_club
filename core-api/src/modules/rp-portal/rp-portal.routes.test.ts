@@ -6,7 +6,7 @@ import path from 'node:path'
 import { buildServer } from '../../server'
 import { prisma } from '../../lib/prisma'
 import { hashPassword } from '../../lib/password'
-import { TicketType, UserRole } from '@prisma/client'
+import { TicketDeliveryMethod, TicketType, UserRole } from '@prisma/client'
 import { Jimp } from 'jimp'
 
 describe.sequential('RP portal endpoints', () => {
@@ -15,15 +15,48 @@ describe.sequential('RP portal endpoints', () => {
   const templateImagePath = path.resolve(__dirname, '../../../../frontend/src/stories/assets/assets.png')
   const templateDataUrl = `data:image/png;base64,${readFileSync(templateImagePath).toString('base64')}`
   let templateReferenceColor: number
+  let createdTicketDeliveryTypeForTests = false
+  let createdTicketDeliveryTableForTests = false
 
   beforeAll(async () => {
     app = await buildServer()
     await app.ready()
+    const ticketDeliveryTypeExists = await prisma.$queryRawUnsafe<Array<{ exists: boolean }>>(
+      `SELECT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'TicketDeliveryMethod') AS "exists";`,
+    )
+    if (!ticketDeliveryTypeExists[0]?.exists) {
+      await prisma.$executeRawUnsafe(`CREATE TYPE "TicketDeliveryMethod" AS ENUM ('WHATSAPP', 'DOWNLOAD');`)
+      createdTicketDeliveryTypeForTests = true
+    }
+
+    const ticketDeliveryTableExists = await prisma.$queryRawUnsafe<Array<{ exists: boolean }>>(
+      `SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'TicketDelivery') AS "exists";`,
+    )
+    if (!ticketDeliveryTableExists[0]?.exists) {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE "TicketDelivery" (
+          "id" TEXT NOT NULL,
+          "ticketId" TEXT NOT NULL,
+          "rpId" TEXT NOT NULL,
+          "method" "TicketDeliveryMethod" NOT NULL,
+          "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          CONSTRAINT "TicketDelivery_pkey" PRIMARY KEY ("id")
+        );
+      `)
+      createdTicketDeliveryTableForTests = true
+    }
+
     const templateReferenceImage = await Jimp.read(templateImagePath)
     templateReferenceColor = templateReferenceImage.getPixelColor(5, 5)
   })
 
   afterAll(async () => {
+    if (createdTicketDeliveryTableForTests) {
+      await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS "TicketDelivery";`)
+    }
+    if (createdTicketDeliveryTypeForTests) {
+      await prisma.$executeRawUnsafe(`DROP TYPE IF EXISTS "TicketDeliveryMethod";`)
+    }
     await app.close()
   })
 
@@ -252,6 +285,94 @@ describe.sequential('RP portal endpoints', () => {
     const forbiddenResponse = await request(app.server)
       .get(`/tickets/${createResponse.body.id}/png`)
       .set('Authorization', `Bearer ${rpOther.token}`)
+
+    expect(forbiddenResponse.status).toBe(404)
+  })
+
+  test('GET /rp/tickets/history expone canal y hora de envio sin datos de escaneo', async () => {
+    const manager = await createManager()
+    const { profile, token } = await createRp(manager.id)
+    const { assignment } = await createEventWithAssignment(manager.id, profile.id, null)
+
+    const createdTicket = await prisma.ticket.create({
+      data: {
+        id: randomUUID(),
+        eventId: assignment.eventId,
+        rpId: profile.id,
+        assignmentId: assignment.id,
+        guestType: TicketType.GENERAL,
+        qrToken: randomUUID(),
+      },
+    })
+
+    await prisma.ticketScan.create({
+      data: {
+        id: randomUUID(),
+        ticketId: createdTicket.id,
+      },
+    })
+
+    const createdDelivery = await prisma.ticketDelivery.create({
+      data: {
+        id: randomUUID(),
+        ticketId: createdTicket.id,
+        rpId: profile.id,
+        method: TicketDeliveryMethod.WHATSAPP,
+      },
+    })
+
+    const response = await request(app.server).get('/rp/tickets/history').set('Authorization', `Bearer ${token}`)
+
+    expect(response.status).toBe(200)
+    expect(response.body.tickets).toHaveLength(1)
+    expect(response.body.tickets[0].id).toBe(createdTicket.id)
+    expect(response.body.tickets[0].deliveryMethod).toBe(TicketDeliveryMethod.WHATSAPP)
+    expect(new Date(response.body.tickets[0].deliveryAt).toISOString()).toBe(createdDelivery.createdAt.toISOString())
+    expect(response.body.tickets[0].scan).toBeUndefined()
+    expect(response.body.tickets[0].scannedAt).toBeUndefined()
+  })
+
+  test('POST /rp/tickets/:ticketId/delivery registra envio y evita registrar tickets de otro RP', async () => {
+    const manager = await createManager()
+    const owner = await createRp(manager.id)
+    const other = await createRp(manager.id)
+    const { assignment } = await createEventWithAssignment(manager.id, owner.profile.id, null)
+
+    const ticket = await prisma.ticket.create({
+      data: {
+        id: randomUUID(),
+        eventId: assignment.eventId,
+        rpId: owner.profile.id,
+        assignmentId: assignment.id,
+        guestType: TicketType.VIP,
+        qrToken: randomUUID(),
+      },
+    })
+
+    const response = await request(app.server)
+      .post(`/rp/tickets/${ticket.id}/delivery`)
+      .set('Authorization', `Bearer ${owner.token}`)
+      .send({ method: TicketDeliveryMethod.DOWNLOAD })
+
+    expect(response.status).toBe(200)
+    expect(response.body.ok).toBe(true)
+    expect(response.body.ticketId).toBe(ticket.id)
+    expect(response.body.method).toBe(TicketDeliveryMethod.DOWNLOAD)
+    expect(response.body.deliveredAt).toBeTruthy()
+
+    const createdDelivery = await prisma.ticketDelivery.findFirst({
+      where: {
+        ticketId: ticket.id,
+        rpId: owner.profile.id,
+        method: TicketDeliveryMethod.DOWNLOAD,
+      },
+    })
+    expect(createdDelivery).not.toBeNull()
+
+    const forbiddenResponse = await request(app.server)
+      .post(`/rp/tickets/${ticket.id}/delivery`)
+      .set('Authorization', `Bearer ${other.token}`)
+      .send({ method: TicketDeliveryMethod.WHATSAPP })
 
     expect(forbiddenResponse.status).toBe(404)
   })

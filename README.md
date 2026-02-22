@@ -44,18 +44,39 @@ Importante: usa el mismo valor de `JWT_SECRET` en `core-api` y `scanner-service`
 
 Cada vez que el schema cambie, `npm run prisma:generate` (o `npm run prisma:generate -w core-api`) ejecuta `scripts/sync-prisma-client.cjs`, copiando los artefactos de `@prisma/client` y `.prisma` hacia `node_modules` raiz y el workspace `scanner-service` (si existe su `node_modules`). Esto evita pasos manuales para que ambos servicios compartan exactamente el mismo cliente.
 
-## Deploy Render + Supabase (sin Docker)
-Usa el blueprint `render.yaml` o configura el servicio manualmente con estos comandos:
-- Build: `npm install && npm run prisma:generate -w core-api && npm run build -w core-api`
-- Start: `npm run prisma:migrate -w core-api && npm run start -w core-api`
+## Deploy en Render con Blueprint (monorepo completo)
+El archivo `render.yaml` despliega:
+- `monopass-db` (PostgreSQL administrado en Render)
+- `core-api` (Fastify + Prisma)
+- `scanner-service` (Fastify)
+- `monopass-frontend` (sitio estatico Vite)
+- `monopass-landing` (sitio estatico Vite)
 
-Variables en Render:
-- `DATABASE_URL=postgresql://postgres:<password>@db.<ref>.supabase.co:5432/postgres?sslmode=require`
-- `JWT_SECRET=<min-16-chars>`
-- `CORE_API_BASE_URL=https://<tu-servicio>.onrender.com`
-- `SCANNER_API_BASE_URL=https://<tu-scanner>.onrender.com` (si aplica)
+Pasos:
+1. En Render: `New +` -> `Blueprint`.
+2. Conecta el repo y selecciona la rama.
+3. Render detectara `render.yaml` y creara los 5 recursos.
+4. Completa las variables marcadas con `sync: false`:
+   - `core-api`: `CORS_ALLOWED_ORIGINS`, `MP_ACCESS_TOKEN`, `MP_WEBHOOK_SECRET`, `APP_PUBLIC_BASE_URL`, `APP_LOGIN_URL`, `RESEND_API_KEY`, `RESEND_FROM_EMAIL`.
+   - `scanner-service`: `CORE_API_BASE_URL` (URL publica de `core-api`).
+   - `monopass-frontend`: `VITE_CORE_API_BASE_URL`, `VITE_SCANNER_API_BASE_URL`.
+   - `monopass-landing`: `VITE_CORE_API_BASE_URL`.
+5. Despues del primer deploy, valida:
+   - `GET https://<core-api>.onrender.com/health`
+   - `GET https://<scanner-service>.onrender.com/health`
+   - `GET https://<core-api>.onrender.com/landing/pricing`
 
-Render provee `PORT`. Verifica `GET /health` luego del deploy.
+Notas:
+- `JWT_SECRET` en `core-api` se genera automaticamente y `scanner-service` lo hereda desde el blueprint.
+- `DATABASE_URL` se enlaza automaticamente desde `monopass-db`.
+- Los sitios estaticos incluyen rewrite SPA a `index.html`, necesario para rutas como `/checkout/success`.
+
+## Deploy en Render solo para Landing (sin frontend manager/rp/scanner)
+Si por ahora solo quieres produccion de landing, usa `render.landing.yaml` en el Blueprint de Render.
+Ese blueprint crea un stack minimo:
+- `monopass-db`
+- `core-api`
+- `monopass-landing`
 
 ## Storybook + pruebas
 Instala los navegadores una sola vez:

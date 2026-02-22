@@ -3,6 +3,7 @@ import { Outlet, Navigate } from 'react-router-dom'
 import type { RouteObject } from 'react-router-dom'
 
 const DashboardPage = lazy(async () => ({ default: (await import('@/features/manager/pages/DashboardPage')).DashboardPage }))
+const LivePage = lazy(async () => ({ default: (await import('@/features/manager/pages/LivePage')).LivePage }))
 const ClubsPage = lazy(async () => ({ default: (await import('@/features/manager/pages/ClubsPage')).ClubsPage }))
 const EventsPage = lazy(async () => ({ default: (await import('@/features/manager/pages/EventsPage')).EventsPage }))
 const EventDetailPage = lazy(async () => ({ default: (await import('@/features/manager/pages/EventDetailPage')).EventDetailPage }))
@@ -11,7 +12,6 @@ const RpGroupsPage = lazy(async () => ({ default: (await import('@/features/mana
 const ScannerStaffPage = lazy(async () => ({ default: (await import('@/features/manager/pages/ScannerStaffPage')).ScannerStaffPage }))
 const SettingsPage = lazy(async () => ({ default: (await import('@/features/manager/pages/SettingsPage')).SettingsPage }))
 const CutsPage = lazy(async () => ({ default: (await import('@/features/manager/pages/CutsPage')).CutsPage }))
-const TemplatePage = lazy(async () => ({ default: (await import('@/features/manager/pages/TemplatePage')).TemplatePage }))
 const TeamLayout = lazy(async () => ({ default: (await import('@/features/manager/pages/TeamLayout')).TeamLayout }))
 
 function lazyElement(node: ReactNode) {
@@ -20,15 +20,15 @@ function lazyElement(node: ReactNode) {
 
 export const managerRoutes: RouteObject[] = [
   { index: true, element: lazyElement(<DashboardPage />) },
+  { path: 'live', element: lazyElement(<LivePage />) },
   { path: 'events', element: lazyElement(<EventsPage />) },
   { path: 'events/:eventId', element: lazyElement(<EventDetailPage />) },
   { path: 'cuts', element: lazyElement(<CutsPage />) },
-  { path: 'template', element: lazyElement(<TemplatePage />) },
   { path: 'settings', element: lazyElement(<SettingsPage />) },
-  { path: 'clubs', element: lazyElement(<ClubsPage />) },
-  { path: 'rps', element: lazyElement(<RpsPage />) },
-  { path: 'groups', element: lazyElement(<RpGroupsPage />) },
-  { path: 'staff', element: lazyElement(<ScannerStaffPage />) },
+  { path: 'clubs', element: <Navigate to="/manager/team/clubs" replace /> },
+  { path: 'rps', element: <Navigate to="/manager/team/rps" replace /> },
+  { path: 'groups', element: <Navigate to="/manager/team/groups" replace /> },
+  { path: 'staff', element: <Navigate to="/manager/team/staff" replace /> },
   {
     path: 'team',
     element: lazyElement(<TeamLayout />),

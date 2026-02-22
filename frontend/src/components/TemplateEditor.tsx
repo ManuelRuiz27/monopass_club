@@ -22,8 +22,11 @@ type TemplateEditorProps = {
   initialConfig?: Partial<TemplateConfig>
   onSave: (config: TemplateConfig) => void
   onCancel: () => void
+  onConfigChange?: (config: TemplateConfig) => void
   isSaving?: boolean
   eventName?: string
+  hideActions?: boolean
+  compactMode?: boolean
 }
 
 const clampValue = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max)
@@ -34,7 +37,16 @@ const clampPosition = (value: number, size: number) => {
   return clampValue(value, min, max)
 }
 
-export function TemplateEditor({ initialConfig, onSave, onCancel, isSaving, eventName }: TemplateEditorProps) {
+export function TemplateEditor({
+  initialConfig,
+  onSave,
+  onCancel,
+  onConfigChange,
+  isSaving,
+  eventName,
+  hideActions = false,
+  compactMode = false,
+}: TemplateEditorProps) {
   const [template, setTemplate] = useState<TemplateConfig>(() => ({
     ...defaultTemplateConfig,
     ...initialConfig,
@@ -45,11 +57,19 @@ export function TemplateEditor({ initialConfig, onSave, onCancel, isSaving, even
   const pointerPositions = useRef(new Map<number, { x: number; y: number }>())
   const pinchState = useRef<{ distance: number; size: number } | null>(null)
 
+  const applyTemplate = (updater: (previous: TemplateConfig) => TemplateConfig) => {
+    setTemplate((previous) => {
+      const next = updater(previous)
+      onConfigChange?.(next)
+      return next
+    })
+  }
+
   const handleImageUpload = (file: File | null) => {
     if (!file) return
     const reader = new FileReader()
     reader.onload = () => {
-      setTemplate((previous) => ({ ...previous, templateImageUrl: reader.result as string }))
+      applyTemplate((previous) => ({ ...previous, templateImageUrl: reader.result as string }))
     }
     reader.readAsDataURL(file)
   }
@@ -93,7 +113,7 @@ export function TemplateEditor({ initialConfig, onSave, onCancel, isSaving, even
       const distance = Math.hypot(second.x - first.x, second.y - first.y)
       const ratio = distance / pinchState.current.distance
       const nextSize = clampValue(pinchState.current.size * ratio, MIN_QR_SIZE, MAX_QR_SIZE)
-      setTemplate((previous) => ({
+      applyTemplate((previous) => ({
         ...previous,
         qrSize: Number(nextSize.toFixed(3)),
         qrPositionX: clampPosition(previous.qrPositionX, nextSize),
@@ -105,7 +125,11 @@ export function TemplateEditor({ initialConfig, onSave, onCancel, isSaving, even
     if (!isDragging || dragPointerId.current !== event.pointerId) return
     const nextX = clampPosition((event.clientX - rect.left) / rect.width, template.qrSize)
     const nextY = clampPosition((event.clientY - rect.top) / rect.height, template.qrSize)
-    setTemplate((previous) => ({ ...previous, qrPositionX: Number(nextX.toFixed(3)), qrPositionY: Number(nextY.toFixed(3)) }))
+    applyTemplate((previous) => ({
+      ...previous,
+      qrPositionX: Number(nextX.toFixed(3)),
+      qrPositionY: Number(nextY.toFixed(3)),
+    }))
   }
 
   const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -126,6 +150,7 @@ export function TemplateEditor({ initialConfig, onSave, onCancel, isSaving, even
 
   const handleReset = () => {
     setTemplate(defaultTemplateConfig)
+    onConfigChange?.(defaultTemplateConfig)
   }
 
   const handleSubmit = (event: FormEvent) => {
@@ -133,14 +158,27 @@ export function TemplateEditor({ initialConfig, onSave, onCancel, isSaving, even
     onSave(template)
   }
 
+  const updateQrSize = (nextSize: number) => {
+    applyTemplate((previous) => ({
+      ...previous,
+      qrSize: nextSize,
+      qrPositionX: clampPosition(previous.qrPositionX, nextSize),
+      qrPositionY: clampPosition(previous.qrPositionY, nextSize),
+    }))
+  }
+
   const qrSizePercent = `${Math.round(template.qrSize * 100)}%`
+  const title = `Editar plantilla ${eventName ? `- ${eventName}` : ''}`
+  const subtitle = 'Arrastra una imagen y posiciona el QR donde aparecera en el ticket.'
 
   return (
     <div className="template-editor">
-      <header className="template-editor__header">
-        <h4 className="template-editor__title">Editar plantilla {eventName ? `- ${eventName}` : ''}</h4>
-        <p className="text-muted template-editor__subtitle">Arrastra una imagen y posiciona el QR donde aparecera en el ticket.</p>
-      </header>
+      {!compactMode ? (
+        <header className="template-editor__header">
+          <h4 className="template-editor__title">{title}</h4>
+          <p className="text-muted template-editor__subtitle">{subtitle}</p>
+        </header>
+      ) : null}
 
       <form onSubmit={handleSubmit}>
         <div
@@ -153,10 +191,10 @@ export function TemplateEditor({ initialConfig, onSave, onCancel, isSaving, even
               <span className="material-symbols-outlined template-dropzone__icon" aria-hidden="true">
                 add_photo_alternate
               </span>
-              <p>Arrastra una imagen aqui</p>
+              <p>{compactMode ? 'Arrastra tu imagen aqui' : 'Arrastra una imagen aqui'}</p>
               <span className="text-muted">o</span>
               <label className="button button--ghost template-editor__file-trigger">
-                Seleccionar archivo
+                {compactMode ? 'Subir imagen' : 'Seleccionar archivo'}
                 <input
                   className="template-editor__file-input"
                   type="file"
@@ -167,9 +205,9 @@ export function TemplateEditor({ initialConfig, onSave, onCancel, isSaving, even
             </div>
           ) : (
             <div className="template-editor__loaded">
-              <span className="badge badge--success">Imagen cargada</span>
+              <span className="badge badge--success">{compactMode ? 'Imagen cargada' : 'Imagen cargada'}</span>
               <label className="button button--ghost template-editor__file-trigger template-editor__file-trigger--compact">
-                Cambiar imagen
+                {compactMode ? 'Cambiar imagen' : 'Cambiar imagen'}
                 <input
                   className="template-editor__file-input"
                   type="file"
@@ -181,68 +219,66 @@ export function TemplateEditor({ initialConfig, onSave, onCancel, isSaving, even
           )}
         </div>
 
-        <div className="form-grid template-editor__size">
-          <label>
-            Tamano del QR ({qrSizePercent})
-            <input
-              type="range"
-              min={MIN_QR_SIZE}
-              max={MAX_QR_SIZE}
-              step={0.01}
-              value={template.qrSize}
-              onChange={(event) => {
-                const nextSize = Number(event.target.value)
-                setTemplate((previous) => ({
-                  ...previous,
-                  qrSize: nextSize,
-                  qrPositionX: clampPosition(previous.qrPositionX, nextSize),
-                  qrPositionY: clampPosition(previous.qrPositionY, nextSize),
-                }))
-              }}
-            />
-          </label>
-        </div>
-
         <section className="template-editor__preview">
-          <h5 className="template-editor__preview-title">Preview</h5>
-          <p className="text-subtle template-editor__preview-hint">Arrastra el QR para posicionarlo. Pellizca para escalar.</p>
-          <div
-            ref={canvasRef}
-            className="template-canvas template-editor__canvas"
-            style={{
-              backgroundImage: template.templateImageUrl ? `url(${template.templateImageUrl})` : undefined,
-            }}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerLeave={handlePointerUp}
-            onPointerCancel={handlePointerUp}
-          >
+          {!compactMode ? (
+            <>
+              <h5 className="template-editor__preview-title">Preview</h5>
+              <p className="text-subtle template-editor__preview-hint">Arrastra el QR para posicionarlo. Pellizca para escalar.</p>
+            </>
+          ) : null}
+          <div className="template-editor__preview-stage">
             <div
-              onPointerDown={handlePointerDown}
-              className={`template-qr ${isDragging ? 'template-qr--dragging' : ''}`}
+              ref={canvasRef}
+              className="template-canvas template-editor__canvas"
               style={{
-                width: `${template.qrSize * 100}%`,
-                paddingBottom: `${template.qrSize * 100}%`,
-                left: `${template.qrPositionX * 100}%`,
-                top: `${template.qrPositionY * 100}%`,
+                backgroundImage: template.templateImageUrl ? `url(${template.templateImageUrl})` : undefined,
               }}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
+              onPointerLeave={handlePointerUp}
+              onPointerCancel={handlePointerUp}
             >
-              QR
+              <div
+                onPointerDown={handlePointerDown}
+                className={`template-qr ${isDragging ? 'template-qr--dragging' : ''}`}
+                style={{
+                  width: `${template.qrSize * 100}%`,
+                  paddingBottom: `${template.qrSize * 100}%`,
+                  left: `${template.qrPositionX * 100}%`,
+                  top: `${template.qrPositionY * 100}%`,
+                }}
+              >
+                QR
+              </div>
+            </div>
+            <div className="template-editor__preview-slider" title={`Tamano QR: ${qrSizePercent}`}>
+              <input
+                type="range"
+                className="template-editor__size-slider template-editor__size-slider--vertical"
+                min={MIN_QR_SIZE}
+                max={MAX_QR_SIZE}
+                step={0.01}
+                value={template.qrSize}
+                onChange={(event) => updateQrSize(Number(event.target.value))}
+                aria-label="Tamano del QR"
+              />
             </div>
           </div>
         </section>
 
-        <div className="template-editor__actions">
-          <Button type="submit" loading={Boolean(isSaving)}>
-            {isSaving ? 'Guardando...' : 'Guardar plantilla'}
-          </Button>
-          <Button type="button" variant="ghost" onClick={handleReset}>
-            Restablecer
-          </Button>
-          <Button type="button" variant="ghost" onClick={onCancel}>
-            Cancelar
-          </Button>
-        </div>
+        {!hideActions ? (
+          <div className="template-editor__actions">
+            <Button type="submit" loading={Boolean(isSaving)}>
+              {isSaving ? 'Guardando...' : 'Guardar plantilla'}
+            </Button>
+            <Button type="button" variant="ghost" onClick={handleReset}>
+              Restablecer
+            </Button>
+            <Button type="button" variant="ghost" onClick={onCancel}>
+              Cancelar
+            </Button>
+          </div>
+        ) : null}
       </form>
     </div>
   )

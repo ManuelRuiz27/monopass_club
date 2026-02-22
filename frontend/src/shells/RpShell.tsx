@@ -5,7 +5,6 @@ import { PagePlaceholder } from '@/components/PagePlaceholder'
 import { useGsapRouteTransition } from '@/lib/motion/useGsapRouteTransition'
 
 const RpEventsPage = lazy(async () => ({ default: (await import('@/features/rp/pages/RpEventsPage')).RpEventsPage }))
-const RpGeneratePage = lazy(async () => ({ default: (await import('@/features/rp/pages/RpGeneratePage')).RpGeneratePage }))
 const RpGeneratedPage = lazy(async () => ({ default: (await import('@/features/rp/pages/RpGeneratedPage')).RpGeneratedPage }))
 const HistoryPage = lazy(async () => ({ default: (await import('@/features/rp/pages/HistoryPage')).HistoryPage }))
 const ProfilePage = lazy(async () => ({ default: (await import('@/features/rp/pages/ProfilePage')).ProfilePage }))
@@ -27,11 +26,6 @@ const sections: Section[] = [
     label: 'Mis eventos',
     path: 'events',
     element: lazyElement(<RpEventsPage />),
-  },
-  {
-    label: 'Generar acceso',
-    path: 'generate/:assignmentId',
-    element: lazyElement(<RpGeneratePage />),
   },
   {
     label: 'Acceso generado',
@@ -72,7 +66,7 @@ export function RpShell() {
   useGsapRouteTransition(shellRef, location.key || location.pathname)
 
   return (
-    <div ref={shellRef} className="motion-route-shell">
+    <div ref={shellRef} className="motion-route-shell role-shell role-shell--rp">
       <div data-gsap-route-panel>
         <Outlet />
       </div>

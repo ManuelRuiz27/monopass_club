@@ -18,7 +18,6 @@ type MockLeadBody = {
   club?: string
   city?: string
   phone?: string
-  estimatedVolume?: number
 }
 
 declare global {
@@ -177,7 +176,7 @@ export function installMockBackend() {
 
     if (mockPath === 'leads' && method === 'POST') {
       const payload = parseJsonBody(init?.body) as MockLeadBody
-      if (!payload.name || !payload.club || !payload.city || !payload.phone || !payload.estimatedVolume) {
+      if (!payload.name || !payload.club || !payload.city || !payload.phone) {
         return jsonResponse({ message: 'Datos incompletos para registrar lead.' }, 400)
       }
       persistLead(payload)

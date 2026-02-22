@@ -3,8 +3,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { managerApi, type RpDTO } from '../api'
 import { useToast } from '@/components/ToastProvider'
 import { BottomSheet, Button, CardEmptyState, PageErrorState, PageLoadingState } from '@/components/ui'
+import {
+  buildWelcomeMessage,
+  buildWhatsappShareUrl,
+  createUserWithAutoCredentials,
+} from '../utils/userCredentials'
 
-const defaultRpForm = { name: 'Nuevo RP', username: '', password: 'changeme123' }
+const defaultRpForm = { name: 'Nuevo RP' }
 const RP_PAGE_SIZE = 12
 const RP_ASSIGNMENTS_PAGE_SIZE = 10
 
@@ -18,6 +23,13 @@ export function RpsPage() {
   const rpsQuery = useQuery({ queryKey: ['rps'], queryFn: managerApi.getRps })
   const eventsQuery = useQuery({ queryKey: ['events'], queryFn: managerApi.getEvents })
   const [form, setForm] = useState(defaultRpForm)
+  const [recentUsernames, setRecentUsernames] = useState<string[]>([])
+  const [lastRpInvite, setLastRpInvite] = useState<{
+    name: string
+    username: string
+    password: string
+    message: string
+  } | null>(null)
 
   const [statusFilter, setStatusFilter] = useState('')
   const [eventFilter, setEventFilter] = useState('')
@@ -35,12 +47,58 @@ export function RpsPage() {
   const [rpsPage, setRpsPage] = useState(0)
   const [assignmentsPage, setAssignmentsPage] = useState(0)
 
+  const takenRpUsernames = useMemo(() => {
+    const taken = new Set<string>()
+    ;(rpsQuery.data ?? []).forEach((rp) => taken.add(rp.user.username.toLowerCase()))
+    recentUsernames.forEach((username) => taken.add(username.toLowerCase()))
+    return taken
+  }, [recentUsernames, rpsQuery.data])
+
   const createRp = useMutation({
-    mutationFn: () => managerApi.createRp(form),
-    onSuccess: () => {
+    mutationFn: async () => {
+      const name = form.name.trim()
+      if (!name) {
+        throw new Error('Escribe el nombre del RP.')
+      }
+
+      const loginUrl = `${window.location.origin}/login`
+      const { username, password } = await createUserWithAutoCredentials({
+        displayName: name,
+        takenUsernames: new Set(takenRpUsernames),
+        createUser: ({ username: generatedUsername, password: generatedPassword }) =>
+          managerApi.createRp({
+            name,
+            username: generatedUsername,
+            password: generatedPassword,
+          }),
+      })
+
+      return {
+        name,
+        username,
+        password,
+        message: buildWelcomeMessage({
+          profileName: name,
+          username,
+          password,
+          loginUrl,
+          role: 'rp',
+        }),
+      }
+    },
+    onSuccess: (invite) => {
       toast.showToast({ title: 'RP creado', variant: 'success' })
       queryClient.invalidateQueries({ queryKey: ['rps'] })
       setForm(defaultRpForm)
+      setRecentUsernames((previous) => [...previous, invite.username])
+      setLastRpInvite(invite)
+    },
+    onError: (error: unknown) => {
+      toast.showToast({
+        title: 'No se pudo crear el RP',
+        description: error instanceof Error ? error.message : undefined,
+        variant: 'error',
+      })
     },
   })
 
@@ -148,17 +206,30 @@ export function RpsPage() {
     setIsFilterSheetOpen(false)
   }
 
+  const copyInviteMessage = async () => {
+    if (!lastRpInvite) return
+    try {
+      await navigator.clipboard.writeText(lastRpInvite.message)
+      toast.showToast({ title: 'Mensaje copiado', variant: 'success' })
+    } catch {
+      toast.showToast({ title: 'No se pudo copiar el mensaje', variant: 'warning' })
+    }
+  }
+
   return (
     <div className="manager-rps-page">
       <header className="manager-rps-page__header">
         <div>
-          <h3 className="manager-rps-page__title">Relaciones Publicas</h3>
+          <h3 className="manager-rps-page__title">Integra a tu equipo a Pass Monkey</h3>
           <p className="text-muted manager-rps-page__subtitle">Administra cuentas RP y sus asignaciones por evento.</p>
         </div>
       </header>
 
       <section className="card manager-rps-form-card">
         <h4 className="manager-rps-form-card__title">Crear RP</h4>
+        <p className="text-muted manager-rps-form-card__subtitle">
+          Solo escribe el nombre. El sistema genera usuario y contrasena automaticamente.
+        </p>
         <form
           className="form-grid manager-rps-form"
           onSubmit={(event) => {
@@ -170,27 +241,28 @@ export function RpsPage() {
             Nombre
             <input value={form.name} onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))} required />
           </label>
-          <label>
-            Username
-            <input
-              value={form.username}
-              onChange={(event) => setForm((prev) => ({ ...prev, username: event.target.value }))}
-              required
-            />
-          </label>
-          <label>
-            Password temporal
-            <input
-              type="password"
-              value={form.password}
-              onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
-              required
-            />
-          </label>
           <Button type="submit" loading={createRp.isPending}>
             {createRp.isPending ? 'Creando...' : 'Crear RP'}
           </Button>
         </form>
+        {lastRpInvite ? (
+          <div className="manager-credentials-share">
+            <p className="manager-credentials-share__title">Mensaje para WhatsApp</p>
+            <textarea className="manager-credentials-share__message" value={lastRpInvite.message} readOnly rows={4} />
+            <div className="manager-credentials-share__actions">
+              <Button type="button" variant="secondary" size="sm" onClick={copyInviteMessage}>
+                Copiar mensaje
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => window.open(buildWhatsappShareUrl(lastRpInvite.message), '_blank', 'noopener,noreferrer')}
+              >
+                Abrir WhatsApp
+              </Button>
+            </div>
+          </div>
+        ) : null}
       </section>
 
       <section className="manager-rps-toolbar">

@@ -9,6 +9,7 @@ import { usePrefersReducedMotion } from '@/lib/motion/usePrefersReducedMotion'
 const navByRole: Record<UserRole, Array<{ to: string; label: string; icon: string }>> = {
   MANAGER: [
     { to: '/manager', label: 'Dashboard', icon: 'dashboard' },
+    { to: '/manager/live', label: 'Live', icon: 'monitor_heart' },
     { to: '/manager/team', label: 'Equipo', icon: 'groups' },
     { to: '/manager/events', label: 'Eventos', icon: 'event' },
     { to: '/manager/cuts', label: 'Cortes', icon: 'monitoring' },
@@ -20,7 +21,6 @@ const navByRole: Record<UserRole, Array<{ to: string; label: string; icon: strin
   ],
   SCANNER: [
     { to: '/scanner', label: 'Escanear', icon: 'qr_code_scanner' },
-    { to: '/scanner/cuts', label: 'Cortes', icon: 'analytics' },
   ],
   DIRECTOR: [
     { to: '/director', label: 'Dashboard', icon: 'dashboard' },
@@ -32,12 +32,59 @@ const navByRole: Record<UserRole, Array<{ to: string; label: string; icon: strin
 
 const secondaryNav: Record<UserRole, Array<{ to: string; label: string; icon: string }>> = {
   MANAGER: [
-    { to: '/manager/template', label: 'Plantilla', icon: 'image' },
     { to: '/manager/settings', label: 'Config', icon: 'settings' },
   ],
   RP: [],
   SCANNER: [],
   DIRECTOR: [{ to: '/director/status', label: 'Estados', icon: 'insights' }],
+}
+
+const roleHeaderCopy: Record<UserRole, { label: string; subtitle: string; pill: string; fallbackName: string }> = {
+  MANAGER: {
+    label: 'Operacion de club',
+    subtitle: 'Control de aforo, ventas y equipo en una vista',
+    pill: 'MANAGER APP',
+    fallbackName: 'Gerardo Alvarez',
+  },
+  RP: {
+    label: 'RP Sales Control',
+    subtitle: 'Convierte tu flyer en acceso y acelera ventas',
+    pill: 'RP APP',
+    fallbackName: 'Sofia Ramirez',
+  },
+  SCANNER: {
+    label: 'Control de puerta',
+    subtitle: 'Validacion rapida y fila en movimiento',
+    pill: 'STAFF APP',
+    fallbackName: 'Axel Cruz',
+  },
+  DIRECTOR: {
+    label: 'Vista directiva',
+    subtitle: 'Lectura consolidada del negocio',
+    pill: 'DIRECTOR APP',
+    fallbackName: 'Valeria Torres',
+  },
+}
+
+function resolveDisplayName(rawUserId: string | undefined, role: UserRole) {
+  const fallback = roleHeaderCopy[role].fallbackName
+  if (!rawUserId) return fallback
+
+  const normalized = rawUserId.trim()
+  if (!normalized) return fallback
+
+  const isUuidLike = normalized.length >= 24 && normalized.includes('-')
+  if (isUuidLike) return fallback
+
+  const cleaned = normalized.replace(/[._-]+/g, ' ').trim()
+  if (!cleaned) return fallback
+
+  return cleaned
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 3)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
 }
 
 export function AppShell() {
@@ -46,8 +93,11 @@ export function AppShell() {
   const bottomNavRef = useRef<HTMLElement | null>(null)
   const prefersReducedMotion = usePrefersReducedMotion()
   const role: UserRole = session?.role ?? 'MANAGER'
+  const isScannerRole = role === 'SCANNER'
   const navItems = navByRole[role]
   const secondaryItems = secondaryNav[role]
+  const headerCopy = roleHeaderCopy[role]
+  const displayName = resolveDisplayName(session?.userId, role)
 
   useGsapInteractiveScale(bottomNavRef, '.bottom-nav-item', role, { hoverScale: 1.03, pressScale: 0.97 })
 
@@ -73,46 +123,70 @@ export function AppShell() {
   }, [location.pathname, prefersReducedMotion])
 
   return (
-    <div className="app-shell-unified">
-      <header className="app-header">
-        <h1 className="app-brand">MonoPass</h1>
-        <div className="app-user">
-          <span className="text-muted">{session?.userId ?? 'Usuario'}</span>
+    <div className={`app-shell-unified app-shell-unified--${role.toLowerCase()}`}>
+      <header className={`app-header${isScannerRole ? ' app-header--scanner' : ''}`}>
+        <div className={`app-brand-wrap${isScannerRole ? ' app-brand-wrap--scanner' : ''}`}>
+          <img
+            className={`app-brand-logo${isScannerRole ? ' app-brand-logo--scanner' : ''}`}
+            src="/assets/logos/pass-monkey-neon-letters.png"
+            alt="Pass Monkey"
+          />
+          {isScannerRole ? (
+            <p className="app-brand-title app-brand-title--scanner">Scanner</p>
+          ) : (
+            <>
+              <div className="app-brand-copy">
+                <p className="app-brand-title">{headerCopy.label}</p>
+                <p className="app-brand-subtitle">{headerCopy.subtitle}</p>
+              </div>
+              <span className={`app-role-pill app-role-pill--${role.toLowerCase()}`}>{headerCopy.pill}</span>
+            </>
+          )}
+        </div>
+        <div className={`app-user${isScannerRole ? ' app-user--scanner' : ''}`}>
+          {!isScannerRole ? (
+            <div className="app-user__meta">
+              <span className="app-user__name">{displayName}</span>
+            </div>
+          ) : null}
           <button className="button--ghost app-user__logout" onClick={logout}>
-            Salir
+            {isScannerRole ? 'Cerrar sesion' : 'Salir'}
           </button>
         </div>
       </header>
 
-      <nav ref={bottomNavRef} className="app-bottom-nav">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.to === '/manager' || item.to === '/rp' || item.to === '/scanner' || item.to === '/director'}
-            className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}
-          >
-            <span className="material-symbols-outlined bottom-nav-icon" aria-hidden="true">
-              {item.icon}
-            </span>
-            <span className="bottom-nav-label">{item.label}</span>
-          </NavLink>
-        ))}
-        {secondaryItems.length > 0 && secondaryItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            className={({ isActive }) => `bottom-nav-item bottom-nav-item--secondary ${isActive ? 'active' : ''}`}
-          >
-            <span className="material-symbols-outlined bottom-nav-icon" aria-hidden="true">
-              {item.icon}
-            </span>
-            <span className="bottom-nav-label">{item.label}</span>
-          </NavLink>
-        ))}
-      </nav>
+      {!isScannerRole ? (
+        <nav ref={bottomNavRef} className="app-bottom-nav">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.to === '/manager' || item.to === '/rp' || item.to === '/scanner' || item.to === '/director'}
+              className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}
+            >
+              <span className="material-symbols-outlined bottom-nav-icon" aria-hidden="true">
+                {item.icon}
+              </span>
+              <span className="bottom-nav-label">{item.label}</span>
+            </NavLink>
+          ))}
+          {secondaryItems.length > 0 &&
+            secondaryItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) => `bottom-nav-item bottom-nav-item--secondary ${isActive ? 'active' : ''}`}
+              >
+                <span className="material-symbols-outlined bottom-nav-icon" aria-hidden="true">
+                  {item.icon}
+                </span>
+                <span className="bottom-nav-label">{item.label}</span>
+              </NavLink>
+            ))}
+        </nav>
+      ) : null}
 
-      <main className="app-main">
+      <main className={`app-main${isScannerRole ? ' app-main--scanner' : ''}`}>
         <Outlet />
       </main>
     </div>

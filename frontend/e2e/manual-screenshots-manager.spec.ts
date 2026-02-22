@@ -20,11 +20,16 @@ async function take(page: Page, fileName: string) {
   })
 }
 
-async function loginByUi(page: Page, username: string, password: string) {
-  await page.goto('/login')
-  await page.fill('input[type="text"]', username)
-  await page.fill('input[type="password"]', password)
-  await page.click('button[type="submit"]')
+type Session = {
+  token: string
+  userId: string
+  role: 'MANAGER' | 'RP' | 'SCANNER' | 'DIRECTOR'
+}
+
+async function bootstrapSession(page: Page, session: Session) {
+  await page.addInitScript((currentSession: Session) => {
+    window.localStorage.setItem('monopass_session', JSON.stringify(currentSession))
+  }, session)
 }
 
 async function loginByApiWithRetry(api: APIRequestContext, username: string, password: string) {
@@ -78,7 +83,8 @@ test.describe('Manual Screenshots Manager', () => {
 
     const managerLogin = await loginByApiWithRetry(coreApi, 'manager.demo', 'changeme123')
     expect(managerLogin.ok()).toBeTruthy()
-    const { token: managerToken } = await managerLogin.json()
+    const managerSession = (await managerLogin.json()) as Session
+    const managerToken = managerSession.token
     const managerHeaders = { Authorization: `Bearer ${managerToken}` }
 
     const clubsResponse = await coreApi.get('/clubs', { headers: managerHeaders })
@@ -131,13 +137,14 @@ test.describe('Manual Screenshots Manager', () => {
 
     const managerDesktop = await browser.newContext()
     const managerDesktopPage = await managerDesktop.newPage()
-    await loginByUi(managerDesktopPage, 'manager.demo', 'changeme123')
+    await bootstrapSession(managerDesktopPage, managerSession)
+    await managerDesktopPage.goto('/manager')
     await expect(managerDesktopPage).toHaveURL(/\/manager/)
     await waitForManagerContent(managerDesktopPage)
 
     await managerDesktopPage.goto('/manager')
     await waitForManagerContent(managerDesktopPage)
-    await waitForMarker(managerDesktopPage, 'Dashboard')
+    await waitForMarker(managerDesktopPage, 'Eventos activos')
     await take(managerDesktopPage, 'manager-desktop-01-dashboard.png')
 
     await managerDesktopPage.goto('/manager/events')
@@ -166,7 +173,7 @@ test.describe('Manual Screenshots Manager', () => {
 
     await managerDesktopPage.goto('/manager/team/rps')
     await waitForManagerContent(managerDesktopPage)
-    await waitForMarker(managerDesktopPage, 'Relaciones Publicas')
+    await waitForMarker(managerDesktopPage, 'Crear RP')
     await take(managerDesktopPage, 'manager-desktop-05-team-rps.png')
 
     await managerDesktopPage.goto('/manager/team/groups')
@@ -184,11 +191,10 @@ test.describe('Manual Screenshots Manager', () => {
     await waitForMarker(managerDesktopPage, 'Clubs')
     await take(managerDesktopPage, 'manager-desktop-08-clubs.png')
 
-    await managerDesktopPage.goto('/manager/template')
+    await managerDesktopPage.goto('/manager/live')
     await waitForManagerContent(managerDesktopPage)
-    await waitForMarker(managerDesktopPage, 'Plantilla')
-    await managerDesktopPage.locator('label:has-text("Evento") select').selectOption(event.id)
-    await take(managerDesktopPage, 'manager-desktop-09-plantilla.png')
+    await waitForMarker(managerDesktopPage, 'Live')
+    await take(managerDesktopPage, 'manager-desktop-09-live.png')
 
     await managerDesktopPage.goto('/manager/cuts')
     await waitForManagerContent(managerDesktopPage)
@@ -202,13 +208,14 @@ test.describe('Manual Screenshots Manager', () => {
 
     const managerMobile = await browser.newContext({ ...devices['iPhone 13'] })
     const managerMobilePage = await managerMobile.newPage()
-    await loginByUi(managerMobilePage, 'manager.demo', 'changeme123')
+    await bootstrapSession(managerMobilePage, managerSession)
+    await managerMobilePage.goto('/manager')
     await expect(managerMobilePage).toHaveURL(/\/manager/)
     await waitForManagerContent(managerMobilePage)
 
     await managerMobilePage.goto('/manager')
     await waitForManagerContent(managerMobilePage)
-    await waitForMarker(managerMobilePage, 'Dashboard')
+    await waitForMarker(managerMobilePage, 'Eventos activos')
     await take(managerMobilePage, 'manager-mobile-01-dashboard.png')
 
     await managerMobilePage.goto('/manager/events')
@@ -218,7 +225,7 @@ test.describe('Manual Screenshots Manager', () => {
 
     await managerMobilePage.goto('/manager/team/rps')
     await waitForManagerContent(managerMobilePage)
-    await waitForMarker(managerMobilePage, 'Relaciones Publicas')
+    await waitForMarker(managerMobilePage, 'Crear RP')
     await take(managerMobilePage, 'manager-mobile-03-team-rps.png')
 
     await managerMobilePage.goto('/manager/cuts')

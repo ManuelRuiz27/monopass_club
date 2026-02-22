@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manager Ops Demo</title>
+    <style>
+      :root {
+        --bg: #060912;
+        --bg-soft: #0b1222;
+        --line: rgba(126, 206, 255, 0.24);
+        --line-strong: rgba(126, 206, 255, 0.42);
+        --text: #eaf5ff;
+        --text-soft: #a9c2d8;
+        --accent: #53ccff;
+        --accent-2: #3e8bff;
+        --ok: #37d39d;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        font-family: 'Sora', 'Plus Jakarta Sans', system-ui, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(80% 70% at 20% 120%, rgba(28, 109, 255, 0.18), transparent),
+          radial-gradient(80% 70% at 90% -10%, rgba(49, 207, 255, 0.16), transparent),
+          var(--bg);
+      }
+
+      .frame {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        padding: 24px;
+      }
+
+      .desktop {
+        width: 100%;
+        height: 100%;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        overflow: hidden;
+        background: linear-gradient(160deg, rgba(8, 17, 35, 0.94), rgba(5, 10, 20, 0.96));
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.48);
+        display: grid;
+        grid-template-rows: 58px 1fr;
+      }
+
+      .topbar {
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-size: 0.78rem;
+      }
+
+      .brand-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 999px;
+        background: var(--accent);
+        box-shadow: 0 0 14px rgba(83, 204, 255, 0.7);
+      }
+
+      .status {
+        font-size: 0.76rem;
+        color: var(--text-soft);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 7px 12px;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        min-height: 0;
+      }
+
+      .sidebar {
+        border-right: 1px solid var(--line);
+        padding: 18px 16px;
+        display: grid;
+        gap: 10px;
+        align-content: start;
+        background: rgba(9, 15, 30, 0.64);
+      }
+
+      .nav-item {
+        border: 1px solid transparent;
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 0.82rem;
+        color: var(--text-soft);
+      }
+
+      .nav-item.active {
+        border-color: var(--line-strong);
+        background: rgba(43, 125, 255, 0.16);
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      .content {
+        position: relative;
+        padding: 24px 28px;
+      }
+
+      .content-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+      }
+
+      .title {
+        margin: 0;
+        font-size: 1.5rem;
+        letter-spacing: 0.01em;
+      }
+
+      .subtitle {
+        margin: 6px 0 0;
+        color: var(--text-soft);
+        font-size: 0.9rem;
+      }
+
+      .step-badge {
+        font-size: 0.78rem;
+        color: #d7eeff;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 6px 12px;
+      }
+
+      .scene-wrap {
+        position: relative;
+        margin-top: 18px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        height: calc(100% - 108px);
+        min-height: 0;
+        overflow: hidden;
+        background: linear-gradient(170deg, rgba(10, 22, 44, 0.86), rgba(7, 13, 25, 0.96));
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+        padding: 22px;
+        opacity: 0;
+        transform: translateY(10px) scale(0.985);
+        transition: opacity 420ms ease, transform 420ms ease;
+        display: grid;
+        gap: 14px;
+        pointer-events: none;
+      }
+
+      .scene.active {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+
+      .field-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .field {
+        display: grid;
+        gap: 6px;
+      }
+
+      .field label {
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-soft);
+      }
+
+      .input {
+        height: 42px;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        background: rgba(4, 10, 20, 0.7);
+      }
+
+      .cta {
+        justify-self: start;
+        margin-top: 6px;
+        border: 1px solid rgba(118, 214, 255, 0.7);
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 0.84rem;
+        font-weight: 700;
+        color: #fff;
+        background: linear-gradient(140deg, var(--accent-2), #35c4ff);
+      }
+
+      .upload {
+        height: 220px;
+        border: 1px dashed rgba(116, 204, 255, 0.48);
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        background: rgba(6, 14, 28, 0.52);
+        overflow: hidden;
+      }
+
+      .upload-card {
+        width: 360px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: rgba(5, 14, 28, 0.9);
+        overflow: hidden;
+      }
+
+      .upload-card img {
+        width: 100%;
+        height: 140px;
+        object-fit: cover;
+        display: block;
+      }
+
+      .upload-meta {
+        padding: 10px 12px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.78rem;
+      }
+
+      .upload-ok {
+        color: var(--ok);
+        font-weight: 700;
+      }
+
+      .generated {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 14px;
+      }
+
+      .table {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 130px 120px;
+        align-items: center;
+        min-height: 52px;
+        padding: 0 14px;
+        border-bottom: 1px solid rgba(126, 206, 255, 0.14);
+        font-size: 0.82rem;
+      }
+
+      .row:last-child {
+        border-bottom: 0;
+      }
+
+      .pill {
+        display: inline-flex;
+        border-radius: 999px;
+        border: 1px solid rgba(117, 208, 255, 0.48);
+        padding: 4px 10px;
+        font-size: 0.72rem;
+      }
+
+      .qr-card {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: rgba(4, 10, 19, 0.82);
+        display: grid;
+        place-items: center;
+        padding: 14px;
+        gap: 10px;
+      }
+
+      .qr-card img {
+        width: 170px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+      }
+
+      .timeline {
+        position: absolute;
+        left: 28px;
+        right: 28px;
+        bottom: 16px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .timeline-step {
+        border-top: 2px solid rgba(123, 196, 244, 0.2);
+        padding-top: 6px;
+        font-size: 0.72rem;
+        color: var(--text-soft);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .timeline-step.active {
+        border-top-color: rgba(83, 204, 255, 0.88);
+        color: #dff2ff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame">
+      <div class="desktop">
+        <div class="topbar">
+          <div class="brand">
+            <span class="brand-dot"></span>
+            <span>Pass Monkey Manager</span>
+          </div>
+          <span class="status">Demo operativo en desktop</span>
+        </div>
+
+        <div class="workspace">
+          <aside class="sidebar">
+            <div class="nav-item">Dashboard</div>
+            <div class="nav-item active">Eventos</div>
+            <div class="nav-item">RPs</div>
+            <div class="nav-item">Cortes</div>
+            <div class="nav-item">Configuracion</div>
+          </aside>
+
+          <main class="content">
+            <div class="content-head">
+              <div>
+                <h1 class="title">Nuevo evento</h1>
+                <p class="subtitle">Configuracion operativa para la siguiente noche.</p>
+              </div>
+              <span class="step-badge" id="stepBadge">Paso 1/3</span>
+            </div>
+
+            <section class="scene-wrap">
+              <article class="scene active" data-scene="0">
+                <div class="field-grid">
+                  <div class="field">
+                    <label>Nombre del evento</label>
+                    <div class="input"></div>
+                  </div>
+                  <div class="field">
+                    <label>Club</label>
+                    <div class="input"></div>
+                  </div>
+                  <div class="field">
+                    <label>Fecha y hora</label>
+                    <div class="input"></div>
+                  </div>
+                  <div class="field">
+                    <label>Aforo</label>
+                    <div class="input"></div>
+                  </div>
+                </div>
+                <button class="cta" type="button">Guardar evento</button>
+              </article>
+
+              <article class="scene" data-scene="1">
+                <div class="upload">
+                  <div class="upload-card">
+                    <img src="./assets/logos/pass-monkey-neon-letters.png" alt="Flyer del evento cargado" />
+                    <div class="upload-meta">
+                      <span>flyer_noche_electro.png</span>
+                      <span class="upload-ok">Subido 100%</span>
+                    </div>
+                  </div>
+                </div>
+                <button class="cta" type="button">Continuar a accesos</button>
+              </article>
+
+              <article class="scene" data-scene="2">
+                <div class="generated">
+                  <div class="table">
+                    <div class="row">
+                      <strong>Acceso General</strong>
+                      <span class="pill">QR dinamico</span>
+                      <span>320 folios</span>
+                    </div>
+                    <div class="row">
+                      <strong>Acceso VIP</strong>
+                      <span class="pill">QR dinamico</span>
+                      <span>85 folios</span>
+                    </div>
+                    <div class="row">
+                      <strong>Cortesias Staff</strong>
+                      <span class="pill">QR dinamico</span>
+                      <span>32 folios</span>
+                    </div>
+                  </div>
+
+                  <div class="qr-card">
+                    <img src="./assets/logos/ticket-demo-pass-monkey.png" alt="Acceso generado listo para compartir" />
+                    <button class="cta" type="button">Compartir acceso</button>
+                  </div>
+                </div>
+              </article>
+            </section>
+
+            <div class="timeline">
+              <div class="timeline-step active" data-timeline="0">Crear evento</div>
+              <div class="timeline-step" data-timeline="1">Cargar flyer</div>
+              <div class="timeline-step" data-timeline="2">Generar accesos</div>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const scenes = Array.from(document.querySelectorAll('[data-scene]'))
+      const timeline = Array.from(document.querySelectorAll('[data-timeline]'))
+      const stepBadge = document.getElementById('stepBadge')
+      let current = 0
+
+      function activate(index) {
+        scenes.forEach((scene, sceneIndex) => scene.classList.toggle('active', sceneIndex === index))
+        timeline.forEach((item, itemIndex) => item.classList.toggle('active', itemIndex === index))
+        if (stepBadge) stepBadge.textContent = `Paso ${index + 1}/3`
+      }
+
+      activate(current)
+      window.setInterval(() => {
+        current = (current + 1) % 3
+        activate(current)
+      }, 2200)
+    </script>
+  </body>
+</html>

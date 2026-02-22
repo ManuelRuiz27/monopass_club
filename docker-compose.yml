@@ -67,7 +67,7 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/monopass?schema=public
       JWT_SECRET: local-dev-jwt-secret-123456
-      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173,http://localhost:5174}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-*}
       PRICING_EVENT: ${PRICING_EVENT:-750}
       PRICING_BASE: ${PRICING_BASE:-2999}
       PRICING_PRO: ${PRICING_PRO:-5000}

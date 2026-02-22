@@ -21,7 +21,7 @@ export default defineConfig({
     {
       command: 'npm run dev -w core-api',
       url: 'http://localhost:4000/health',
-      reuseExistingServer: false,
+      reuseExistingServer: true,
       timeout: 120 * 1000,
       cwd: '..',
       env: {
@@ -37,7 +37,7 @@ export default defineConfig({
     {
       command: 'npm run dev -w scanner-service',
       url: 'http://localhost:4100/health',
-      reuseExistingServer: false,
+      reuseExistingServer: true,
       timeout: 120 * 1000,
       cwd: '..',
       env: {
@@ -52,12 +52,13 @@ export default defineConfig({
     {
       command: 'npm run dev',
       url: 'http://localhost:5173',
-      reuseExistingServer: false,
+      reuseExistingServer: true,
       timeout: 120 * 1000,
       env: {
         ...process.env,
         VITE_CORE_API_BASE_URL: 'http://localhost:4000',
         VITE_SCANNER_API_BASE_URL: 'http://localhost:4100',
+        VITE_RP_MOCK: 'false',
       },
     },
   ],

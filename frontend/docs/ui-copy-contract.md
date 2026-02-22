@@ -56,8 +56,6 @@ Initial baseline for:
 - QR generado subtitle pattern: `El pase {TIPO} esta listo para compartir`
 - QR generado actions:
   - `Compartir por WhatsApp`
-  - `Copiar enlace`
-  - `Compartir Acceso`
   - `Descargar Imagen`
   - `<- Generar otro acceso`
 

@@ -54,6 +54,9 @@ const templateBodySchema = z.object({
 const templateBodyLimitBytes = 10 * 1024 * 1024
 
 const eventParamsSchema = z.object({ eventId: z.string().uuid() })
+const liveQuerySchema = z.object({
+  eventId: z.string().uuid().optional(),
+})
 
 const assignRpSchema = z.object({
   rpId: z.string().uuid(),
@@ -107,6 +110,95 @@ export async function registerEventRoutes(app: FastifyInstance) {
     })
 
     return events.map(serializeEvent)
+  })
+
+  app.get('/events/live', { preHandler: [app.authenticate, app.authorizeManager] }, async (request) => {
+    const managerId = request.user!.userId
+    const query = liveQuerySchema.parse(request.query)
+    const serverNow = new Date()
+    const serverNowMs = serverNow.getTime()
+
+    const events = await prisma.event.findMany({
+      where: {
+        active: true,
+        club: { managerId },
+        ...(query.eventId ? { id: query.eventId } : {}),
+      },
+      orderBy: { startsAt: 'asc' },
+      include: {
+        club: {
+          select: {
+            id: true,
+            name: true,
+            capacity: true,
+          },
+        },
+      },
+    })
+
+    if (events.length === 0) {
+      return {
+        filters: {
+          eventId: query.eventId ?? null,
+        },
+        serverNow,
+        events: [],
+      }
+    }
+
+    const eventIds = events.map((event) => event.id)
+
+    const [sentGrouped, scannedGrouped] = await Promise.all([
+      prisma.ticket.groupBy({
+        by: ['eventId'],
+        where: {
+          eventId: { in: eventIds },
+          deliveries: { some: {} },
+        },
+        _count: { _all: true },
+      }),
+      prisma.ticket.groupBy({
+        by: ['eventId'],
+        where: {
+          eventId: { in: eventIds },
+          scan: { isNot: null },
+        },
+        _count: { _all: true },
+      }),
+    ])
+
+    const sentMap = new Map(sentGrouped.map((entry) => [entry.eventId, entry._count._all]))
+    const scannedMap = new Map(scannedGrouped.map((entry) => [entry.eventId, entry._count._all]))
+
+    return {
+      filters: {
+        eventId: query.eventId ?? null,
+      },
+      serverNow,
+      events: events.map((event) => {
+        const sentAccesses = sentMap.get(event.id) ?? 0
+        const scannedAccesses = scannedMap.get(event.id) ?? 0
+        const pendingAccesses = Math.max(sentAccesses - scannedAccesses, 0)
+        const occupancyPercent =
+          event.club.capacity > 0 ? Math.min(100, Math.round((scannedAccesses / event.club.capacity) * 100)) : 0
+        const startsAtMs = event.startsAt.getTime()
+        const endsAtMs = event.endsAt.getTime()
+        const inProgress = startsAtMs <= serverNowMs && serverNowMs <= endsAtMs
+
+        return {
+          eventId: event.id,
+          eventName: event.name,
+          startsAt: event.startsAt,
+          endsAt: event.endsAt,
+          inProgress,
+          club: event.club,
+          sentAccesses,
+          scannedAccesses,
+          pendingAccesses,
+          occupancyPercent,
+        }
+      }),
+    }
   })
 
   app.post('/events', { preHandler: [app.authenticate, app.authorizeManager] }, async (request, reply) => {
