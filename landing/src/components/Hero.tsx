@@ -46,7 +46,8 @@ export const Hero = ({ onScheduleMeeting }: { onScheduleMeeting: () => void }) =
             </h1>
 
             <p className="hero__subheadline">
-              Pass Monkey reemplaza los talonarios físicos y organiza el control de RPs, cortes y accesos en tiempo real — sin afectar tu flujo en efectivo.
+              Pass Monkey reemplaza los talonarios físicos y organiza el control de colaboradores de venta, cortes y
+              accesos en tiempo real — sin afectar tu flujo en efectivo.
             </p>
 
             <div className="hero__actions">
@@ -68,7 +69,7 @@ export const Hero = ({ onScheduleMeeting }: { onScheduleMeeting: () => void }) =
             <div className="hero__microcopy">
               <span>? Sin contratos forzosos</span>
               <span>? Activo en minutos</span>
-              <span>? Control por staff y RP</span>
+              <span>? Control por staff y colaborador de venta</span>
             </div>
           </div>
 

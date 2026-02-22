@@ -57,7 +57,7 @@ const SHOTS: Shot[] = [
     src: '/assets/screenshots/anim/staff-video-frame-01-dashboard.png',
     tone: 'neutral',
     result: 'Operacion trazable',
-    note: 'Cortes por RP y evento en tiempo real',
+    note: 'Cortes por colaborador de venta y evento en tiempo real',
   },
 ]
 
@@ -190,7 +190,7 @@ export function HeroScanExperience() {
         } else if (resultTone === 'error') {
           addLog('error', 'BLOQUEO: Intento de pase duplicado (VIP)')
         } else {
-          addLog('neutral', 'Actualizando cortes de RP')
+          addLog('neutral', 'Actualizando cortes por colaborador de venta')
         }
 
       }, SCAN_DURATION_MS)

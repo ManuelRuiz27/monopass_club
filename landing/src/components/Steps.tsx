@@ -3,7 +3,7 @@ import { staggerReveal, progressBarOnScroll } from '../animations.ts'
 
 const steps = [
     { number: '01', title: 'Creas tu evento' },
-    { number: '02', title: 'Asignas boletos digitales a cada RP' },
+    { number: '02', title: 'Asignas boletos digitales a cada colaborador de venta' },
     { number: '03', title: 'Escaneas en puerta y obtienes tu corte automático' },
 ]
 

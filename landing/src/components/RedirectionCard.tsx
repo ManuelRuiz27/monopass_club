@@ -21,7 +21,7 @@ export function RedirectionCard() {
                 }}>
                     <div>
                         <h3 style={{ fontSize: '1.5rem', marginBottom: '8px', fontWeight: 700 }}>
-                            Monotickets <span style={{ fontWeight: 400, color: 'var(--text-soft)' }}>by SoftMonkeyBar</span>
+                            Monotickets <span style={{ fontWeight: 400, color: 'var(--text-soft)' }}>by Soft-Monkey</span>
                         </h3>
                         <p style={{ color: 'var(--text-soft)', lineHeight: 1.6, marginBottom: '24px' }}>
                             Si tu evento escala, aquí está la solución profesional. Venta online, control antifraude y pasarelas de pago listas en 48 hrs.

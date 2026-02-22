@@ -16,7 +16,7 @@ export function HowItWorks() {
               <Ticket size={24} strokeWidth={1.5} />
             </div>
             <h3 style={{ fontSize: '1.25rem', marginBottom: '8px' }}>Configura y Personaliza</h3>
-            <p style={{ position: 'relative', zIndex: 1 }}>Crea tu evento y personaliza tus accesos digitales. Asigna listas y cupos a tus RPs en segundos.</p>
+            <p style={{ position: 'relative', zIndex: 1 }}>Crea tu evento y personaliza tus accesos digitales. Asigna listas y cupos a tus colaboradores de venta en segundos.</p>
           </article>
 
           <article className="panel-card" style={{ position: 'relative', overflow: 'hidden' }}>
@@ -27,7 +27,7 @@ export function HowItWorks() {
               <QrCode size={24} strokeWidth={1.5} />
             </div>
             <h3 style={{ fontSize: '1.25rem', marginBottom: '8px' }}>Distribuye con Agilidad</h3>
-            <p style={{ position: 'relative', zIndex: 1 }}>Tus RPs envían QRs desde su celular directo al cliente. Tu cierre operativo es exacto y sin listas de papel.</p>
+            <p style={{ position: 'relative', zIndex: 1 }}>Tus colaboradores de venta envían QRs desde su celular directo al cliente. Tu cierre operativo es exacto y sin listas de papel.</p>
           </article>
 
           <article className="panel-card" style={{ position: 'relative', overflow: 'hidden' }}>

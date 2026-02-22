@@ -12,19 +12,19 @@ const steps: Step[] = [
   {
     title: 'Crea tu evento',
     description: 'Configura fecha, aforo y reglas de acceso desde un solo panel.',
-    outcome: 'Tu operacion queda lista para vender.',
+    outcome: 'Tu operacion queda lista en minutos.',
     icon: CalendarPlus2,
   },
   {
-    title: 'Genera accesos digitales',
-    description: 'Entrega QR dinamicos por canal digital sin depender de boletos impresos.',
-    outcome: 'Tu equipo y tus clientes tienen el mismo folio.',
+    title: 'Asigna accesos a colaboradores',
+    description: 'Cada colaborador de venta recibe sus accesos y comparte por su canal habitual.',
+    outcome: 'Cada acceso queda vinculado para el corte.',
     icon: QrCode,
   },
   {
-    title: 'Valida en puerta en segundos',
-    description: 'Tu staff escanea y registra cada entrada con trazabilidad operativa.',
-    outcome: 'Controlas aforo y auditoria en tiempo real.',
+    title: 'Escanea y cierra corte automatico',
+    description: 'Tu staff valida en puerta y el sistema consolida movimientos en tiempo real.',
+    outcome: 'Cierre claro por colaborador de venta sin recalcular en papel.',
     icon: ScanLine,
   },
 ]
@@ -36,9 +36,9 @@ export function HowItWorksSection() {
         <header className="section-header" data-reveal>
           <p className="section-header__eyebrow">Como funciona</p>
           <h2 className="section-header__title" id="how-it-works-title">
-            Digitaliza tu proximo evento en 3 pasos.
+            Controla tu noche en 3 pasos claros.
           </h2>
-          <p className="section-header__description">Operacion clara. Sin papel. Sin caos.</p>
+          <p className="section-header__description">Flujo simple para puerta, colaboradores y corte final.</p>
         </header>
         <div className="steps-grid steps-grid--flow" role="list">
           {steps.map((step, index) => {

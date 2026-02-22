@@ -8,24 +8,28 @@ type FaqItem = {
 
 const faqItems: FaqItem[] = [
   {
-    question: 'Que necesitas en la puerta para validar accesos?',
-    answer: 'Un celular con camara y conexion estable para escanear los QR dinamicos en tiempo real.',
+    question: 'Que necesita mi staff para operar en puerta?',
+    answer: 'Un celular por acceso y una breve induccion. El flujo es escanear, validar y continuar fila.',
   },
   {
-    question: 'Puedo usar Pass Monkey solo una vez?',
-    answer: 'Si. Puedes activar 1 evento por pago unico y despues decidir si migras a plan mensual.',
+    question: 'Si falla internet, se detiene la entrada?',
+    answer: 'No. El modo offline mantiene el acceso operativo con cache por evento y sincroniza al volver la señal.',
   },
   {
-    question: 'Cuanto tarda en activarse?',
-    answer: 'En minutos. Creas el evento, generas accesos y ya puedes validar en puerta.',
+    question: 'Como confio en el corte por colaborador de venta?',
+    answer: 'Cada validacion queda registrada. El corte sale con respaldo y trazabilidad por colaborador.',
   },
   {
-    question: 'Funciona sin internet?',
-    answer: 'No. Para mantener validacion y auditoria en vivo, la operacion requiere conexion en la entrada.',
+    question: 'En cuanto tiempo veo retorno?',
+    answer: 'Depende de tu operacion, pero normalmente se percibe al reducir fugas y tiempo de arqueo en caja.',
   },
   {
-    question: 'Puedo cambiar luego a plan mensual?',
-    answer: 'Si. Puedes pasar de evento individual a Plan Club o Plan Pro cuando tu operacion lo requiera.',
+    question: 'Puedo usar Pass Monkey si la mayoria del flujo es en efectivo?',
+    answer: 'Si. Esta pensado para eventos cash-heavy donde necesitas control interno y cierre claro al final.',
+  },
+  {
+    question: 'Puedo empezar con un solo evento y luego escalar?',
+    answer: 'Si. Puedes activar tu primer evento y despues pasar a plan mensual cuando tu agenda crezca.',
   },
 ]
 
@@ -90,10 +94,10 @@ export function FaqSection() {
 
           <aside className="faq-side-card">
             <p className="faq-side-card__kicker">Todavia con dudas?</p>
-            <h3>Te mostramos el flujo real de escaneo en una demo corta.</h3>
-            <p>Agenda y revisamos tu operacion actual, tipo de acceso y volumen estimado.</p>
+            <h3>Agenda tu demo privada y revisamos tu flujo real de puerta.</h3>
+            <p>En la llamada vemos cortes, colaboradores, internet en sitio y opciones para tu siguiente fecha.</p>
             <a className="pm-button pm-button--secondary" href="#cta-final">
-              Ir a demo
+              Agenda tu demo privada
             </a>
           </aside>
         </div>
