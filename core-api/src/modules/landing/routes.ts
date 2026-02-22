@@ -55,7 +55,7 @@ const demoSessionParamsSchema = z.object({
 
 const demoIssueBodySchema = z.object({
   guestType: z.enum(['GENERAL', 'VIP', 'CORTESIA']).default('GENERAL'),
-  note: z.string().trim().max(80).optional().or(z.literal('')),
+  note: z.union([z.string().trim().max(80), z.literal(''), z.null()]).optional(),
 })
 
 const demoValidateBodySchema = z.object({

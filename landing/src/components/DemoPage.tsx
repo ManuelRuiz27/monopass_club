@@ -420,7 +420,7 @@ export function DemoPage() {
       try {
         const response = await issueLandingDemoTicket(demoSessionId, {
           guestType: issueGuestType,
-          note: issueNote.trim() || null,
+          note: issueNote.trim() || undefined,
         })
         setStore(response.store as DemoStore)
         setScanResult(EMPTY_SCAN_RESULT)
