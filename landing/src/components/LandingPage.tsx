@@ -5,6 +5,7 @@ import { BenefitsSection } from './BenefitsSection.tsx'
 import { PricingSection } from './PricingSection.tsx'
 import { ComparisonSection } from './ComparisonSection.tsx'
 import { FaqSection } from './FaqSection.tsx'
+import { MonoticketsHandoffSection } from './MonoticketsHandoffSection.tsx'
 import { FinalCtaSection } from './FinalCtaSection.tsx'
 import { FooterSection } from './FooterSection.tsx'
 import { ActivationModal } from './ActivationModal.tsx'
@@ -14,7 +15,17 @@ import type { LandingPricing } from '../lib/publicApi.ts'
 
 type MonthlyPlan = 'club' | 'pro' | null
 
-const TRACKED_SECTION_IDS = ['hero', 'como-funciona', 'beneficios', 'pricing', 'comparativo', 'faq', 'cta-final', 'footer']
+const TRACKED_SECTION_IDS = [
+  'hero',
+  'como-funciona',
+  'beneficios',
+  'pricing',
+  'comparativo',
+  'faq',
+  'handoff-monotickets',
+  'cta-final',
+  'footer',
+]
 
 function formatCurrency(value: number, currency: string) {
   return new Intl.NumberFormat('es-MX', {
@@ -113,6 +124,7 @@ export function LandingPage() {
       />
       <ComparisonSection />
       <FaqSection />
+      <MonoticketsHandoffSection />
       <FinalCtaSection
         selectedPlan={selectedPlan}
         eventPriceLabel={eventPriceLabel}

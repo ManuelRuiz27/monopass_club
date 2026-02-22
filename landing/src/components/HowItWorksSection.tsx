@@ -11,20 +11,20 @@ type Step = {
 const steps: Step[] = [
   {
     title: 'Crea tu evento',
-    description: 'Configura fecha, aforo y reglas de acceso desde un solo panel.',
-    outcome: 'Tu operacion queda lista para vender.',
+    description: 'Sube el diseno de tu acceso y habilita a tu equipo para empezar a vender en minutos.',
+    outcome: 'Tu operacion queda lista cuando tu decides, sin depender de terceros.',
     icon: CalendarPlus2,
   },
   {
     title: 'Genera accesos digitales',
-    description: 'Entrega QR dinamicos por canal digital sin depender de boletos impresos.',
-    outcome: 'Tu equipo y tus clientes tienen el mismo folio.',
+    description: 'Tu equipo crea boletos en la app y los comparte por WhatsApp en el mismo flujo.',
+    outcome: 'Sin papel, menos errores manuales y mejor trazabilidad.',
     icon: QrCode,
   },
   {
     title: 'Valida en puerta en segundos',
-    description: 'Tu staff escanea y registra cada entrada con trazabilidad operativa.',
-    outcome: 'Controlas aforo y auditoria en tiempo real.',
+    description: 'Tu staff escanea y registra cada entrada al instante con validacion anti-clonacion.',
+    outcome: 'Monitorea aforo y ventas en vivo desde el dashboard, donde estes.',
     icon: ScanLine,
   },
 ]
@@ -36,9 +36,9 @@ export function HowItWorksSection() {
         <header className="section-header" data-reveal>
           <p className="section-header__eyebrow">Como funciona</p>
           <h2 className="section-header__title" id="how-it-works-title">
-            Digitaliza tu proximo evento en 3 pasos.
+            Digitaliza tu proximo evento en solo 3 pasos.
           </h2>
-          <p className="section-header__description">Operacion clara. Sin papel. Sin caos.</p>
+          <p className="section-header__description">Un flujo claro para vender, validar y controlar sin caos operativo.</p>
         </header>
         <div className="steps-grid steps-grid--flow" role="list">
           {steps.map((step, index) => {
@@ -49,8 +49,8 @@ export function HowItWorksSection() {
                   <Icon size={20} />
                 </div>
                 <p className="step-card__number">Paso {index + 1}</p>
-                <h3>{step.title}</h3>
-                <p>{step.description}</p>
+                <h3 className="step-card__title">{step.title}</h3>
+                <p className="step-card__description">{step.description}</p>
                 <p className="step-card__outcome">{step.outcome}</p>
               </article>
             )

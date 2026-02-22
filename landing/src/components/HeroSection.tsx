@@ -84,7 +84,9 @@ export function HeroSection({ eventPriceLabel, onActivateEvent, onViewPricing }:
             <span>Dashboard en tiempo real</span>
           </div>
           <p className="hero-section__segments" data-hero-segments>
-            Hecho para clubes, bares con DJ, corporativos, bodas y eventos privados.
+            Hecho para night clubs, bares, musicos y organizadores de eventos privados.
+            <br />
+            <strong>Donde el efectivo manda.</strong>
           </p>
         </div>
 
