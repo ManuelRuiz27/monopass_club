@@ -81,6 +81,51 @@ describe.sequential('landing public routes', () => {
     })
   })
 
+  test('landing demo shared session can issue and validate a ticket across requests', async () => {
+    const sessionId = `testdemo_${Date.now()}`
+
+    const getInitial = await request(app.server).get(`/landing/demo-sessions/${sessionId}`)
+    expect(getInitial.status).toBe(200)
+    expect(getInitial.body.sessionId).toBe(sessionId)
+    expect(getInitial.body.store.tickets).toEqual([])
+
+    const issueResponse = await request(app.server)
+      .post(`/landing/demo-sessions/${sessionId}/tickets`)
+      .send({
+        guestType: 'VIP',
+        note: 'Mesa 7',
+      })
+
+    expect(issueResponse.status).toBe(201)
+    expect(issueResponse.body.status).toBe('created')
+    expect(issueResponse.body.ticket.code).toEqual(expect.any(String))
+    expect(issueResponse.body.ticket.guestType).toBe('VIP')
+    expect(issueResponse.body.store.tickets).toHaveLength(1)
+
+    const qrPayload = issueResponse.body.ticket.qrPayload as string
+
+    const getAgain = await request(app.server).get(`/landing/demo-sessions/${sessionId}`)
+    expect(getAgain.status).toBe(200)
+    expect(getAgain.body.store.tickets).toHaveLength(1)
+    expect(getAgain.body.store.tickets[0].qrPayload).toBe(qrPayload)
+
+    const validateResponse = await request(app.server)
+      .post(`/landing/demo-sessions/${sessionId}/validate`)
+      .send({ rawPayload: qrPayload })
+
+    expect(validateResponse.status).toBe(200)
+    expect(validateResponse.body.status).toBe('valid')
+    expect(validateResponse.body.ticket.status).toBe('used')
+    expect(validateResponse.body.store.tickets[0].status).toBe('used')
+
+    const validateAgainResponse = await request(app.server)
+      .post(`/landing/demo-sessions/${sessionId}/validate`)
+      .send({ rawPayload: qrPayload })
+
+    expect(validateAgainResponse.status).toBe(200)
+    expect(validateAgainResponse.body.status).toBe('already_used')
+  })
+
   test('POST /landing/events/activation creates pending order and returns configuration error when token is missing', async () => {
     const response = await request(app.server).post('/landing/events/activation').send({
       clubName: 'Club Test',

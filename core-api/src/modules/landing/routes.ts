@@ -49,6 +49,19 @@ const orderParamsSchema = z.object({
   orderId: z.string().uuid(),
 })
 
+const demoSessionParamsSchema = z.object({
+  sessionId: z.string().trim().min(6).max(64).regex(/^[a-zA-Z0-9_-]+$/),
+})
+
+const demoIssueBodySchema = z.object({
+  guestType: z.enum(['GENERAL', 'VIP', 'CORTESIA']).default('GENERAL'),
+  note: z.string().trim().max(80).optional().or(z.literal('')),
+})
+
+const demoValidateBodySchema = z.object({
+  rawPayload: z.string().trim().min(1).max(512),
+})
+
 const mercadoPagoPreferenceResponseSchema = z.object({
   id: z.string(),
   init_point: z.string().url().optional(),
@@ -72,6 +85,210 @@ const webhookPayloadSchema = z
   .passthrough()
 
 const publicRateLimitStore = new Map<string, { count: number; resetAt: number }>()
+const landingDemoSessions = new Map<string, { store: LandingDemoStore; updatedAt: number }>()
+
+type LandingDemoGuestType = 'GENERAL' | 'VIP' | 'CORTESIA'
+type LandingDemoTicketStatus = 'issued' | 'used'
+
+type LandingDemoTicket = {
+  id: string
+  code: string
+  eventName: string
+  guestType: LandingDemoGuestType
+  note: string | null
+  issuedAtIso: string
+  weekKey: string
+  sequence: number
+  status: LandingDemoTicketStatus
+  usedAtIso: string | null
+  qrPayload: string
+}
+
+type LandingDemoStore = {
+  weekKey: string
+  lastSequence: number
+  activeTicketId: string | null
+  tickets: LandingDemoTicket[]
+}
+
+const LANDING_DEMO_SESSION_TTL_MS = 6 * 60 * 60 * 1000
+const LANDING_DEMO_TICKET_LIMIT = 1000
+const LANDING_DEMO_EVENT_NAME = 'Demo Event'
+
+function padDemoSequence(value: number, size = 4) {
+  return String(value).padStart(size, '0')
+}
+
+function getDemoIsoWeekKey(date = new Date()) {
+  const tmp = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+  const day = tmp.getUTCDay() || 7
+  tmp.setUTCDate(tmp.getUTCDate() + 4 - day)
+  const yearStart = new Date(Date.UTC(tmp.getUTCFullYear(), 0, 1))
+  const week = Math.ceil((((tmp.getTime() - yearStart.getTime()) / 86400000) + 1) / 7)
+  return `${tmp.getUTCFullYear()}-W${String(week).padStart(2, '0')}`
+}
+
+function hashDemoSignature(input: string) {
+  let hash = 2166136261
+  for (let i = 0; i < input.length; i += 1) {
+    hash ^= input.charCodeAt(i)
+    hash = Math.imul(hash, 16777619)
+  }
+  return (hash >>> 0).toString(36).toUpperCase().slice(0, 8)
+}
+
+function buildDemoQrPayload(ticketId: string, code: string, weekKey: string) {
+  const signature = hashDemoSignature(`${weekKey}|${ticketId}|${code}|PMDEMO`)
+  return `PM-DEMO|1|${weekKey}|${ticketId}|${code}|${signature}`
+}
+
+function parseDemoQrPayload(raw: string) {
+  const parts = raw.trim().split('|')
+  if (parts.length !== 6) return null
+  const [prefix, version, weekKey, ticketId, code, signature] = parts
+  if (prefix !== 'PM-DEMO' || version !== '1') return null
+  return { weekKey, ticketId, code, signature }
+}
+
+function createEmptyLandingDemoStore(weekKey: string): LandingDemoStore {
+  return {
+    weekKey,
+    lastSequence: 0,
+    activeTicketId: null,
+    tickets: [],
+  }
+}
+
+function cleanupLandingDemoSessions(nowTs = Date.now()) {
+  for (const [sessionId, value] of landingDemoSessions.entries()) {
+    if (nowTs - value.updatedAt > LANDING_DEMO_SESSION_TTL_MS) {
+      landingDemoSessions.delete(sessionId)
+    }
+  }
+}
+
+function getLandingDemoSessionStore(sessionId: string) {
+  const nowTs = Date.now()
+  cleanupLandingDemoSessions(nowTs)
+  const currentWeekKey = getDemoIsoWeekKey()
+  const current = landingDemoSessions.get(sessionId)
+
+  if (!current || current.store.weekKey !== currentWeekKey) {
+    const store = createEmptyLandingDemoStore(currentWeekKey)
+    landingDemoSessions.set(sessionId, { store, updatedAt: nowTs })
+    return store
+  }
+
+  current.updatedAt = nowTs
+  landingDemoSessions.set(sessionId, current)
+  return current.store
+}
+
+function saveLandingDemoSessionStore(sessionId: string, store: LandingDemoStore) {
+  landingDemoSessions.set(sessionId, { store, updatedAt: Date.now() })
+  return store
+}
+
+function issueLandingDemoTicket(params: {
+  sessionId: string
+  guestType: LandingDemoGuestType
+  note: string | null
+}) {
+  const prev = getLandingDemoSessionStore(params.sessionId)
+  if (prev.tickets.length >= LANDING_DEMO_TICKET_LIMIT) {
+    return { status: 'limit_reached' as const, store: prev }
+  }
+
+  const nextSequence = prev.lastSequence + 1
+  const shortWeek = prev.weekKey.replace('-', '').replace('W', '')
+  const ticketId = `demo-${shortWeek}-${padDemoSequence(nextSequence)}`
+  const codeCore = `${shortWeek.slice(-4)}${padDemoSequence(nextSequence)}`
+  const code = `DM${codeCore}${hashDemoSignature(ticketId).slice(0, 2)}`
+  const qrPayload = buildDemoQrPayload(ticketId, code, prev.weekKey)
+
+  const ticket: LandingDemoTicket = {
+    id: ticketId,
+    code,
+    eventName: LANDING_DEMO_EVENT_NAME,
+    guestType: params.guestType,
+    note: params.note,
+    issuedAtIso: new Date().toISOString(),
+    weekKey: prev.weekKey,
+    sequence: nextSequence,
+    status: 'issued',
+    usedAtIso: null,
+    qrPayload,
+  }
+
+  const store = saveLandingDemoSessionStore(params.sessionId, {
+    ...prev,
+    lastSequence: nextSequence,
+    activeTicketId: ticket.id,
+    tickets: [ticket, ...prev.tickets].slice(0, LANDING_DEMO_TICKET_LIMIT),
+  })
+
+  return { status: 'created' as const, store, ticket }
+}
+
+function validateLandingDemoTicket(params: { sessionId: string; rawPayload: string }) {
+  const parsed = parseDemoQrPayload(params.rawPayload)
+  const scannedAtIso = new Date().toISOString()
+  const store = getLandingDemoSessionStore(params.sessionId)
+
+  if (!parsed) {
+    return { status: 'invalid_format' as const, store, scannedAtIso }
+  }
+
+  if (parsed.weekKey !== store.weekKey) {
+    return { status: 'invalid_week' as const, store, parsed, scannedAtIso }
+  }
+
+  const expectedSignature = hashDemoSignature(`${parsed.weekKey}|${parsed.ticketId}|${parsed.code}|PMDEMO`)
+  if (expectedSignature !== parsed.signature) {
+    return { status: 'invalid_signature' as const, store, parsed, scannedAtIso }
+  }
+
+  const ticketIndex = store.tickets.findIndex((ticket) => ticket.id === parsed.ticketId)
+  if (ticketIndex === -1) {
+    return { status: 'not_found' as const, store, parsed, scannedAtIso }
+  }
+
+  const ticket = store.tickets[ticketIndex] as LandingDemoTicket
+  if (ticket.code !== parsed.code) {
+    return { status: 'code_mismatch' as const, store, parsed, ticket, scannedAtIso }
+  }
+
+  if (ticket.status === 'used') {
+    return { status: 'already_used' as const, store, parsed, ticket, scannedAtIso }
+  }
+
+  const nextTickets = [...store.tickets]
+  const updatedTicket: LandingDemoTicket = {
+    ...ticket,
+    status: 'used',
+    usedAtIso: scannedAtIso,
+  }
+  nextTickets[ticketIndex] = updatedTicket
+
+  const nextStore = saveLandingDemoSessionStore(params.sessionId, {
+    ...store,
+    tickets: nextTickets,
+    activeTicketId: ticket.id,
+  })
+
+  return {
+    status: 'valid' as const,
+    store: nextStore,
+    parsed,
+    ticket: updatedTicket,
+    scannedAtIso,
+  }
+}
+
+function resetLandingDemoSession(sessionId: string) {
+  const store = createEmptyLandingDemoStore(getDemoIsoWeekKey())
+  return saveLandingDemoSessionStore(sessionId, store)
+}
 
 function applyPublicRateLimit(ip: string, routeKey: string) {
   const now = Date.now()
@@ -448,6 +665,101 @@ async function provisionOrderAfterApprovedPayment(orderId: string) {
 }
 
 export async function registerLandingRoutes(app: FastifyInstance) {
+  app.get('/landing/demo-sessions/:sessionId', async (request, reply) => {
+    const rateLimit = applyPublicRateLimit(request.ip, 'landing_demo_session_get')
+    if (rateLimit.limited) {
+      reply
+        .status(429)
+        .header('Retry-After', Math.ceil(rateLimit.retryAfterMs / 1000))
+        .send({ status: 'rate_limited', message: 'Too many requests. Please retry later.' })
+      return
+    }
+
+    const params = demoSessionParamsSchema.parse(request.params)
+    reply.send({ sessionId: params.sessionId, store: getLandingDemoSessionStore(params.sessionId) })
+  })
+
+  app.post('/landing/demo-sessions/:sessionId/tickets', async (request, reply) => {
+    const rateLimit = applyPublicRateLimit(request.ip, 'landing_demo_session_issue')
+    if (rateLimit.limited) {
+      reply
+        .status(429)
+        .header('Retry-After', Math.ceil(rateLimit.retryAfterMs / 1000))
+        .send({ status: 'rate_limited', message: 'Too many requests. Please retry later.' })
+      return
+    }
+
+    const params = demoSessionParamsSchema.parse(request.params)
+    const body = demoIssueBodySchema.parse(request.body)
+    const result = issueLandingDemoTicket({
+      sessionId: params.sessionId,
+      guestType: body.guestType,
+      note: body.note?.trim() ? body.note.trim() : null,
+    })
+
+    if (result.status === 'limit_reached') {
+      reply.status(409).send({
+        status: 'limit_reached',
+        message: 'Demo ticket limit reached for current period.',
+        sessionId: params.sessionId,
+        store: result.store,
+      })
+      return
+    }
+
+    reply.status(201).send({
+      status: result.status,
+      sessionId: params.sessionId,
+      store: result.store,
+      ticket: result.ticket,
+    })
+  })
+
+  app.post('/landing/demo-sessions/:sessionId/validate', async (request, reply) => {
+    const rateLimit = applyPublicRateLimit(request.ip, 'landing_demo_session_validate')
+    if (rateLimit.limited) {
+      reply
+        .status(429)
+        .header('Retry-After', Math.ceil(rateLimit.retryAfterMs / 1000))
+        .send({ status: 'rate_limited', message: 'Too many requests. Please retry later.' })
+      return
+    }
+
+    const params = demoSessionParamsSchema.parse(request.params)
+    const body = demoValidateBodySchema.parse(request.body)
+    const result = validateLandingDemoTicket({
+      sessionId: params.sessionId,
+      rawPayload: body.rawPayload,
+    })
+
+    reply.send({
+      sessionId: params.sessionId,
+      status: result.status,
+      scannedAtIso: result.scannedAtIso,
+      parsed: 'parsed' in result ? result.parsed : undefined,
+      ticket: 'ticket' in result ? result.ticket : undefined,
+      store: result.store,
+    })
+  })
+
+  app.post('/landing/demo-sessions/:sessionId/reset', async (request, reply) => {
+    const rateLimit = applyPublicRateLimit(request.ip, 'landing_demo_session_reset')
+    if (rateLimit.limited) {
+      reply
+        .status(429)
+        .header('Retry-After', Math.ceil(rateLimit.retryAfterMs / 1000))
+        .send({ status: 'rate_limited', message: 'Too many requests. Please retry later.' })
+      return
+    }
+
+    const params = demoSessionParamsSchema.parse(request.params)
+    reply.send({
+      status: 'reset',
+      sessionId: params.sessionId,
+      store: resetLandingDemoSession(params.sessionId),
+    })
+  })
+
   app.get('/landing/pricing', async (request, reply) => {
     const rateLimit = applyPublicRateLimit(request.ip, 'landing_pricing')
     if (rateLimit.limited) {

@@ -72,6 +72,70 @@ export type LandingOrderStatusResponse = {
   credentialsEmailError: string | null
 }
 
+export type LandingDemoGuestType = 'GENERAL' | 'VIP' | 'CORTESIA'
+
+export type LandingDemoTicket = {
+  id: string
+  code: string
+  eventName: string
+  guestType: LandingDemoGuestType
+  note: string | null
+  issuedAtIso: string
+  weekKey: string
+  sequence: number
+  status: 'issued' | 'used'
+  usedAtIso: string | null
+  qrPayload: string
+}
+
+export type LandingDemoStore = {
+  weekKey: string
+  lastSequence: number
+  activeTicketId: string | null
+  tickets: LandingDemoTicket[]
+}
+
+export type LandingDemoSessionResponse = {
+  sessionId: string
+  store: LandingDemoStore
+}
+
+export type LandingDemoIssueTicketResponse = {
+  status: 'created'
+  sessionId: string
+  store: LandingDemoStore
+  ticket: LandingDemoTicket
+}
+
+export type LandingDemoValidateStatus =
+  | 'valid'
+  | 'already_used'
+  | 'not_found'
+  | 'code_mismatch'
+  | 'invalid_signature'
+  | 'invalid_week'
+  | 'invalid_format'
+
+export type LandingDemoValidateResponse = {
+  sessionId: string
+  status: LandingDemoValidateStatus
+  scannedAtIso: string
+  parsed?: {
+    weekKey: string
+    ticketId: string
+    code: string
+    signature: string
+  }
+  ticket?: LandingDemoTicket
+  store: LandingDemoStore
+}
+
+export type LandingDemoResetResponse = {
+  status: 'reset'
+  sessionId: string
+  store: LandingDemoStore
+}
+
 export function getLandingPricing() {
   return requestJson<LandingPricing>('/landing/pricing', 'GET')
 }
@@ -93,4 +157,28 @@ export async function createLandingActivation(payload: LandingActivationPayload)
 
 export function getLandingOrderStatus(orderId: string) {
   return requestJson<LandingOrderStatusResponse>(`/landing/orders/${orderId}`, 'GET')
+}
+
+export function getLandingDemoSession(sessionId: string) {
+  return requestJson<LandingDemoSessionResponse>(`/landing/demo-sessions/${encodeURIComponent(sessionId)}`, 'GET')
+}
+
+export function issueLandingDemoTicket(sessionId: string, payload: { guestType: LandingDemoGuestType; note?: string | null }) {
+  return requestJson<LandingDemoIssueTicketResponse>(
+    `/landing/demo-sessions/${encodeURIComponent(sessionId)}/tickets`,
+    'POST',
+    payload,
+  )
+}
+
+export function validateLandingDemoTicket(sessionId: string, payload: { rawPayload: string }) {
+  return requestJson<LandingDemoValidateResponse>(
+    `/landing/demo-sessions/${encodeURIComponent(sessionId)}/validate`,
+    'POST',
+    payload,
+  )
+}
+
+export function resetLandingDemoSession(sessionId: string) {
+  return requestJson<LandingDemoResetResponse>(`/landing/demo-sessions/${encodeURIComponent(sessionId)}/reset`, 'POST')
 }

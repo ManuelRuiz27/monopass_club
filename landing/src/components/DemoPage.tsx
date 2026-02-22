@@ -11,6 +11,12 @@ import {
 } from 'lucide-react'
 import { FooterSection } from './FooterSection.tsx'
 import { trackLandingEvent } from '../lib/analytics.ts'
+import {
+  getLandingDemoSession,
+  issueLandingDemoTicket,
+  resetLandingDemoSession,
+  validateLandingDemoTicket,
+} from '../lib/publicApi.ts'
 
 type DemoTab = 'issue' | 'scan'
 type TicketStatus = 'issued' | 'used'
@@ -74,6 +80,12 @@ type DemoJsQrDecodeFn = (
 const WEEKLY_DEMO_LIMIT = 1000
 const DEMO_EVENT_NAME = 'Demo Event'
 const STORAGE_KEY = 'passmonkey_landing_demo_weekly_v1'
+const DEMO_TICKET_TEMPLATE_SRC = '/assets/ticket-demo-event.png'
+const DEMO_TICKET_QR_OVERLAY = {
+  leftRatio: 0.672,
+  topRatio: 0.279,
+  widthRatio: 0.246,
+}
 
 const EMPTY_SCAN_RESULT: ScanResult = {
   tone: 'idle',
@@ -208,7 +220,64 @@ function getBarcodeDetectorCtor() {
   return maybeWindow.BarcodeDetector ?? null
 }
 
+function loadImageElement(src: string) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image()
+    image.onload = () => resolve(image)
+    image.onerror = () => reject(new Error(`No se pudo cargar imagen: ${src}`))
+    image.src = src
+  })
+}
+
+function canvasToBlob(canvas: HTMLCanvasElement, type = 'image/png') {
+  return new Promise<Blob | null>((resolve) => {
+    canvas.toBlob((blob) => resolve(blob), type)
+  })
+}
+
+async function buildDemoTicketShareImage(qrDataUrl: string) {
+  const [baseImage, qrImage] = await Promise.all([
+    loadImageElement(DEMO_TICKET_TEMPLATE_SRC),
+    loadImageElement(qrDataUrl),
+  ])
+
+  const width = baseImage.naturalWidth || baseImage.width
+  const height = baseImage.naturalHeight || baseImage.height
+  if (!width || !height) return null
+
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return null
+
+  ctx.drawImage(baseImage, 0, 0, width, height)
+
+  const qrWidth = width * DEMO_TICKET_QR_OVERLAY.widthRatio
+  const qrHeight = qrWidth
+  const qrX = width * DEMO_TICKET_QR_OVERLAY.leftRatio
+  const qrY = height * DEMO_TICKET_QR_OVERLAY.topRatio
+  ctx.drawImage(qrImage, qrX, qrY, qrWidth, qrHeight)
+
+  return canvasToBlob(canvas)
+}
+
+function downloadBlobFile(blob: Blob, filename: string) {
+  const objectUrl = URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = objectUrl
+  anchor.download = filename
+  document.body.append(anchor)
+  anchor.click()
+  anchor.remove()
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000)
+}
+
+const PUBLIC_DEMO_SESSION_ID = 'public-demo'
+
 export function DemoPage() {
+  const [demoSessionId] = useState(() => PUBLIC_DEMO_SESSION_ID)
+  const [demoSessionMode, setDemoSessionMode] = useState<'unknown' | 'remote' | 'local'>('unknown')
   const [activeTab, setActiveTab] = useState<DemoTab>('issue')
   const [store, setStore] = useState<DemoStore>(() => readStore())
   const [qrDataUrl, setQrDataUrl] = useState('')
@@ -248,8 +317,30 @@ export function DemoPage() {
   const isActiveTicketSharedAndLocked = Boolean(activeTicket && lastSharedTicketId === activeTicket.id && isShareCooldownActive)
 
   useEffect(() => {
+    let cancelled = false
+
+    async function loadSharedSession() {
+      try {
+        const response = await getLandingDemoSession(demoSessionId)
+        if (cancelled) return
+        setStore(response.store as DemoStore)
+        setDemoSessionMode('remote')
+      } catch {
+        if (cancelled) return
+        setDemoSessionMode('local')
+      }
+    }
+
+    void loadSharedSession()
+    return () => {
+      cancelled = true
+    }
+  }, [demoSessionId])
+
+  useEffect(() => {
+    if (demoSessionMode === 'remote') return
     writeStore(store)
-  }, [store])
+  }, [demoSessionMode, store])
 
   useEffect(() => {
     if (!shareCooldownUntilTs) return
@@ -321,9 +412,36 @@ export function DemoPage() {
     }
   }, [activeTab])
 
-  function generateTicket() {
+  async function generateTicket() {
     if (isGeneratingTicket || remainingThisWeek <= 0) return
     setIsGeneratingTicket(true)
+
+    if (demoSessionMode !== 'local') {
+      try {
+        const response = await issueLandingDemoTicket(demoSessionId, {
+          guestType: issueGuestType,
+          note: issueNote.trim() || null,
+        })
+        setStore(response.store as DemoStore)
+        setScanResult(EMPTY_SCAN_RESULT)
+        setIssueNote('')
+        setDemoSessionMode('remote')
+        setIsGeneratingTicket(false)
+        return
+      } catch {
+        if (demoSessionMode === 'remote') {
+          setIsGeneratingTicket(false)
+          setScanResult({
+            tone: 'danger',
+            title: 'No se pudo generar',
+            detail: 'Fallo la sincronizacion de la demo compartida. Intenta de nuevo.',
+            scannedAtIso: new Date().toISOString(),
+          })
+          return
+        }
+        setDemoSessionMode('local')
+      }
+    }
 
     window.setTimeout(() => {
       setStore((prev) => {
@@ -423,7 +541,7 @@ export function DemoPage() {
       }
     }
 
-    validateScan(rawValue, cameraEngineLabel ?? undefined)
+    void validateScan(rawValue, cameraEngineLabel ?? undefined)
 
     if (continuousCameraScanRef.current) {
       setCameraMessage(
@@ -612,7 +730,7 @@ export function DemoPage() {
     }
   }
 
-  function validateScan(rawPayload: string, scannerEngineLabel?: 'BarcodeDetector' | 'jsQR') {
+  async function validateScan(rawPayload: string, scannerEngineLabel?: 'BarcodeDetector' | 'jsQR') {
     const scannedAtIso = new Date().toISOString()
     const parsed = parseQrPayload(rawPayload)
     if (!parsed) {
@@ -651,6 +769,80 @@ export function DemoPage() {
         scannerEngineLabel,
       })
       return
+    }
+
+    if (demoSessionMode !== 'local') {
+      try {
+        const response = await validateLandingDemoTicket(demoSessionId, { rawPayload })
+        setStore(response.store as DemoStore)
+        setDemoSessionMode('remote')
+
+        if (response.status === 'valid') {
+          setScanResult({
+            tone: 'success',
+            title: 'Boleto valido',
+            detail: 'Acceso permitido. El ticket fue marcado como usado en la demo.',
+            ticketId: response.ticket?.id ?? parsed.ticketId,
+            code: response.ticket?.code ?? parsed.code,
+            scannedAtIso: response.scannedAtIso,
+            scannerEngineLabel,
+          })
+          return
+        }
+
+        if (response.status === 'already_used') {
+          setScanResult({
+            tone: 'warning',
+            title: 'Boleto ya usado',
+            detail: `Este ticket ya fue validado el ${response.ticket?.usedAtIso ? formatLocalDateTime(response.ticket.usedAtIso) : 'antes'}.`,
+            ticketId: response.ticket?.id ?? parsed.ticketId,
+            code: response.ticket?.code ?? parsed.code,
+            scannedAtIso: response.scannedAtIso,
+            scannerEngineLabel,
+          })
+          return
+        }
+
+        if (response.status === 'not_found') {
+          setScanResult({
+            tone: 'danger',
+            title: 'Boleto no encontrado',
+            detail: 'El QR es valido en formato, pero no existe en esta sesion demo compartida.',
+            ticketId: parsed.ticketId,
+            code: parsed.code,
+            scannedAtIso: response.scannedAtIso,
+            scannerEngineLabel,
+          })
+          return
+        }
+
+        if (response.status === 'code_mismatch') {
+          setScanResult({
+            tone: 'danger',
+            title: 'Boleto invalido',
+            detail: 'El codigo del QR no coincide con el ticket registrado.',
+            ticketId: response.ticket?.id ?? parsed.ticketId,
+            code: parsed.code,
+            scannedAtIso: response.scannedAtIso,
+            scannerEngineLabel,
+          })
+          return
+        }
+      } catch {
+        if (demoSessionMode === 'remote') {
+          setScanResult({
+            tone: 'danger',
+            title: 'Error de sincronizacion',
+            detail: 'No se pudo validar contra la demo compartida. Revisa tu conexion e intenta de nuevo.',
+            ticketId: parsed.ticketId,
+            code: parsed.code,
+            scannedAtIso,
+            scannerEngineLabel,
+          })
+          return
+        }
+        setDemoSessionMode('local')
+      }
     }
 
     setStore((prev) => {
@@ -744,13 +936,46 @@ export function DemoPage() {
 
     const shareMessage = lines.join('\n')
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(lines.join('\n'))}`
+    let sharedFile: File | null = null
+
+    try {
+      if (qrDataUrl) {
+        const imageBlob = await buildDemoTicketShareImage(qrDataUrl)
+        if (imageBlob) {
+          const fileName = `pass-monkey-demo-${activeTicket.code}.png`
+          downloadBlobFile(imageBlob, fileName)
+          sharedFile = new File([imageBlob], fileName, { type: 'image/png' })
+        }
+      }
+    } catch {
+      sharedFile = null
+    }
 
     if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
       try {
-        await navigator.share({
-          title: `Acceso ${activeTicket.guestType} - ${activeTicket.eventName}`,
-          text: shareMessage,
-        })
+        const shareTitle = `Acceso ${activeTicket.guestType} - ${activeTicket.eventName}`
+        const navigatorWithCanShare = navigator as Navigator & {
+          canShare?: (data?: ShareData) => boolean
+        }
+
+        if (sharedFile) {
+          const fileSharePayload: ShareData = {
+            title: shareTitle,
+            text: shareMessage,
+            files: [sharedFile],
+          }
+
+          if (!navigatorWithCanShare.canShare || navigatorWithCanShare.canShare(fileSharePayload)) {
+            await navigator.share(fileSharePayload)
+          } else {
+            await navigator.share({ title: shareTitle, text: shareMessage })
+          }
+        } else {
+          await navigator.share({
+            title: shareTitle,
+            text: shareMessage,
+          })
+        }
         setLastSharedTicketId(activeTicket.id)
         setShareCooldownUntilTs(Date.now() + 30_000)
         setCooldownNowTs(Date.now())
@@ -766,9 +991,30 @@ export function DemoPage() {
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer')
   }
 
-  function resetDemoWeek() {
-    const empty = createEmptyStore(getIsoWeekKey())
-    setStore(empty)
+  async function resetDemoWeek() {
+    if (demoSessionMode !== 'local') {
+      try {
+        const response = await resetLandingDemoSession(demoSessionId)
+        setStore(response.store as DemoStore)
+        setDemoSessionMode('remote')
+      } catch {
+        if (demoSessionMode === 'remote') {
+          setScanResult({
+            tone: 'danger',
+            title: 'No se pudo reiniciar',
+            detail: 'Fallo el reinicio de la demo compartida. Intenta nuevamente.',
+            scannedAtIso: new Date().toISOString(),
+          })
+          return
+        }
+        setDemoSessionMode('local')
+        setStore(createEmptyStore(getIsoWeekKey()))
+      }
+    } else {
+      const empty = createEmptyStore(getIsoWeekKey())
+      setStore(empty)
+    }
+
     setQrDataUrl('')
     clearIssueForm()
     setShareCooldownUntilTs(null)
@@ -851,7 +1097,11 @@ export function DemoPage() {
               </button>
             </div>
 
-            <button type="button" className="pm-button pm-button--ghost pm-demo-reset-button" onClick={resetDemoWeek}>
+            <button
+              type="button"
+              className="pm-button pm-button--ghost pm-demo-reset-button"
+              onClick={() => { void resetDemoWeek() }}
+            >
               <Undo2 size={16} aria-hidden="true" />
               Reiniciar demo local
             </button>
@@ -967,7 +1217,7 @@ export function DemoPage() {
                       <button
                         type="button"
                         className="pm-button pm-button--primary pm-demo-big-button"
-                        onClick={generateTicket}
+                        onClick={() => { void generateTicket() }}
                         disabled={isGeneratingTicket || remainingThisWeek <= 0 || isShareCooldownActive}
                       >
                         {isGeneratingTicket ? (
@@ -1005,7 +1255,7 @@ export function DemoPage() {
                         disabled={!activeTicket || isShareCooldownActive}
                       >
                         <Share2 size={16} aria-hidden="true" />
-                        {isShareCooldownActive ? `Compartido · espera ${shareCooldownSeconds}s` : 'Compartir'}
+                        {isShareCooldownActive ? `Compartido · espera ${shareCooldownSeconds}s` : 'Descargar y compartir'}
                       </button>
                     </div>
                   </div>
