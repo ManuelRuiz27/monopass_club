@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client'
 import { LandingPage } from './components/LandingPage.tsx'
 import { LegalPage } from './components/LegalPage.tsx'
 import { CheckoutStatusPage } from './components/CheckoutStatusPage.tsx'
-import { MonoticketsComingSoonPage, NotFoundPage } from './components/MonoticketsComingSoonPage.tsx'
 import { trackLandingEvent } from './lib/analytics.ts'
 import { installMockBackend } from './lib/mockBackend.ts'
 import { captureUtmFromUrl } from './lib/utm.ts'
@@ -19,9 +18,6 @@ trackLandingEvent(
 
 function resolveAppNode() {
     const pathname = window.location.pathname.toLowerCase()
-    if (pathname === '/' || pathname === '') {
-        return <LandingPage />
-    }
     if (pathname === '/legal/aviso-privacidad') {
         return <LegalPage type="privacy" />
     }
@@ -37,16 +33,7 @@ function resolveAppNode() {
     if (pathname === '/checkout/failure') {
         return <CheckoutStatusPage statusType="failure" />
     }
-    if (pathname === '/monotickets' || pathname === '/monotickets/') {
-        return <MonoticketsComingSoonPage />
-    }
-    if (pathname === '/en-construccion' || pathname === '/en-construccion/') {
-        return <MonoticketsComingSoonPage />
-    }
-    if (pathname === '/404' || pathname === '/404/') {
-        return <NotFoundPage />
-    }
-    return <NotFoundPage />
+    return <LandingPage />
 }
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(

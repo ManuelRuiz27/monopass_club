@@ -8,7 +8,7 @@
 Controla tus accesos. Elimina pérdidas. Olvídate del papel.
 
 ### Subheadline:
-Pass Monkey reemplaza los talonarios físicos y organiza el control de colaboradores de venta, cortes y accesos en tiempo real — sin afectar tu flujo en efectivo.
+Pass Monkey reemplaza los talonarios físicos y organiza el control de RPs, cortes y accesos en tiempo real — sin afectar tu flujo en efectivo.
 
 ### CTA Principal:
 [ Agenda tu Demo ]  
@@ -22,14 +22,14 @@ Pass Monkey reemplaza los talonarios físicos y organiza el control de colaborad
 - Talonarios físicos.
 - Boletos extraviados.
 - Cortes poco claros.
-- Colaboradores de venta sin trazabilidad.
+- RPs sin trazabilidad.
 - Dependencia de imprentas.
 - Logística innecesaria.
 
 ### Después (Con Pass Monkey)
 - Boletos digitales generados en segundos.
 - Escaneo con celular.
-- Corte automático por colaborador de venta.
+- Corte automático por RP.
 - Histórico de accesos reales.
 - Sin papel.
 - Sin fugas.
@@ -40,7 +40,7 @@ Pass Monkey reemplaza los talonarios físicos y organiza el control de colaborad
 ## 3. CÓMO FUNCIONA (3 PASOS)
 
 1. Creas tu evento.
-2. Asignas boletos digitales a cada colaborador de venta.
+2. Asignas boletos digitales a cada RP.
 3. Escaneas en puerta y obtienes tu corte automático.
 
 Incluye modo offline en escáner para eventos con señal inestable.
@@ -88,7 +88,7 @@ No. Solo escanean con la cámara del celular desde la app.
 El sistema tiene modo offline por evento.
 
 ### ¿Cómo sé que realmente funciona?
-En el primer evento verás el corte detallado por colaborador de venta y accesos reales escaneados.
+En el primer evento verás el corte detallado por RP y accesos reales escaneados.
 
 ### ¿Esto reemplaza mi flujo en efectivo?
 No. Solo reemplaza el talonario físico y ordena tu operación.
@@ -100,7 +100,7 @@ No. Solo reemplaza el talonario físico y ordena tu operación.
 Espacio para:
 - Testimonio real de club.
 - Métrica de reducción de fugas.
-- Opinión de colaborador de venta o DJ.
+- Opinión de RP o DJ.
 
 ---
 
@@ -132,7 +132,7 @@ Entonces necesitas un sistema completo de boletera digital.
 
 ### Presentamos:
 
-## Monotickets by Soft-Monkey
+## Monotickets by SoftMonkeyBar
 
 Venta online.
 Pasarelas de pago.
@@ -161,7 +161,7 @@ Panel completo de organizador.
 
 Esta sección debe incluir:
 
-- Sello visual Soft-Monkey.
+- Sello visual SoftMonkeyBar.
 - Logo oficial.
 - Paleta institucional.
 - Separación visual clara respecto a Pass Monkey.

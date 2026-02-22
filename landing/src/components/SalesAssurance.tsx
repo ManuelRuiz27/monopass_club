@@ -7,7 +7,7 @@ type SalesAssuranceProps = {
 const assurances = [
   'Activacion guiada para que no pierdas tiempo antes de abrir puertas.',
   'Sin amarrarte: pagas por evento o mensual segun tu ritmo.',
-  'Soporte real para manager, colaborador de venta y staff en la implementacion.',
+  'Soporte real para manager, RP y staff en la implementacion.',
   'Estatus de orden claro para que tu equipo se mueva sin dudas.',
 ]
 

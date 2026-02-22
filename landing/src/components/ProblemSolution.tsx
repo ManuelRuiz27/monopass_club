@@ -3,7 +3,7 @@ import { XCircle, CheckCircle2 } from 'lucide-react'
 const problems = [
     'Talonarios físicos que se mojan o pierden',
     'Fugas en puerta imposibles de rastrear',
-    'Cortes de colaboradores de venta a las 4 AM en papel',
+    'Cortes de RPs a las 4 AM en papel',
     'Boletos duplicados o pasados por reja',
     'Dependencia de imprentas cada semana',
 ]
@@ -11,7 +11,7 @@ const problems = [
 const solutions = [
     'Tickets generados en segundos por WhatsApp',
     'Control de aforo y caja en tiempo real',
-    'Corte automático por colaborador de venta sin calcular nada',
+    'Corte automático por RP sin calcular nada',
     'Escáner offline bloquea el 100% de duplicados',
     'Inventario digital infinito sin costo de papel',
 ]

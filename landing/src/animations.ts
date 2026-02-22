@@ -7,10 +7,6 @@ function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
-function shouldEnableMobileClubEffects() {
-  return window.matchMedia('(max-width: 768px) and (pointer: coarse)').matches
-}
-
 export function initHeroTimeline(root: HTMLElement) {
   if (prefersReducedMotion()) return () => {}
 
@@ -80,116 +76,6 @@ export function initScrollReveals(root: HTMLElement) {
   }, root)
 
   return () => context.revert()
-}
-
-export function initMobileClubEffects(root: HTMLElement) {
-  if (prefersReducedMotion() || !shouldEnableMobileClubEffects()) return () => {}
-
-  const doc = document.documentElement
-  const body = document.body
-  const hitSelector =
-    '.pm-button, .pricing-card, .step-card, .benefits-list__item, .faq-item__trigger, .comparison-table__row'
-  const hitTimers = new Map<HTMLElement, number>()
-  const hueTo = gsap.quickTo(doc, '--pm-rave-hue', { duration: 0.4, ease: 'power2.out' })
-  const intensityTo = gsap.quickTo(doc, '--pm-rave-intensity', { duration: 0.35, ease: 'power2.out' })
-
-  const setVar = (name: string, value: string) => {
-    doc.style.setProperty(name, value)
-  }
-  let scrollRaf: number | null = null
-
-  const burst = () => {
-    gsap.fromTo(
-      doc,
-      { '--pm-rave-scale': 1.16, '--pm-rave-intensity': 0.64 },
-      { '--pm-rave-scale': 1, '--pm-rave-intensity': 0.28, duration: 0.85, ease: 'expo.out', overwrite: 'auto' },
-    )
-  }
-
-  const updateFromScroll = () => {
-    const maxScroll = Math.max(doc.scrollHeight - window.innerHeight, 1)
-    const progress = Math.min(window.scrollY / maxScroll, 1)
-    const nextY = 14 + progress * 62
-    const nextHue = 194 + progress * 96
-    const nextIntensity = 0.2 + Math.sin(progress * Math.PI) * 0.14
-
-    setVar('--pm-rave-y', `${nextY.toFixed(2)}%`)
-    hueTo(nextHue)
-    intensityTo(nextIntensity)
-  }
-
-  const onPointerDown = (event: PointerEvent) => {
-    if (event.pointerType === 'mouse') return
-
-    const viewportWidth = window.innerWidth || 1
-    const viewportHeight = window.innerHeight || 1
-    const x = Math.min(Math.max((event.clientX / viewportWidth) * 100, 0), 100)
-    const y = Math.min(Math.max((event.clientY / viewportHeight) * 100, 0), 100)
-    setVar('--pm-rave-x', `${x.toFixed(2)}%`)
-    setVar('--pm-rave-y', `${y.toFixed(2)}%`)
-    burst()
-
-    const target = event.target as HTMLElement | null
-    const hitTarget = target?.closest<HTMLElement>(hitSelector)
-    if (!hitTarget) return
-
-    const previousTimer = hitTimers.get(hitTarget)
-    if (previousTimer) window.clearTimeout(previousTimer)
-
-    hitTarget.classList.remove('club-hit')
-    void hitTarget.offsetWidth
-    hitTarget.classList.add('club-hit')
-
-    const timeout = window.setTimeout(() => {
-      hitTarget.classList.remove('club-hit')
-      hitTimers.delete(hitTarget)
-    }, 420)
-
-    hitTimers.set(hitTarget, timeout)
-  }
-
-  body.classList.add('mobile-club-fx')
-  setVar('--pm-rave-x', '52%')
-  setVar('--pm-rave-y', '16%')
-  setVar('--pm-rave-hue', '202')
-  setVar('--pm-rave-intensity', '0.28')
-  setVar('--pm-rave-scale', '1')
-
-  const scheduleScrollUpdate = () => {
-    if (scrollRaf !== null) return
-    scrollRaf = window.requestAnimationFrame(() => {
-      scrollRaf = null
-      updateFromScroll()
-    })
-  }
-
-  updateFromScroll()
-  window.addEventListener('scroll', scheduleScrollUpdate, { passive: true })
-  window.addEventListener('resize', scheduleScrollUpdate)
-  root.addEventListener('pointerdown', onPointerDown, { passive: true })
-
-  return () => {
-    window.removeEventListener('scroll', scheduleScrollUpdate)
-    window.removeEventListener('resize', scheduleScrollUpdate)
-    root.removeEventListener('pointerdown', onPointerDown)
-    if (scrollRaf !== null) {
-      window.cancelAnimationFrame(scrollRaf)
-      scrollRaf = null
-    }
-
-    for (const [node, timer] of hitTimers.entries()) {
-      window.clearTimeout(timer)
-      node.classList.remove('club-hit')
-    }
-    hitTimers.clear()
-
-    body.classList.remove('mobile-club-fx')
-    doc.style.removeProperty('--pm-rave-x')
-    doc.style.removeProperty('--pm-rave-y')
-    doc.style.removeProperty('--pm-rave-hue')
-    doc.style.removeProperty('--pm-rave-intensity')
-    doc.style.removeProperty('--pm-rave-scale')
-  }
 }
 
 // Backward-compatible helpers still used by legacy landing components.

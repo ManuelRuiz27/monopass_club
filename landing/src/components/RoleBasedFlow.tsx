@@ -90,15 +90,15 @@ const roles: RoleConfig[] = [
     label: 'MANAGER',
     icon: Monitor,
     title: 'Tu panel de control',
-    desc: 'Configura eventos en minutos, asigna cupos por colaborador de venta y mira ventas y aforo en tiempo real.',
+    desc: 'Configura eventos en minutos, asigna cupos por RP y mira ventas y aforo en tiempo real.',
     image: '/assets/screenshots/manager-dashboard.png',
   },
   {
     id: 'rp',
-    label: 'COLABORADOR DE VENTA',
+    label: 'RP / EMBAJADOR',
     icon: Smartphone,
     title: 'Venta por WhatsApp',
-    desc: 'Tus colaboradores de venta no instalan nada. Generas sus enlaces y lo controlan por WhatsApp. Cero fricción.',
+    desc: 'Tus RPs no instalan nada. Generas sus enlaces y lo controlan por WhatsApp. Cero fricción.',
     image: '/assets/screenshots/rp-sharing.png',
     imageFit: 'contain',
   },
@@ -116,7 +116,7 @@ const roles: RoleConfig[] = [
     label: 'CLIENTE / INVITADO',
     icon: Ticket,
     title: 'Acceso premium',
-    desc: 'Tus asistentes reciben su pase digital, tu colaborador de venta maneja el cover como siempre, pero con la seguridad de tener control en caja al final de la noche.',
+    desc: 'Tus asistentes reciben su pase digital, tu rp maneja el cover como siempre, pero con la seguridad de tener control en caja al final de la noche.',
     image: TICKET_REF_SRC,
     imageFit: 'contain',
   },
@@ -134,8 +134,8 @@ function ManagerWorkflowSimulation() {
 
 function RpWorkflowSimulation() {
   return (
-    <div className="role-flow-rp-sim key-anim-fade" aria-label="Demo del flujo de colaborador de venta">
-      <img src="/assets/screenshots/rp-dashboard.png" alt="Dashboard colaborador de venta" className="rp-sim-layer rp-sim-layer--dashboard" />
+    <div className="role-flow-rp-sim key-anim-fade" aria-label="Demo del flujo de RP / Embajador">
+      <img src="/assets/screenshots/rp-dashboard.png" alt="Dashboard RP" className="rp-sim-layer rp-sim-layer--dashboard" />
       <div className="rp-sim-pointer rp-sim-pointer--dash" />
 
       <img src="/assets/screenshots/rp-form.png" alt="Formulario de Ticket" className="rp-sim-layer rp-sim-layer--form" />
@@ -268,7 +268,7 @@ export function RoleBasedFlow() {
       <div className="container">
         <div className="text-center mb-16">
           <h2 className="section-title">EL FLUJO MONOPASS</h2>
-          <p className="section-subtitle">Una experiencia conectada para manager, colaborador de venta, staff y cliente.</p>
+          <p className="section-subtitle">Una experiencia conectada para manager, RP, staff y cliente.</p>
         </div>
 
         <div className="role-flow">
@@ -351,7 +351,7 @@ export function RoleBasedFlow() {
                 ) : null}
                 {activeRole === 'rp' ? (
                   <>
-                    <li>- Link unico por colaborador de venta para compartir rapido</li>
+                    <li>- Link unico por RP para compartir rapido</li>
                     <li>- Seguimiento de accesos por promotor</li>
                     <li>- Cero papel y menos errores manuales</li>
                   </>

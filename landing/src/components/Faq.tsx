@@ -11,7 +11,7 @@ const faqItems = [
   },
   {
     q: '¿Cómo sé que realmente funciona?',
-    a: 'En el primer evento verás el corte detallado por colaborador de venta y accesos reales escaneados.',
+    a: 'En el primer evento verás el corte detallado por RP y accesos reales escaneados.',
   },
   {
     q: '¿Esto reemplaza mi flujo en efectivo?',

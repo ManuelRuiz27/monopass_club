@@ -2,33 +2,19 @@
 import { HeroSection } from './HeroSection.tsx'
 import { HowItWorksSection } from './HowItWorksSection.tsx'
 import { BenefitsSection } from './BenefitsSection.tsx'
-import { OfflineModeSection } from './OfflineModeSection.tsx'
-import { SocialProofSection } from './SocialProofSection.tsx'
 import { PricingSection } from './PricingSection.tsx'
+import { ComparisonSection } from './ComparisonSection.tsx'
 import { FaqSection } from './FaqSection.tsx'
-import { MonoticketsHandoffSection } from './MonoticketsHandoffSection.tsx'
 import { FinalCtaSection } from './FinalCtaSection.tsx'
-import { StickyMobileCta } from './StickyMobileCta.tsx'
 import { FooterSection } from './FooterSection.tsx'
 import { ActivationModal } from './ActivationModal.tsx'
 import { trackLandingEvent } from '../lib/analytics.ts'
-import { initHeroTimeline, initMobileClubEffects, initScrollReveals } from '../animations.ts'
+import { initHeroTimeline, initScrollReveals } from '../animations.ts'
 import type { LandingPricing } from '../lib/publicApi.ts'
 
 type MonthlyPlan = 'club' | 'pro' | null
 
-const TRACKED_SECTION_IDS = [
-  'hero',
-  'beneficio-economico',
-  'como-funciona',
-  'modo-offline',
-  'prueba-social',
-  'pricing',
-  'faq',
-  'handoff-monotickets',
-  'cta-final',
-  'footer',
-]
+const TRACKED_SECTION_IDS = ['hero', 'como-funciona', 'beneficios', 'pricing', 'comparativo', 'faq', 'cta-final', 'footer']
 
 function formatCurrency(value: number, currency: string) {
   return new Intl.NumberFormat('es-MX', {
@@ -45,7 +31,7 @@ function scrollToSection(sectionId: string) {
 export function LandingPage() {
   const [activationOpen, setActivationOpen] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState<MonthlyPlan>(null)
-  const [eventPriceLabel, setEventPriceLabel] = useState('$700')
+  const [eventPriceLabel, setEventPriceLabel] = useState('$750')
   const rootRef = useRef<HTMLDivElement>(null)
 
   const handleOpenActivation = useCallback((location: string) => {
@@ -53,9 +39,9 @@ export function LandingPage() {
     setActivationOpen(true)
   }, [])
 
-  const handleScheduleDemo = useCallback((location: string) => {
-    trackLandingEvent('cta_schedule_demo_click', { location })
-    scrollToSection('cta-final')
+  const handleViewPricing = useCallback(() => {
+    trackLandingEvent('cta_view_pricing_click', { location: 'hero' })
+    scrollToSection('pricing')
   }, [])
 
   const handleSelectMonthlyPlan = useCallback((plan: 'club' | 'pro') => {
@@ -104,12 +90,10 @@ export function LandingPage() {
     // Shared animation entrypoint: hero timeline + reveal motions with reduced-motion guards.
     const cleanupHero = initHeroTimeline(root)
     const cleanupReveals = initScrollReveals(root)
-    const cleanupMobileClub = initMobileClubEffects(root)
 
     return () => {
       cleanupHero()
       cleanupReveals()
-      cleanupMobileClub()
     }
   }, [])
 
@@ -118,31 +102,23 @@ export function LandingPage() {
       <HeroSection
         eventPriceLabel={eventPriceLabel}
         onActivateEvent={() => handleOpenActivation('hero')}
-        onScheduleDemo={() => handleScheduleDemo('hero')}
+        onViewPricing={handleViewPricing}
       />
-      <BenefitsSection />
       <HowItWorksSection />
-      <OfflineModeSection />
-      <SocialProofSection />
+      <BenefitsSection />
       <PricingSection
         onActivateEvent={() => handleOpenActivation('pricing')}
         onSelectMonthlyPlan={handleSelectMonthlyPlan}
         onPricingResolved={handlePricingResolved}
       />
+      <ComparisonSection />
       <FaqSection />
-      <MonoticketsHandoffSection />
       <FinalCtaSection
         selectedPlan={selectedPlan}
         eventPriceLabel={eventPriceLabel}
         onActivateEvent={() => handleOpenActivation('cta_final')}
       />
       <FooterSection />
-      <StickyMobileCta
-        eventPriceLabel={eventPriceLabel}
-        hidden={activationOpen}
-        onScheduleDemo={() => handleScheduleDemo('sticky_mobile')}
-        onActivateEvent={() => handleOpenActivation('sticky_mobile')}
-      />
 
       <ActivationModal open={activationOpen} eventPriceLabel={eventPriceLabel} onClose={() => setActivationOpen(false)} />
     </div>

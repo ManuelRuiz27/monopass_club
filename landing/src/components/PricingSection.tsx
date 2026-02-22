@@ -62,10 +62,10 @@ export function PricingSection({ onActivateEvent, onSelectMonthlyPlan, onPricing
         <header className="section-header" data-reveal>
           <p className="section-header__eyebrow">Producto y planes</p>
           <h2 className="section-header__title" id="pricing-title">
-            Empieza con una fecha o escala por mes.
+            Elige tu ritmo: prueba pagada o operacion mensual.
           </h2>
           <p className="section-header__description">
-            Mismo flujo de control de puerta, con corte por colaborador de venta.
+            Pago automatico o mensual manual. Cancelacion flexible.
           </p>
         </header>
 
@@ -91,10 +91,10 @@ export function PricingSection({ onActivateEvent, onSelectMonthlyPlan, onPricing
             <ul className="pricing-card__features">
               <li>1 evento activo</li>
               <li>QR dinamico y validacion en puerta</li>
-              <li>Corte por colaborador de venta</li>
+              <li>Reporte operativo basico</li>
             </ul>
             <button type="button" className="pm-button pm-button--primary" onClick={onActivateEvent}>
-              Primer evento {values.eventPrice}
+              Activar 1 evento
             </button>
           </article>
 

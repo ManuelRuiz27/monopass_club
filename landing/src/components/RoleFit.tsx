@@ -5,7 +5,7 @@ const roleCards = [
     outcome: 'Panel en vivo con accesos claros y ritmo operativo estable.',
   },
   {
-    role: 'Equipo colaborador de venta',
+    role: 'Equipo RP',
     pain: 'Necesita mover invitados rapido y sin confusiones.',
     outcome: 'Accesos listos para compartir con imagen oficial del evento.',
   },

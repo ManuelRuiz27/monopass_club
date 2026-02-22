@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from 'react'
 type HeroSectionProps = {
   eventPriceLabel: string
   onActivateEvent: () => void
-  onScheduleDemo: () => void
+  onViewPricing: () => void
 }
 
-export function HeroSection({ eventPriceLabel, onActivateEvent, onScheduleDemo }: HeroSectionProps) {
+export function HeroSection({ eventPriceLabel, onActivateEvent, onViewPricing }: HeroSectionProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [activeStep, setActiveStep] = useState(0)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
@@ -57,35 +57,34 @@ export function HeroSection({ eventPriceLabel, onActivateEvent, onScheduleDemo }
       <div className="landing-container hero-section__layout">
         <div className="hero-section__content" data-hero-content>
           <p className="hero-section__kicker" data-hero-kicker>
-            Pass Monkey | Control de acceso para noches en efectivo
+            Pass Monkey | Accesos para eventos
           </p>
-          <p className="hero-section__badge">Corte claro por colaborador de venta. Sin papel. Sin caos.</p>
+          <p className="hero-section__badge">Operacion clara. Sin papel. Sin caos.</p>
           <h1 className="hero-section__title" id="hero-title">
-            <span data-hero-title-line>Cuida tu ingreso en puerta y cierra con corte confiable.</span>
+            <span data-hero-title-line>Deja de imprimir boletos.</span>
           </h1>
           <p className="hero-section__subtitle" data-hero-subtitle>
-            Controla accesos en tiempo real, evita fugas del efectivo y revisa cortes por colaborador de venta sin
-            discutir al final de la noche.
+            Controla accesos en tiempo real con QR dinamico y escaneo profesional en puerta.
           </p>
           <div className="hero-section__actions" data-hero-actions>
-            <button type="button" className="pm-button pm-button--primary" onClick={onScheduleDemo}>
-              Agenda tu demo privada
+            <button type="button" className="pm-button pm-button--primary" onClick={onActivateEvent}>
+              Activar 1 evento por {eventPriceLabel}
               <ArrowRight size={18} aria-hidden="true" />
             </button>
-            <button type="button" className="pm-button pm-button--ghost" onClick={onActivateEvent}>
-              Primer evento {eventPriceLabel}
+            <button type="button" className="pm-button pm-button--ghost" onClick={onViewPricing}>
+              Ver planes mensuales
             </button>
           </div>
           <p className="hero-section__microcopy" data-hero-microcopy>
-            Activo en minutos. Sin contratos forzosos. Ideal para managers, DJs y organizadores cash-heavy.
+            Activo en minutos. Sin contratos. Pago por evento o mensual.
           </p>
           <div className="hero-section__ops" aria-label="Resultados operativos">
-            <span>Corte automatico por colaborador de venta</span>
-            <span>Menos fugas por reingresos y duplicados</span>
-            <span>Operacion estable en puerta, incluso sin internet</span>
+            <span>Menos filas y broncas</span>
+            <span>Reduce clonaciones y reingresos</span>
+            <span>Dashboard en tiempo real</span>
           </div>
           <p className="hero-section__segments" data-hero-segments>
-            Hecho para clubes, antros, bares con DJ y eventos privados donde manda el flujo en efectivo.
+            Hecho para clubes, bares con DJ, corporativos, bodas y eventos privados.
           </p>
         </div>
 

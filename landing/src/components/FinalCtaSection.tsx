@@ -121,19 +121,20 @@ export function FinalCtaSection({ selectedPlan, eventPriceLabel, onActivateEvent
           <header className="section-header section-header--compact">
             <p className="section-header__eyebrow">Siguiente paso</p>
             <h2 className="section-header__title" id="final-cta-title">
-              Agenda tu demo privada y define el flujo de tu siguiente fecha.
+              Activa hoy o agenda demo para tu siguiente fecha fuerte.
             </h2>
             <p className="section-header__description">
-              Te mostramos corte por colaborador de venta, control de puerta y modo offline aplicado a tu operacion.
+              Pass Monkey funciona para equipos de club, productores de eventos y venues privados que necesitan control
+              real en puerta.
             </p>
           </header>
 
           <div className="final-cta-shell__actions">
-            <button type="button" className="pm-button pm-button--primary" onClick={handleScheduleDemoClick}>
-              Agenda tu demo privada
+            <button type="button" className="pm-button pm-button--primary" onClick={onActivateEvent}>
+              Activar 1 evento por {eventPriceLabel}
             </button>
-            <button type="button" className="pm-button pm-button--ghost" onClick={onActivateEvent}>
-              Primer evento {eventPriceLabel}
+            <button type="button" className="pm-button pm-button--secondary" onClick={handleScheduleDemoClick}>
+              Agendar demo
             </button>
           </div>
 
@@ -141,7 +142,7 @@ export function FinalCtaSection({ selectedPlan, eventPriceLabel, onActivateEvent
           <div className="final-cta-shell__proofs" aria-label="Tipo de operaciones atendidas">
             <span>Clubes nocturnos</span>
             <span>Bares y restaurantes con DJ</span>
-            <span>Organizadores de eventos cash-heavy</span>
+            <span>Corporativos y eventos privados</span>
           </div>
 
           <form

@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react'
 import { CheckCircle2 } from 'lucide-react'
 
 const benefits = [
-  'Fugas de 5-10% suelen venir de papel, reingresos no controlados y cierres tardios.',
-  'Cada acceso queda registrado para revisar diferencias sin discusiones en caja.',
-  'El corte por colaborador de venta sale claro para pago y seguimiento.',
-  'Menos tiempo en arqueo nocturno y mas foco en operar la siguiente fecha.',
+  'Menos filas y broncas en la entrada.',
+  'Reduce clonaciones y reingresos no autorizados.',
+  'Escaneo rapido con auditoria operativa.',
+  'Dashboard en tiempo real para decisiones en piso.',
 ]
 
-const managerFlowSteps = ['Accesos validados', 'Corte por colaborador de venta', 'Seguimiento de diferencias']
+const managerFlowSteps = ['Crear evento', 'Cargar flyer', 'Generar accesos']
 
 export function BenefitsSection() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
@@ -23,21 +23,16 @@ export function BenefitsSection() {
   }, [])
 
   return (
-    <section
-      className="landing-section benefits-section"
-      id="beneficio-economico"
-      aria-labelledby="benefits-title"
-      data-reveal
-    >
+    <section className="landing-section benefits-section" id="beneficios" aria-labelledby="benefits-title" data-reveal>
       <div className="landing-container benefits-layout">
         <header className="section-header" data-reveal>
-          <p className="section-header__eyebrow">Beneficio economico</p>
+          <p className="section-header__eyebrow">Beneficios operativos</p>
           <h2 className="section-header__title" id="benefits-title">
-            Menos fugas en efectivo, mas tranquilidad al cerrar la noche.
+            Menos caos en puerta. Mas control en cada acceso.
           </h2>
           <p className="section-header__description">
-            Cuando la puerta depende de papel y memoria, el margen de perdida puede crecer. Pass Monkey ordena acceso y
-            corte para que cada fecha cierre con claridad.
+            Pass Monkey esta pensado para operaciones nocturnas exigentes: club lleno, flujo constante y cero margen de
+            error.
           </p>
         </header>
 
@@ -52,8 +47,8 @@ export function BenefitsSection() {
 
         <article className="benefits-section__proof" data-reveal>
           <div className="benefits-section__proof-head">
-            <p>Vista de control para managers y gerencia</p>
-            <span>Corte y seguimiento en una sola vista</span>
+            <p>Vista operativa en produccion</p>
+            <span>Flujo manager en desktop</span>
           </div>
 
           {prefersReducedMotion ? (
@@ -86,7 +81,7 @@ export function BenefitsSection() {
           </div>
 
           <p className="benefits-section__proof-note">
-            Tu equipo valida accesos y el sistema deja el rastro listo para revisar caja con respaldo.
+            El manager configura evento, carga flyer y genera accesos digitales listos para compartir.
           </p>
         </article>
       </div>
