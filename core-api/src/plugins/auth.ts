@@ -38,6 +38,12 @@ const authPlugin: FastifyPluginAsync = async (app) => {
       throw app.httpErrors.forbidden('Solo scanners pueden acceder a este recurso')
     }
   })
+
+  app.decorate('authorizeDirector', async function (request) {
+    if (request.user?.role !== UserRole.DIRECTOR) {
+      throw app.httpErrors.forbidden('Solo director puede acceder a este recurso')
+    }
+  })
 }
 
 export default fp(authPlugin)

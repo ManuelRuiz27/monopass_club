@@ -25,6 +25,7 @@ docker compose --profile seed run --rm db-seed
 ```
 
 Credenciales demo sembradas (`changeme123` como password):
+- `director.demo`
 - `manager.demo`
 - `rp.demo`
 - `scanner.demo`
@@ -90,6 +91,21 @@ $env:STORYBOOK_TESTS='true'; npm run test -w frontend; Remove-Item Env:STORYBOOK
 # ó (bash)
 STORYBOOK_TESTS=true npm run test -w frontend
 ```
+
+## Director Monetizacion (nuevo)
+- Rutas Director (backend): `\/director\/plans`, `\/director\/subscriptions`, `\/director\/invoices`, `\/director\/payments/:id/refund`, `\/director\/finance/*`, `\/director\/ledger-entries`, `\/director\/revenue-dashboard`, `\/director\/reports/monetization`.
+- Webhook provider-agnostico (placeholder): `POST /payments/webhook/:provider`.
+- Dinero en backend se guarda en **centavos MXN** (`Int`).
+- Calculadora financiera MX es un **estimador interno** (no asesoria fiscal/legal).
+
+### Feature flags de adapters de pago (stubs)
+Si un provider aun no esta integrado, el endpoint webhook usa un adapter stub y responde con estructura valida.
+- `DIRECTOR_PAYMENTS_STRIPE_ENABLED=true|false`
+- `DIRECTOR_PAYMENTS_CONEKTA_ENABLED=true|false`
+- `DIRECTOR_PAYMENTS_MERCADOPAGO_ENABLED=true|false`
+- `DIRECTOR_PAYMENTS_OPENPAY_ENABLED=true|false`
+
+Por defecto se soporta `manual` y los demas providers quedan en modo stub.
 
 ## Limpieza
 ```bash

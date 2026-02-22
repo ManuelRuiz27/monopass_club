@@ -22,5 +22,6 @@ declare module 'fastify' {
     authorizeManager(request: FastifyRequest, reply: FastifyReply): Promise<void>
     authorizeRp(request: FastifyRequest, reply: FastifyReply): Promise<void>
     authorizeScanner(request: FastifyRequest, reply: FastifyReply): Promise<void>
+    authorizeDirector(request: FastifyRequest, reply: FastifyReply): Promise<void>
   }
 }

@@ -11,7 +11,8 @@ type Session = {
 }
 
 const SESSION_KEY = 'monopass_session'
-const RP_MOCK_ENABLED = import.meta.env.VITE_RP_MOCK === 'true'
+const APP_MOCK_ENABLED = import.meta.env.VITE_APP_MOCK === 'true'
+const RP_MOCK_ENABLED = import.meta.env.VITE_RP_MOCK === 'true' && !APP_MOCK_ENABLED
 
 type AuthContextValue = {
   session: Session | null

@@ -1,13 +1,14 @@
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, CalendarDays, Play } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 type HeroSectionProps = {
   eventPriceLabel: string
   onActivateEvent: () => void
+  onScheduleDemo: () => void
   onViewPricing: () => void
 }
 
-export function HeroSection({ eventPriceLabel, onActivateEvent, onViewPricing }: HeroSectionProps) {
+export function HeroSection({ eventPriceLabel, onActivateEvent, onScheduleDemo, onViewPricing }: HeroSectionProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [activeStep, setActiveStep] = useState(0)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
@@ -67,16 +68,26 @@ export function HeroSection({ eventPriceLabel, onActivateEvent, onViewPricing }:
             Controla accesos en tiempo real con QR dinamico y escaneo profesional en puerta.
           </p>
           <div className="hero-section__actions" data-hero-actions>
-            <button type="button" className="pm-button pm-button--primary" onClick={onActivateEvent}>
-              Activar 1 evento por {eventPriceLabel}
-              <ArrowRight size={18} aria-hidden="true" />
+            <a href="/demo" className="pm-button pm-button--primary">
+              <Play size={18} aria-hidden="true" />
+              Probar demo interactiva
+            </a>
+            <button type="button" className="pm-button pm-button--secondary" onClick={onScheduleDemo}>
+              <CalendarDays size={18} aria-hidden="true" />
+              Agendar demo guiada
             </button>
-            <button type="button" className="pm-button pm-button--ghost" onClick={onViewPricing}>
+          </div>
+          <div className="hero-section__meta-actions" aria-label="Acciones secundarias">
+            <button type="button" className="hero-section__text-action" onClick={onActivateEvent}>
+              Activar 1 evento por {eventPriceLabel}
+              <ArrowRight size={16} aria-hidden="true" />
+            </button>
+            <button type="button" className="hero-section__text-action" onClick={onViewPricing}>
               Ver planes mensuales
             </button>
           </div>
           <p className="hero-section__microcopy" data-hero-microcopy>
-            Activo en minutos. Sin contratos. Pago por evento o mensual.
+            Pruebalo primero y luego activa cuando tengas fecha. Sin contratos.
           </p>
           <div className="hero-section__ops" aria-label="Resultados operativos">
             <span>Menos filas y broncas</span>

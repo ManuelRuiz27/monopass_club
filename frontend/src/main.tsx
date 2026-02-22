@@ -9,8 +9,11 @@ import './styles/ui-components.css'
 import './index.css'
 import { AuthProvider } from '@/features/auth/AuthContext'
 import { ToastProvider } from '@/components/ToastProvider'
+import { installMockBackend } from '@/lib/mockBackend'
 
 const queryClient = new QueryClient()
+
+installMockBackend()
 
 console.log('Effective Environment:', {
   core: import.meta.env.VITE_CORE_API_BASE_URL,

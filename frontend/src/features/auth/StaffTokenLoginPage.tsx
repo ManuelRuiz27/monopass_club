@@ -29,7 +29,8 @@ export function StaffTokenLoginPage() {
   return (
     <main className="staff-token-screen">
       <section className="staff-token-card">
-        <p className="staff-token-card__brand">PassMonkey</p>
+        <img className="staff-token-card__logo" src="/assets/logos/pass-monkey-lockup-3d.png" alt="Pass Monkey" />
+        <p className="staff-token-card__brand">Staff access</p>
         <h1 className="staff-token-card__title">Staff Scanner</h1>
         <p className="staff-token-card__subtitle">Ingresa tu token de acceso para habilitar el escaner.</p>
         <form onSubmit={handleSubmit} className="form-grid">

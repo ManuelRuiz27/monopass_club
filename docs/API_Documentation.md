@@ -73,3 +73,48 @@ Obtiene un token JWT para acceder al sistema.
 | `403 Forbidden` | El usuario no tiene el rol necesario o intenta acceder datos de otro tenant. |
 | `409 Conflict` | Violación de reglas de negocio (ej. ticket ya usado, límite alcanzado). |
 | `429 Too Many Requests` | Exceso de peticiones (Rate Limit activado). |
+
+---
+
+## Director Monetizacion (Director-only)
+
+Estas rutas requieren JWT con rol `DIRECTOR`.
+
+### Planes
+- `GET /director/plans`
+- `POST /director/plans`
+- `GET /director/plans/:id`
+- `PATCH /director/plans/:id`
+- `DELETE /director/plans/:id` (archivo logico -> `status=archived`)
+
+### Suscripciones por club
+- `GET /director/subscriptions`
+- `POST /director/subscriptions`
+- `PATCH /director/subscriptions/:id`
+
+### Facturacion / Pagos / Refunds
+- `GET /director/invoices?status=&clubId=&dateFrom=&dateTo=&page=&pageSize=`
+- `GET /director/invoices/:id`
+- `POST /director/invoices`
+- `POST /director/invoices/:id/payments`
+- `POST /director/payments/:id/refund`
+
+### Ledger / Finanzas MX (estimador interno)
+- `GET /director/ledger-entries`
+- `POST /director/ledger-entries`
+- `PATCH /director/ledger-entries/:id`
+- `DELETE /director/ledger-entries/:id`
+- `GET /director/finance/summary?dateFrom=&dateTo=&presetId=`
+- `GET /director/finance-presets`
+- `POST /director/finance-presets`
+- `PATCH /director/finance-presets/:id`
+- `DELETE /director/finance-presets/:id`
+
+### Revenue / Reportes monetizacion
+- `GET /director/revenue-dashboard`
+- `GET /director/reports/monetization`
+
+### Webhook provider-agnostico (placeholder)
+- `POST /payments/webhook/:provider`
+- `provider`: `manual | stripe | conekta | mercadopago | openpay`
+- Firma por provider: `TODO` hasta configurar llaves/SDK.

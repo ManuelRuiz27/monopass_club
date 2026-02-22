@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { rpApi, type GuestType, type TicketDeliveryMethod } from '../api'
 import { useRpAssignments } from '../hooks'
+import { RpSectionHeader } from '../components/RpSectionHeader'
 import { BottomSheet, Button, CardEmptyState, PageErrorState, PageLoadingState } from '@/components/ui'
 
 function deliveryLabel(method: TicketDeliveryMethod | null) {
@@ -75,9 +76,13 @@ export function HistoryPage() {
   }
 
   return (
-    <div className="rp-history-page">
-      <h3 className="rp-history-page__title">Historial de entregas</h3>
-      <p className="rp-history-page__subtitle">Seguimiento del canal de entrega del acceso (WhatsApp o descarga) y hora registrada.</p>
+    <div className="rp-history-page rp-screen">
+      <RpSectionHeader
+        className="rp-screen__header"
+        eyebrow="RP app"
+        title="Historial de entregas"
+        description="Seguimiento del canal de entrega del acceso (WhatsApp o descarga) y hora registrada."
+      />
 
       <section className="rp-history-kpis" aria-label="Resumen de envios">
         <article>

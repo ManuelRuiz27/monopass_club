@@ -11,12 +11,15 @@
     },
     "dependencies": {
         "gsap": "^3.12.7",
+        "jsqr": "^1.4.0",
         "lucide-react": "^0.574.0",
+        "qrcode": "^1.5.4",
         "react": "^19.2.0",
         "react-dom": "^19.2.0",
         "zod": "^4.2.1"
     },
     "devDependencies": {
+        "@types/qrcode": "^1.5.6",
         "@types/react": "^19.2.5",
         "@types/react-dom": "^19.2.3",
         "@vitejs/plugin-react": "^5.1.1",

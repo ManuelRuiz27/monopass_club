@@ -6,6 +6,7 @@ import { Modal } from '@/components/Modal'
 import { useRpAssignments } from '../hooks'
 import { rpApi, type GuestType } from '../api'
 import { RpStateView } from '../components/RpStateView'
+import { RpSectionHeader } from '../components/RpSectionHeader'
 import { useToast } from '@/components/ToastProvider'
 import { Button, Input, PageLoadingState } from '@/components/ui'
 import { useGsapInteractiveScale } from '@/lib/motion/useGsapInteractiveScale'
@@ -186,10 +187,12 @@ export function RpEventsPage() {
   if (error || !data) {
     return (
       <div className="rp-screen">
-        <header className="rp-screen__header">
-          <h3 className="rp-screen__title">Accesos en vivo</h3>
-          <p className="rp-screen__description">Activa tickets digitales y comparte en segundos sin frenar ventas.</p>
-        </header>
+        <RpSectionHeader
+          className="rp-screen__header"
+          eyebrow="RP app"
+          title="Accesos en vivo"
+          description="Activa tickets digitales y comparte en segundos sin frenar ventas."
+        />
 
         <RpStateView
           icon="wifi_off"
@@ -209,10 +212,12 @@ export function RpEventsPage() {
   if (activeEvents.length === 0) {
     return (
       <div className="rp-screen">
-        <header className="rp-screen__header">
-          <h3 className="rp-screen__title">Accesos en vivo</h3>
-          <p className="rp-screen__description">Activa tickets digitales y comparte en segundos sin frenar ventas.</p>
-        </header>
+        <RpSectionHeader
+          className="rp-screen__header"
+          eyebrow="RP app"
+          title="Accesos en vivo"
+          description="Activa tickets digitales y comparte en segundos sin frenar ventas."
+        />
 
         <RpStateView
           icon="event_busy"
@@ -225,10 +230,12 @@ export function RpEventsPage() {
 
   return (
     <div ref={screenRef} className="rp-screen">
-      <header className="rp-screen__header">
-        <h3 className="rp-screen__title">Accesos en vivo</h3>
-        <p className="rp-screen__description">Menos impresiones, mas flujo en puerta. Todo se comparte por link y queda trazable.</p>
-      </header>
+      <RpSectionHeader
+        className="rp-screen__header"
+        eyebrow="RP app"
+        title="Accesos en vivo"
+        description="Menos impresiones, mas flujo en puerta. Todo se comparte por link y queda trazable."
+      />
 
       <section className="rp-sales-proof" aria-label="Resumen comercial RP">
         <article>

@@ -4,6 +4,7 @@ import { LandingPage } from './components/LandingPage.tsx'
 import { LegalPage } from './components/LegalPage.tsx'
 import { CheckoutStatusPage } from './components/CheckoutStatusPage.tsx'
 import { MonoticketsComingSoonPage, NotFoundPage } from './components/MonoticketsComingSoonPage.tsx'
+import { DemoPage } from './components/DemoPage.tsx'
 import { trackLandingEvent } from './lib/analytics.ts'
 import { installMockBackend } from './lib/mockBackend.ts'
 import { captureUtmFromUrl } from './lib/utm.ts'
@@ -45,6 +46,9 @@ function resolveAppNode() {
     }
     if (pathname === '/404' || pathname === '/404/') {
         return <NotFoundPage />
+    }
+    if (pathname === '/demo' || pathname === '/demo/') {
+        return <DemoPage />
     }
     return <NotFoundPage />
 }

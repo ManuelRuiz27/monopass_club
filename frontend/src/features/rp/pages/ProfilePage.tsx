@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useAuth } from '@/features/auth/AuthContext'
 import { useRpAssignments } from '../hooks'
+import { RpSectionHeader } from '../components/RpSectionHeader'
 import { Button } from '@/components/ui'
 
 function resolveRpName(rawUserId: string | undefined) {
@@ -30,11 +31,8 @@ export function ProfilePage() {
   }, [data])
 
   return (
-    <div className="rp-profile-page">
-      <h3 className="rp-profile-page__title">Perfil</h3>
-      <p className="text-muted rp-profile-page__subtitle">
-        Datos basicos de tu cuenta RP.
-      </p>
+    <div className="rp-profile-page rp-screen">
+      <RpSectionHeader className="rp-screen__header" eyebrow="RP app" title="Perfil" description="Datos basicos de tu cuenta RP." />
 
       <article className="card rp-profile-card">
         <h4 className="rp-profile-card__title">Usuario</h4>

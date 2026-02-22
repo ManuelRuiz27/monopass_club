@@ -9,6 +9,7 @@ datasource db {
 }
 
 enum UserRole {
+  DIRECTOR
   MANAGER
   RP
   SCANNER
@@ -59,6 +60,81 @@ enum LicenseStatus {
   SUSPENDED
 }
 
+enum SubscriptionBillingPeriod {
+  monthly
+  annual
+  one_time
+}
+
+enum SubscriptionPlanStatus {
+  active
+  archived
+}
+
+enum PromotionStatus {
+  active
+  inactive
+  archived
+}
+
+enum ClubSubscriptionStatus {
+  trialing
+  active
+  past_due
+  canceled
+  paused
+}
+
+enum InvoiceType {
+  subscription
+  topup
+  manual_adjustment
+}
+
+enum InvoiceStatus {
+  draft
+  issued
+  paid
+  void
+}
+
+enum PaymentMethod {
+  cash
+  transfer
+  card
+  provider
+}
+
+enum PaymentProvider {
+  manual
+  stripe
+  conekta
+  mercadopago
+  openpay
+}
+
+enum PaymentStatus {
+  pending
+  succeeded
+  failed
+  refunded
+}
+
+enum LedgerEntryType {
+  revenue
+  expense
+  tax
+  refund
+  fee
+  adjustment
+}
+
+enum FinanceIsrMode {
+  none
+  simple_rate
+  brackets
+}
+
 model User {
   id              String           @id
   name            String
@@ -76,6 +152,8 @@ model User {
   scannerProfile  ScannerProfile?  @relation("ScannerUser")
   rpGroups        RpGroup[]        @relation("ManagerRpGroups")
   licenses        License[]        @relation("ManagerLicenses")
+  financePresets  FinancePreset[]  @relation("DirectorFinancePresets")
+  directorAuditLogs DirectorAuditLog[] @relation("DirectorAuditActor")
 }
 
 model ManagerSetting {
@@ -98,6 +176,10 @@ model Club {
   updatedAt DateTime @updatedAt
   events    Event[]
   licenses  License[] @relation("ClubLicenses")
+  subscriptions Subscription[]
+  invoices   Invoice[]
+  payments   Payment[]
+  ledgerEntries LedgerEntry[]
 }
 
 model Event {
@@ -306,4 +388,151 @@ model License {
   eventsRemaining Int?
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
+}
+
+model SubscriptionPlan {
+  id                         String                   @id @default(uuid())
+  name                       String
+  description                String?
+  billingPeriod              SubscriptionBillingPeriod
+  priceMxn                   Int
+  currency                   String                   @default("MXN")
+  includedEventsPerMonth     Int?
+  entitlements               Json?
+  overagePricePerEventMxn    Int?
+  status                     SubscriptionPlanStatus   @default(active)
+  createdAt                  DateTime                 @default(now())
+  updatedAt                  DateTime                 @updatedAt
+  subscriptions              Subscription[]
+}
+
+model Promotion {
+  id             String          @id @default(uuid())
+  code           String          @unique
+  percentOff     Int?
+  amountOffMxn   Int?
+  startsAt       DateTime?
+  endsAt         DateTime?
+  maxRedemptions Int?
+  redemptions    Int             @default(0)
+  status         PromotionStatus @default(active)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Subscription {
+  id                   String                @id @default(uuid())
+  club                 Club                   @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  clubId               String
+  plan                 SubscriptionPlan       @relation(fields: [planId], references: [id], onDelete: Restrict)
+  planId               String
+  status               ClubSubscriptionStatus @default(active)
+  startAt              DateTime
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  cancelAtPeriodEnd    Boolean               @default(false)
+  trialEndAt           DateTime?
+  seatsHostsLimit      Int?
+  metadata             Json?
+  overrides            Json?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  invoices             Invoice[]
+
+  @@index([clubId, status])
+}
+
+model Invoice {
+  id             String        @id @default(uuid())
+  club           Club          @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  clubId         String
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  subscriptionId String?
+  type           InvoiceType
+  subtotalMxn    Int
+  taxMxn         Int
+  totalMxn       Int
+  status         InvoiceStatus @default(draft)
+  issuedAt       DateTime?
+  dueAt          DateTime?
+  paidAt         DateTime?
+  items          Json
+  notes          String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  payments       Payment[]
+
+  @@index([clubId, status, dueAt])
+}
+
+model Payment {
+  id          String          @id @default(uuid())
+  invoice     Invoice         @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoiceId   String
+  club        Club            @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  clubId      String
+  method      PaymentMethod
+  provider    PaymentProvider?
+  providerRef String?
+  amountMxn   Int
+  feeMxn      Int             @default(0)
+  netMxn      Int
+  status      PaymentStatus   @default(pending)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  refundedAt  DateTime?
+  metadata    Json?
+
+  @@unique([provider, providerRef])
+  @@index([clubId, createdAt])
+}
+
+model LedgerEntry {
+  id            String         @id @default(uuid())
+  club          Club?          @relation(fields: [clubId], references: [id], onDelete: SetNull)
+  clubId        String?
+  type          LedgerEntryType
+  category      String
+  amountMxn     Int
+  referenceType String?
+  referenceId   String?
+  occurredAt    DateTime
+  notes         String?
+  metadata      Json?
+  createdAt     DateTime       @default(now())
+
+  @@index([occurredAt, type])
+  @@index([clubId, occurredAt])
+}
+
+model FinancePreset {
+  id                       String        @id @default(uuid())
+  directorUser             User          @relation("DirectorFinancePresets", fields: [directorUserId], references: [id], onDelete: Cascade)
+  directorUserId           String
+  name                     String
+  vatRate                  Float         @default(0.16)
+  isrMode                  FinanceIsrMode @default(none)
+  isrRate                  Float?
+  bracketsJson             Json?
+  defaultExpenseCategories Json?
+  notes                    String?
+  createdAt                DateTime      @default(now())
+  updatedAt                DateTime      @updatedAt
+
+  @@unique([directorUserId, name])
+}
+
+model DirectorAuditLog {
+  id          String   @id @default(uuid())
+  actorUser    User     @relation("DirectorAuditActor", fields: [actorUserId], references: [id], onDelete: Cascade)
+  actorUserId  String
+  action      String
+  entityType  String
+  entityId    String
+  beforeJson  Json?
+  afterJson   Json?
+  createdAt   DateTime @default(now())
+
+  @@index([entityType, entityId, createdAt])
+  @@index([actorUserId, createdAt])
 }

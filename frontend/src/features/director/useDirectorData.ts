@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { managerApi, type ClubDTO, type CutEventSummary, type EventDTO, type RpDTO, type ScannerDTO } from '@/features/manager/api'
+import { directorApi, type DirectorLandingAppointment, type DirectorManagerDTO } from './api'
 
 type ClubAggregateDraft = {
   clubId: string
@@ -27,6 +28,8 @@ export type DirectorClubAggregate = {
 }
 
 export type DirectorOverview = {
+  subscribedClubsActive: number
+  monthlySoldEvents: number
   clubsTotal: number
   clubsActive: number
   eventsTotal: number
@@ -57,6 +60,8 @@ export type DirectorData = {
   rps: RpDTO[]
   scanners: ScannerDTO[]
   cutEvents: CutEventSummary[]
+  landingAppointments: DirectorLandingAppointment[]
+  managers: DirectorManagerDTO[]
 }
 
 function createClubDraft(clubId: string, clubName: string, clubActive: boolean): ClubAggregateDraft {
@@ -96,11 +101,22 @@ export function useDirectorData(): { data: DirectorData | null; isLoading: boole
   const rpsQuery = useQuery({ queryKey: ['director', 'rps'], queryFn: managerApi.getRps })
   const scannersQuery = useQuery({ queryKey: ['director', 'scanners'], queryFn: managerApi.getScanners })
   const cutsQuery = useQuery({ queryKey: ['director', 'cuts'], queryFn: () => managerApi.getCuts() })
+  const managersQuery = useQuery({ queryKey: ['director', 'managers'], queryFn: directorApi.getManagers })
+  const landingAppointmentsQuery = useQuery({
+    queryKey: ['director', 'landing-appointments'],
+    queryFn: directorApi.getLandingAppointments,
+  })
 
   const isLoading =
-    clubsQuery.isLoading || eventsQuery.isLoading || rpsQuery.isLoading || scannersQuery.isLoading || cutsQuery.isLoading
+    clubsQuery.isLoading ||
+    eventsQuery.isLoading ||
+    rpsQuery.isLoading ||
+    scannersQuery.isLoading ||
+    cutsQuery.isLoading ||
+    managersQuery.isLoading ||
+    landingAppointmentsQuery.isLoading
 
-  const error = clubsQuery.error || eventsQuery.error || rpsQuery.error || scannersQuery.error || cutsQuery.error
+  const error = clubsQuery.error || eventsQuery.error || rpsQuery.error || scannersQuery.error || cutsQuery.error || managersQuery.error
 
   return useMemo(() => {
     if (isLoading || error) {
@@ -112,6 +128,8 @@ export function useDirectorData(): { data: DirectorData | null; isLoading: boole
     const rps = rpsQuery.data ?? []
     const scanners = scannersQuery.data ?? []
     const cutEvents = cutsQuery.data?.events ?? []
+    const managers = managersQuery.data ?? []
+    const landingAppointments = landingAppointmentsQuery.data ?? []
 
     const byClubDraft = new Map<string, ClubAggregateDraft>()
 
@@ -155,8 +173,25 @@ export function useDirectorData(): { data: DirectorData | null; isLoading: boole
     const generatedTotal = byClub.reduce((sum, item) => sum + item.generated, 0)
     const scannedTotal = cutsQuery.data?.total ?? byClub.reduce((sum, item) => sum + item.scanned, 0)
     const conversion = generatedTotal > 0 ? Math.round((scannedTotal / generatedTotal) * 100) : 0
+    const now = new Date()
+    const monthlySoldEvents = events.filter((event) => {
+      const startsAt = new Date(event.startsAt)
+      if (Number.isNaN(startsAt.getTime())) return false
+      if (startsAt.getFullYear() !== now.getFullYear() || startsAt.getMonth() !== now.getMonth()) return false
+      const generated = event.assignments.reduce((sum, assignment) => sum + assignment.usedAccesses, 0)
+      return generated > 0
+    }).length
+
+    const subscribedClubIds = new Set(
+      managers
+        .filter((manager) => manager.active && ['ACTIVE', 'TRIAL'].includes(manager.subscription.status))
+        .flatMap((manager) => manager.clubs.map((club) => club.id)),
+    )
+    const subscribedClubsActive = clubs.filter((club) => club.active && subscribedClubIds.has(club.id)).length
 
     const overview: DirectorOverview = {
+      subscribedClubsActive,
+      monthlySoldEvents,
       clubsTotal: clubs.length,
       clubsActive: clubs.filter((club) => club.active).length,
       eventsTotal: events.length,
@@ -214,6 +249,8 @@ export function useDirectorData(): { data: DirectorData | null; isLoading: boole
         rps,
         scanners,
         cutEvents,
+        landingAppointments,
+        managers,
       },
       isLoading: false,
       error: null,
@@ -226,5 +263,7 @@ export function useDirectorData(): { data: DirectorData | null; isLoading: boole
     rpsQuery.data,
     scannersQuery.data,
     cutsQuery.data,
+    managersQuery.data,
+    landingAppointmentsQuery.data,
   ])
 }

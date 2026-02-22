@@ -17,6 +17,7 @@ npm run storybook  # Componentes aislados
 - TanStack Query + cliente HTTP centralizado (`src/lib/httpClient.ts`) manejan JWT y base URLs (`VITE_CORE_API_BASE_URL`, `VITE_SCANNER_API_BASE_URL`).
 - Motion: puedes desactivar animaciones GSAP con VITE_DISABLE_MOTION=true (util para QA y accesibilidad forzada).
 - Mock RP local: activa `VITE_RP_MOCK=true` para probar flujo RP sin backend (eventos, generar acceso, historial y preview de ticket).
+- Mock full app local: activa `VITE_APP_MOCK=true` para mockear auth + APIs de Manager/RP/Scanner/Director sin backend.
 - Storybook 10 ya configurado con addon de accesibilidad y pruebas via Vitest.
 
 ## Login

@@ -24,6 +24,8 @@ const navByRole: Record<UserRole, Array<{ to: string; label: string; icon: strin
   ],
   DIRECTOR: [
     { to: '/director', label: 'Dashboard', icon: 'dashboard' },
+    { to: '/director/revenue', label: 'Monetizacion', icon: 'paid' },
+    { to: '/director/managers', label: 'Managers', icon: 'manage_accounts' },
     { to: '/director/comparative', label: 'Comparativo', icon: 'query_stats' },
     { to: '/director/historical', label: 'Historicas', icon: 'timeline' },
     { to: '/director/reports', label: 'Reportes', icon: 'description' },
@@ -36,7 +38,13 @@ const secondaryNav: Record<UserRole, Array<{ to: string; label: string; icon: st
   ],
   RP: [],
   SCANNER: [],
-  DIRECTOR: [{ to: '/director/status', label: 'Estados', icon: 'insights' }],
+  DIRECTOR: [
+    { to: '/director/plans', label: 'Planes', icon: 'sell' },
+    { to: '/director/subscriptions', label: 'Subs', icon: 'subscriptions' },
+    { to: '/director/billing', label: 'Billing', icon: 'receipt_long' },
+    { to: '/director/finance', label: 'Finanzas', icon: 'calculate' },
+    { to: '/director/status', label: 'Estados', icon: 'insights' },
+  ],
 }
 
 const roleHeaderCopy: Record<UserRole, { label: string; subtitle: string; pill: string; fallbackName: string }> = {
@@ -99,10 +107,13 @@ export function AppShell() {
   const headerCopy = roleHeaderCopy[role]
   const displayName = resolveDisplayName(session?.userId, role)
 
-  useGsapInteractiveScale(bottomNavRef, '.bottom-nav-item', role, { hoverScale: 1.03, pressScale: 0.97 })
+  useGsapInteractiveScale(bottomNavRef, '.bottom-nav-item', role, {
+    hoverScale: role === 'DIRECTOR' ? 1 : 1.03,
+    pressScale: role === 'DIRECTOR' ? 1 : 0.97,
+  })
 
   useLayoutEffect(() => {
-    if (prefersReducedMotion) return
+    if (prefersReducedMotion || role === 'DIRECTOR') return
 
     const activeItem = bottomNavRef.current?.querySelector<HTMLElement>('.bottom-nav-item.active')
     if (!activeItem) return
@@ -120,7 +131,7 @@ export function AppShell() {
     return () => {
       timeline.kill()
     }
-  }, [location.pathname, prefersReducedMotion])
+  }, [location.pathname, prefersReducedMotion, role])
 
   return (
     <div className={`app-shell-unified app-shell-unified--${role.toLowerCase()}`}>

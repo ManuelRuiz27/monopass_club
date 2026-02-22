@@ -12,6 +12,7 @@ import { registerCutRoutes } from '../../modules/cuts/routes'
 import { registerRpGroupRoutes } from '../../modules/rp-groups/routes'
 import { registerLeadRoutes } from '../../modules/leads/routes'
 import { registerLandingRoutes } from '../../modules/landing/routes'
+import { registerDirectorMonetizationRoutes } from '../../modules/director-monetization/routes'
 
 export async function registerRoutes(app: FastifyInstance) {
   await registerHealthRoutes(app)
@@ -27,4 +28,5 @@ export async function registerRoutes(app: FastifyInstance) {
   await registerRpGroupRoutes(app)
   await registerLeadRoutes(app)
   await registerLandingRoutes(app)
+  await registerDirectorMonetizationRoutes(app)
 }

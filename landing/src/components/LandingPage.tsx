@@ -18,6 +18,7 @@ type MonthlyPlan = 'club' | 'pro' | null
 const TRACKED_SECTION_IDS = [
   'hero',
   'como-funciona',
+  'demo-en-vivo',
   'beneficios',
   'pricing',
   'comparativo',
@@ -53,6 +54,11 @@ export function LandingPage() {
   const handleViewPricing = useCallback(() => {
     trackLandingEvent('cta_view_pricing_click', { location: 'hero' })
     scrollToSection('pricing')
+  }, [])
+
+  const handleScheduleDemo = useCallback((location: string) => {
+    trackLandingEvent('cta_schedule_demo_click', { location })
+    scrollToSection('cta-final')
   }, [])
 
   const handleSelectMonthlyPlan = useCallback((plan: 'club' | 'pro') => {
@@ -113,9 +119,60 @@ export function LandingPage() {
       <HeroSection
         eventPriceLabel={eventPriceLabel}
         onActivateEvent={() => handleOpenActivation('hero')}
+        onScheduleDemo={() => handleScheduleDemo('hero')}
         onViewPricing={handleViewPricing}
       />
+      <section className="landing-section landing-demo-focus" id="demo-en-vivo" aria-labelledby="demo-focus-title" data-reveal>
+        <div className="landing-container landing-demo-focus__layout">
+          <div className="landing-demo-focus__copy">
+            <p className="landing-demo-focus__eyebrow">Demo en vivo primero</p>
+            <h2 className="landing-demo-focus__title" id="demo-focus-title">
+              Haz la prueba completa: emite un acceso y validalo en el scanner.
+            </h2>
+            <p className="landing-demo-focus__description">
+              Antes de dejar tus datos, ¡Prueba la experiencia de generar accesos y escanearlos en tiempo real!
+              </p>
+            <ul className="landing-demo-focus__bullets" aria-label="Qué puedes probar en la demo">
+              <li>Emitir ticket demo con QR funcional</li>
+              <li>Escanear y validar el acceso en local</li>
+              <li>Ver bloqueo de reuso del boleto</li>
+            </ul>
+            <div className="landing-demo-focus__actions">
+              <a href="/demo" className="pm-button pm-button--primary">
+                Probar demo interactiva
+              </a>
+              <button
+                type="button"
+                className="pm-button pm-button--secondary"
+                onClick={() => handleScheduleDemo('demo_section')}
+              >
+                Agendar demo guiada
+              </button>
+            </div>
+          </div>
+
+          <div className="landing-demo-focus__preview" aria-label="Vista previa de la demo">
+            <p className="landing-demo-focus__preview-label">Vista previa (no interactiva)</p>
+            <div className="landing-demo-focus__preview-shell">
+              <img
+                src="/assets/screenshots/scanner-mobile-home.png"
+                alt="Preview del scanner movil de Pass Monkey"
+                className="landing-demo-focus__preview-image"
+              />
+              <div className="landing-demo-focus__preview-note" aria-hidden="true">
+                <span>1. Emites</span>
+                <span>2. Escaneas</span>
+                <span>3. Validas</span>
+              </div>
+            </div>
+            <p className="landing-demo-focus__preview-caption">
+              Los botones de arriba son el acceso real. Esta tarjeta solo muestra la interfaz.
+            </p>
+          </div>
+        </div>
+      </section>
       <HowItWorksSection />
+
       <BenefitsSection />
       <PricingSection
         onActivateEvent={() => handleOpenActivation('pricing')}
@@ -136,4 +193,3 @@ export function LandingPage() {
     </div>
   )
 }
-
