@@ -5,6 +5,8 @@ import jwt from '@fastify/jwt'
 import { env } from './config/env'
 import { registerRoutes } from './http/routes'
 import authPlugin from './plugins/auth'
+import { prisma } from './lib/prisma'
+import { seedDatabase } from './lib/seeder'
 
 function buildCorsOriginMatcher() {
   const value = env.CORS_ALLOWED_ORIGINS.trim()
@@ -48,7 +50,19 @@ export async function buildServer() {
 
 if (require.main === module) {
   buildServer()
-    .then((app) => app.listen({ port: env.PORT, host: '0.0.0.0' }))
+    .then(async (app) => {
+      try {
+        const userCount = await prisma.user.count()
+        if (userCount === 0) {
+          app.log.info('No users found in database, running initial seed...')
+          await seedDatabase(prisma)
+          app.log.info('Initial seed completed successfully.')
+        }
+      } catch (error) {
+        app.log.error(error, 'Error checking or running database seed on startup')
+      }
+      return app.listen({ port: env.PORT, host: '0.0.0.0' })
+    })
     .then(() => {
       console.log(`Core API listening on port ${env.PORT}`)
     })
