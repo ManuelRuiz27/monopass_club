@@ -16,103 +16,113 @@ function asMoney(value: number) {
 export function RevenueImpact({ onActivateClick }: RevenueImpactProps) {
   const [attendees, setAttendees] = useState(700)
   const [avgTicketPrice, setAvgTicketPrice] = useState(250)
-  const [leakageRate, setLeakageRate] = useState(4)
+  const [leakageRate, setLeakageRate] = useState(5)
 
   const numbers = useMemo(() => {
     const leakagePerEvent = attendees * avgTicketPrice * (leakageRate / 100)
     const leakagePerMonth = leakagePerEvent * 4
-    const leakagePerQuarter = leakagePerMonth * 3
-    const eventPrice = 750
-    const basePlan = 2999
     return {
       leakagePerEvent,
       leakagePerMonth,
-      leakagePerQuarter,
-      eventVsRecovery: leakagePerEvent - eventPrice,
-      planVsRecovery: leakagePerMonth - basePlan,
     }
   }, [attendees, avgTicketPrice, leakageRate])
 
   return (
     <section className="section-light" id="roi">
       <div className="container content-stack">
-        <h2 className="section-title">Mide cuanto dinero te deja una puerta ordenada</h2>
-        <p className="section-subtitle">
+        <h2 className="section-title" style={{ textAlign: 'center', maxWidth: '24ch', marginInline: 'auto' }}>
+          Mide cuanto dinero te deja una puerta ordenada
+        </h2>
+        <p className="section-subtitle" style={{ textAlign: 'center' }}>
           Cuando tu acceso fluye mejor, tu noche vende mejor.
         </p>
 
-        <div className="cards-grid cards-grid--two">
-          <article className="panel-card">
-            <h3>Tu escenario</h3>
-            <label className="roi-field" htmlFor="roi-attendees">
-              Asistentes por evento
+        <div className="cards-grid cards-grid--two" style={{ marginTop: '24px' }}>
+          <article className="panel-card" style={{ display: 'grid', gap: '24px' }}>
+            <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--pm-text)' }}>Tu escenario</h3>
+
+            <div className="roi-slider-group">
+              <div className="roi-slider-header">
+                <label htmlFor="roi-attendees">Asistentes por evento</label>
+                <span className="roi-slider-value">{attendees} pax</span>
+              </div>
               <input
                 id="roi-attendees"
-                className="lead__input"
-                type="number"
+                className="roi-slider"
+                type="range"
                 min={100}
+                max={1000}
                 step={50}
                 value={attendees}
-                onChange={(e) => setAttendees(Number(e.target.value) || 0)}
+                onChange={(e) => setAttendees(Number(e.target.value))}
               />
-            </label>
-            <label className="roi-field" htmlFor="roi-ticket-price">
-              Ticket promedio (MXN)
+            </div>
+
+            <div className="roi-slider-group">
+              <div className="roi-slider-header">
+                <label htmlFor="roi-ticket-price">Ticket promedio (MXN)</label>
+                <span className="roi-slider-value">{asMoney(avgTicketPrice)}</span>
+              </div>
               <input
                 id="roi-ticket-price"
-                className="lead__input"
-                type="number"
+                className="roi-slider"
+                type="range"
                 min={50}
-                step={10}
+                max={1500}
+                step={50}
                 value={avgTicketPrice}
-                onChange={(e) => setAvgTicketPrice(Number(e.target.value) || 0)}
+                onChange={(e) => setAvgTicketPrice(Number(e.target.value))}
               />
-            </label>
-            <label className="roi-field" htmlFor="roi-leakage">
-              Fuga operativa estimada (%)
+            </div>
+
+            <div className="roi-slider-group">
+              <div className="roi-slider-header">
+                <label htmlFor="roi-leakage">Fuga operativa estimada</label>
+                <span className="roi-slider-value">{leakageRate}%</span>
+              </div>
               <input
                 id="roi-leakage"
-                className="lead__input"
-                type="number"
-                min={1}
-                max={20}
+                className="roi-slider"
+                type="range"
+                min={2}
+                max={15}
                 step={1}
                 value={leakageRate}
-                onChange={(e) => setLeakageRate(Number(e.target.value) || 0)}
+                onChange={(e) => setLeakageRate(Number(e.target.value))}
               />
-            </label>
-            <p className="roi-note">Modelo orientativo para estimar retorno potencial.</p>
+              <p className="roi-note" style={{ marginTop: '8px' }}>El estandar de la industria sin Pass Monkey ronda el 5-8%.</p>
+            </div>
           </article>
 
-          <article className="panel-card panel-card--highlight">
-            <h3>Potencial de recuperacion</h3>
-            <div className="roi-metrics">
-              <p>
-                Recuperacion potencial por evento
-                <strong>{asMoney(numbers.leakagePerEvent)}</strong>
+          <article className="panel-card panel-card--highlight" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center', gap: '24px' }}>
+            <div>
+              <p style={{ margin: '0 0 8px', color: 'var(--pm-text-soft)', fontSize: '1rem', fontWeight: 600 }}>
+                Estás perdiendo alrededor de
               </p>
-              <p>
-                Recuperacion potencial mensual (4 eventos)
-                <strong>{asMoney(numbers.leakagePerMonth)}</strong>
+              <p style={{ margin: 0, fontSize: 'clamp(2.5rem, 6vw, 4rem)', fontWeight: 800, color: 'var(--pm-danger)', lineHeight: 1, letterSpacing: '-0.02em' }}>
+                {asMoney(numbers.leakagePerEvent)}
               </p>
-              <p>
-                Diferencia vs activacion por evento ($750)
-                <strong>{asMoney(numbers.eventVsRecovery)}</strong>
-              </p>
-              <p>
-                Diferencia vs Plan Club mensual ($2,999)
-                <strong>{asMoney(numbers.planVsRecovery)}</strong>
+              <p style={{ margin: '8px 0 0', color: 'var(--pm-text-muted)', fontSize: '0.9rem' }}>
+                Fuga de efectivo por noche
               </p>
             </div>
+
+            <div style={{ padding: '16px', background: 'rgba(255, 109, 147, 0.08)', borderRadius: '12px', border: '1px solid rgba(255, 109, 147, 0.2)' }}>
+              <p style={{ margin: 0, color: '#fdd3df', fontSize: '0.95rem' }}>
+                En un mes de 4 eventos, esto suma <strong>{asMoney(numbers.leakagePerMonth)}</strong>.
+              </p>
+            </div>
+
             <button
               type="button"
-              className="btn btn--primary"
+              className="pm-button pm-button--primary"
+              style={{ width: '100%', marginTop: 'auto', background: 'linear-gradient(132deg, #ff1a55, #ff4c7d 50%, #ff8caf 100%)', boxShadow: '0 18px 36px rgba(255, 26, 85, 0.35)', borderColor: 'rgba(255, 126, 161, 0.9)' }}
               onClick={() => {
                 trackLandingEvent('cta_activate_event_click', { location: 'roi' })
                 onActivateClick()
               }}
             >
-              QUIERO ESTE NIVEL DE CONTROL
+              DETENER FUGAS AHORA
             </button>
           </article>
         </div>

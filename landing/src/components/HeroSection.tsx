@@ -1,4 +1,4 @@
-import { ArrowRight, CalendarDays, Play } from 'lucide-react'
+import { CalendarDays, Play } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 type HeroSectionProps = {
@@ -58,41 +58,39 @@ export function HeroSection({ eventPriceLabel, onActivateEvent, onScheduleDemo, 
       <div className="landing-container hero-section__layout">
         <div className="hero-section__content" data-hero-content>
           <p className="hero-section__kicker" data-hero-kicker>
-            Pass Monkey | Accesos para eventos
+            Pass Monkey | Control operativo para noches en efectivo
           </p>
-          <p className="hero-section__badge">Operacion clara. Sin papel. Sin caos.</p>
           <h1 className="hero-section__title" id="hero-title">
-            <span data-hero-title-line>Deja de imprimir boletos.</span>
+            <span data-hero-title-line>Cuida tu ingreso en puerta y cierra con corte confiable.</span>
           </h1>
           <p className="hero-section__subtitle" data-hero-subtitle>
-            Controla accesos en tiempo real con QR dinamico y escaneo profesional en puerta.
+            Controla accesos en tiempo real, evita fugas de efectivo y revisa cortes por colaborador de venta sin discusiones.
           </p>
           <div className="hero-section__actions" data-hero-actions>
-            <a href="/demo" className="pm-button pm-button--primary">
-              <Play size={18} aria-hidden="true" />
-              Probar demo interactiva
-            </a>
-            <button type="button" className="pm-button pm-button--secondary" onClick={onScheduleDemo}>
-              <CalendarDays size={18} aria-hidden="true" />
-              Agendar demo guiada
-            </button>
-          </div>
-          <div className="hero-section__meta-actions" aria-label="Acciones secundarias">
-            <button type="button" className="hero-section__text-action" onClick={onActivateEvent}>
+            <button type="button" className="pm-button pm-button--primary" onClick={onActivateEvent}>
               Activar 1 evento por {eventPriceLabel}
-              <ArrowRight size={16} aria-hidden="true" />
             </button>
-            <button type="button" className="hero-section__text-action" onClick={onViewPricing}>
+            <button type="button" className="pm-button pm-button--secondary" onClick={onViewPricing}>
               Ver planes mensuales
             </button>
           </div>
+          <div className="hero-section__meta-actions" aria-label="Acciones secundarias">
+            <a href="/demo" className="hero-section__text-action" style={{ display: 'inline-flex', alignItems: 'center' }}>
+              <Play size={16} aria-hidden="true" style={{ marginRight: '6px' }} />
+              Probar demo interactiva
+            </a>
+            <button type="button" className="hero-section__text-action" onClick={onScheduleDemo} style={{ display: 'inline-flex', alignItems: 'center' }}>
+              <CalendarDays size={16} aria-hidden="true" style={{ marginRight: '6px' }} />
+              Agendar demo guiada
+            </button>
+          </div>
           <p className="hero-section__microcopy" data-hero-microcopy>
-            Pruebalo primero y luego activa cuando tengas fecha. Sin contratos.
+            Activo en minutos. Sin contratos. Pago por evento o mensual.
           </p>
           <div className="hero-section__ops" aria-label="Resultados operativos">
-            <span>Menos filas y broncas</span>
-            <span>Reduce clonaciones y reingresos</span>
-            <span>Dashboard en tiempo real</span>
+            <span>Corte automático por colaborador de venta</span>
+            <span>Menos fugas por reingresos y duplicados</span>
+            <span>Operación estable incluso sin internet</span>
           </div>
           <p className="hero-section__segments" data-hero-segments>
             Hecho para night clubs, bares, musicos y organizadores de eventos privados.

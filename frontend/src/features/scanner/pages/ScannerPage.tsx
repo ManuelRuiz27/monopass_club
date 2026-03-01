@@ -259,16 +259,25 @@ export function ScannerPage() {
       if (!healthy || !active) return
 
       try {
-        const cameras = await Html5Qrcode.getCameras()
-        if (!active) return
-
-        if (cameras.length === 0) {
-          setSystemIssue('NO_CAMERA')
+        // Request camera permission explicitly to ensure it prompts the user
+        // and doesn't silently fail when enumerating devices.
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true })
+          stream.getTracks().forEach((track) => track.stop())
+        } catch (err) {
+          const message = err instanceof Error ? err.message.toLowerCase() : String(err).toLowerCase()
+          if (message.includes('notallowed') || message.includes('denied') || message.includes('permission')) {
+            setSystemIssue('NO_PERMISSION')
+          } else {
+            setSystemIssue('NO_CAMERA')
+          }
           return
         }
 
+        if (!active) return
+
         await scanner.start(
-          cameras[0]!.id,
+          { facingMode: 'environment' },
           {
             fps: 10,
             qrbox: { width: 250, height: 250 },

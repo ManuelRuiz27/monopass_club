@@ -1,11 +1,12 @@
 ﻿import { useCallback, useEffect, useRef, useState } from 'react'
 import { HeroSection } from './HeroSection.tsx'
+import { ProblemSolution } from './ProblemSolution.tsx'
 import { HowItWorksSection } from './HowItWorksSection.tsx'
-import { BenefitsSection } from './BenefitsSection.tsx'
+import { RevenueImpact } from './RevenueImpact.tsx'
+import { OfflineMode } from './OfflineMode.tsx'
 import { PricingSection } from './PricingSection.tsx'
 import { ComparisonSection } from './ComparisonSection.tsx'
 import { FaqSection } from './FaqSection.tsx'
-import { MonoticketsHandoffSection } from './MonoticketsHandoffSection.tsx'
 import { FinalCtaSection } from './FinalCtaSection.tsx'
 import { FooterSection } from './FooterSection.tsx'
 import { ActivationModal } from './ActivationModal.tsx'
@@ -17,13 +18,14 @@ type MonthlyPlan = 'club' | 'pro' | null
 
 const TRACKED_SECTION_IDS = [
   'hero',
+  'problema',
   'como-funciona',
   'demo-en-vivo',
-  'beneficios',
+  'roi',
+  'offline',
   'pricing',
   'comparativo',
   'faq',
-  'handoff-monotickets',
   'cta-final',
   'footer',
 ]
@@ -122,16 +124,18 @@ export function LandingPage() {
         onScheduleDemo={() => handleScheduleDemo('hero')}
         onViewPricing={handleViewPricing}
       />
+      <ProblemSolution />
+      <HowItWorksSection />
       <section className="landing-section landing-demo-focus" id="demo-en-vivo" aria-labelledby="demo-focus-title" data-reveal>
         <div className="landing-container landing-demo-focus__layout">
           <div className="landing-demo-focus__copy">
-            <p className="landing-demo-focus__eyebrow">Demo en vivo primero</p>
+            <p className="landing-demo-focus__eyebrow">Demo en vivo</p>
             <h2 className="landing-demo-focus__title" id="demo-focus-title">
               Haz la prueba completa: emite un acceso y validalo en el scanner.
             </h2>
             <p className="landing-demo-focus__description">
               Antes de dejar tus datos, ¡Prueba la experiencia de generar accesos y escanearlos en tiempo real!
-              </p>
+            </p>
             <ul className="landing-demo-focus__bullets" aria-label="Qué puedes probar en la demo">
               <li>Emitir ticket demo con QR funcional</li>
               <li>Escanear y validar el acceso en local</li>
@@ -171,9 +175,8 @@ export function LandingPage() {
           </div>
         </div>
       </section>
-      <HowItWorksSection />
-
-      <BenefitsSection />
+      <RevenueImpact onActivateClick={() => handleOpenActivation('roi')} />
+      <OfflineMode />
       <PricingSection
         onActivateEvent={() => handleOpenActivation('pricing')}
         onSelectMonthlyPlan={handleSelectMonthlyPlan}
@@ -181,7 +184,6 @@ export function LandingPage() {
       />
       <ComparisonSection />
       <FaqSection />
-      <MonoticketsHandoffSection />
       <FinalCtaSection
         selectedPlan={selectedPlan}
         eventPriceLabel={eventPriceLabel}
