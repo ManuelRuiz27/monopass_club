@@ -18,6 +18,66 @@ type Feedback = {
 
 const RESET_DELAY_MS = 2600
 const READER_ELEMENT_ID = 'reader'
+const CAMERA_START_CONFIG = {
+  fps: 10,
+  qrbox: (viewfinderWidth: number, viewfinderHeight: number) => {
+    const edge = Math.max(180, Math.min(Math.floor(Math.min(viewfinderWidth, viewfinderHeight) * 0.72), 280))
+    return { width: edge, height: edge }
+  },
+  aspectRatio: 4 / 3,
+} as const
+
+type CameraChoice = {
+  id: string
+  label: string
+}
+
+function normalizeCameraError(error: unknown) {
+  return error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase()
+}
+
+function matchesBackCamera(label: string) {
+  const normalized = label.toLowerCase()
+  return ['back', 'rear', 'environment', 'trasera', 'posterior', 'world'].some((token) => normalized.includes(token))
+}
+
+function pickPreferredCamera(cameras: CameraChoice[], preferredDeviceId?: string | null) {
+  if (preferredDeviceId) {
+    const exactMatch = cameras.find((camera) => camera.id === preferredDeviceId)
+    if (exactMatch) return exactMatch
+  }
+
+  const labelledBackCamera = cameras.find((camera) => matchesBackCamera(camera.label))
+  if (labelledBackCamera) return labelledBackCamera
+
+  return cameras[0] ?? null
+}
+
+function getCameraStartCandidates(cameras: CameraChoice[], preferredDeviceId?: string | null) {
+  const candidates: Array<string | MediaTrackConstraints> = []
+  const seen = new Set<string>()
+
+  const pushCamera = (cameraId: string) => {
+    if (!cameraId || seen.has(cameraId)) return
+    seen.add(cameraId)
+    candidates.push(cameraId)
+  }
+
+  const preferredCamera = pickPreferredCamera(cameras, preferredDeviceId)
+  if (preferredCamera) {
+    pushCamera(preferredCamera.id)
+  }
+
+  for (const camera of cameras) {
+    pushCamera(camera.id)
+  }
+
+  candidates.push({ facingMode: { exact: 'environment' } })
+  candidates.push({ facingMode: 'environment' })
+  candidates.push({ facingMode: 'user' })
+
+  return candidates
+}
 
 function systemIssueCopy(issue: SystemIssue): { title: string; description: string } {
   switch (issue) {
@@ -259,13 +319,23 @@ export function ScannerPage() {
       if (!healthy || !active) return
 
       try {
-        // Request camera permission explicitly to ensure it prompts the user
-        // and doesn't silently fail when enumerating devices.
+        // Ask for camera permission first so device labels become available,
+        // then start the scanner against the best real camera we can resolve.
+        let preferredDeviceId: string | null = null
         try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: true })
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: { ideal: 'environment' },
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+            },
+            audio: false,
+          })
+          const [track] = stream.getVideoTracks()
+          preferredDeviceId = typeof track?.getSettings().deviceId === 'string' ? track.getSettings().deviceId ?? null : null
           stream.getTracks().forEach((track) => track.stop())
         } catch (err) {
-          const message = err instanceof Error ? err.message.toLowerCase() : String(err).toLowerCase()
+          const message = normalizeCameraError(err)
           if (message.includes('notallowed') || message.includes('denied') || message.includes('permission')) {
             setSystemIssue('NO_PERMISSION')
           } else {
@@ -276,25 +346,38 @@ export function ScannerPage() {
 
         if (!active) return
 
-        await scanner.start(
-          { facingMode: 'environment' },
-          {
-            fps: 10,
-            qrbox: { width: 250, height: 250 },
-            aspectRatio: 1,
-          },
-          (decodedText) => {
-            void handleScan(decodedText)
-          },
-          (scanErrorMessage) => {
-            const message = scanErrorMessage.toLowerCase()
-            if (message.includes('permission') || message.includes('notallowed')) {
-              setSystemIssue('NO_PERMISSION')
-            } else if (message.includes('camera') || message.includes('device')) {
-              setSystemIssue('NO_CAMERA')
-            }
-          },
-        )
+        const cameras = await Html5Qrcode.getCameras().catch(() => [])
+        const cameraCandidates = getCameraStartCandidates(cameras, preferredDeviceId)
+        let lastStartError: unknown = null
+
+        for (const candidate of cameraCandidates) {
+          if (!active) return
+          try {
+            await scanner.start(
+              candidate,
+              CAMERA_START_CONFIG,
+              (decodedText) => {
+                void handleScan(decodedText)
+              },
+              (scanErrorMessage) => {
+                const message = scanErrorMessage.toLowerCase()
+                if (message.includes('permission') || message.includes('notallowed')) {
+                  setSystemIssue('NO_PERMISSION')
+                } else if (message.includes('camera') || message.includes('device')) {
+                  setSystemIssue('NO_CAMERA')
+                }
+              },
+            )
+            lastStartError = null
+            break
+          } catch (error) {
+            lastStartError = error
+          }
+        }
+
+        if (lastStartError) {
+          throw lastStartError
+        }
 
         if (!active) return
         setSystemIssue(null)
@@ -302,7 +385,7 @@ export function ScannerPage() {
         isPausedRef.current = false
       } catch (error) {
         if (!active) return
-        const message = error instanceof Error ? error.message.toLowerCase() : ''
+        const message = normalizeCameraError(error)
         if (message.includes('permission') || message.includes('notallowed')) {
           setSystemIssue('NO_PERMISSION')
         } else if (message.includes('camera') || message.includes('device')) {
