@@ -20,6 +20,26 @@ import { hash } from 'bcryptjs'
 
 const DEFAULT_PASSWORD = 'changeme123'
 
+const SCANNER_SEEDS = [
+    { name: 'A1 - 1', username: 'scanner.demo' },
+    { name: 'A1 - 2', username: 'scanner.a1.2' },
+    { name: 'A2 - 1', username: 'scanner.a2.1' },
+    { name: 'A2 - 2', username: 'scanner.a2.2' },
+    { name: 'A3 - 1', username: 'scanner.a3.1' },
+    { name: 'A3 - 2', username: 'scanner.a3.2' },
+] as const
+
+const RP_SEEDS = [
+    { name: 'Punto de venta 1', username: 'rp.demo' },
+    { name: 'Punto de venta 2', username: 'rp.2' },
+    { name: 'Punto de venta 3', username: 'rp.3' },
+    { name: 'Punto de venta 4', username: 'rp.4' },
+    { name: 'Punto de venta 5', username: 'rp.5' },
+    { name: 'Punto de venta 6', username: 'rp.6' },
+    { name: 'Punto de venta 7', username: 'rp.7' },
+    { name: 'Punto de venta 8', username: 'rp.8' },
+] as const
+
 export async function seedDatabase(prismaInstance?: PrismaClient) {
     let prisma: PrismaClient
     let pool: Pool | undefined
@@ -39,6 +59,9 @@ export async function seedDatabase(prismaInstance?: PrismaClient) {
     }
 
     try {
+        await prisma.scannerConfirmRequest.deleteMany()
+        await prisma.ticketDelivery.deleteMany()
+        await prisma.cut.deleteMany()
         await prisma.directorAuditLog.deleteMany()
         await prisma.financePreset.deleteMany()
         await prisma.ledgerEntry.deleteMany()
@@ -47,10 +70,14 @@ export async function seedDatabase(prismaInstance?: PrismaClient) {
         await prisma.subscription.deleteMany()
         await prisma.promotion.deleteMany()
         await prisma.subscriptionPlan.deleteMany()
+        await prisma.landingOrder.deleteMany()
+        await prisma.lead.deleteMany()
+        await prisma.license.deleteMany()
         await prisma.ticketScan.deleteMany()
         await prisma.ticket.deleteMany()
         await prisma.eventRp.deleteMany()
         await prisma.event.deleteMany()
+        await prisma.rpGroup.deleteMany()
         await prisma.club.deleteMany()
         await prisma.rpProfile.deleteMany()
         await prisma.scannerProfile.deleteMany()
@@ -59,8 +86,6 @@ export async function seedDatabase(prismaInstance?: PrismaClient) {
 
         const directorId = randomUUID()
         const managerId = randomUUID()
-        const rpUserId = randomUUID()
-        const scannerUserId = randomUUID()
 
         const passwordHash = await hash(DEFAULT_PASSWORD, 10)
 
@@ -194,63 +219,79 @@ export async function seedDatabase(prismaInstance?: PrismaClient) {
             data: {
                 id: randomUUID(),
                 clubId: club.id,
-                name: 'Opening Night',
+                name: 'Drift Day SLP (demo)',
                 startsAt: new Date(Date.now() + 86400000),
-                endsAt: new Date(Date.now() + 90000000),
+                endsAt: new Date(Date.now() + 115200000),
             },
         })
 
-        const rpUser = await prisma.user.create({
-            data: {
-                id: rpUserId,
-                name: 'Demo RP',
-                username: 'rp.demo',
-                password: passwordHash,
-                role: UserRole.RP,
-            },
-        })
+        const rpProfiles = []
+        for (const seed of RP_SEEDS) {
+            const user = await prisma.user.create({
+                data: {
+                    id: randomUUID(),
+                    name: seed.name,
+                    username: seed.username,
+                    password: passwordHash,
+                    role: UserRole.RP,
+                },
+            })
 
-        const rpProfile = await prisma.rpProfile.create({
-            data: {
-                id: randomUUID(),
-                managerId: manager.id,
-                userId: rpUser.id,
-            },
-        })
+            const profile = await prisma.rpProfile.create({
+                data: {
+                    id: randomUUID(),
+                    managerId: manager.id,
+                    userId: user.id,
+                },
+            })
 
-        const scannerUser = await prisma.user.create({
-            data: {
-                id: scannerUserId,
-                name: 'Demo Scanner',
-                username: 'scanner.demo',
-                password: passwordHash,
-                role: UserRole.SCANNER,
-            },
-        })
+            const assignment = await prisma.eventRp.create({
+                data: {
+                    id: randomUUID(),
+                    eventId: event.id,
+                    rpId: profile.id,
+                    limitAccesses: 100,
+                },
+            })
 
-        const scannerProfile = await prisma.scannerProfile.create({
-            data: {
-                id: randomUUID(),
-                managerId: manager.id,
-                userId: scannerUser.id,
-            },
-        })
+            rpProfiles.push({ user, profile, assignment })
+        }
 
-        const assignment = await prisma.eventRp.create({
-            data: {
-                id: randomUUID(),
-                eventId: event.id,
-                rpId: rpProfile.id,
-                limitAccesses: 50,
-            },
-        })
+        const scannerProfiles = []
+        for (const seed of SCANNER_SEEDS) {
+            const user = await prisma.user.create({
+                data: {
+                    id: randomUUID(),
+                    name: seed.name,
+                    username: seed.username,
+                    password: passwordHash,
+                    role: UserRole.SCANNER,
+                },
+            })
+
+            const profile = await prisma.scannerProfile.create({
+                data: {
+                    id: randomUUID(),
+                    managerId: manager.id,
+                    userId: user.id,
+                },
+            })
+
+            scannerProfiles.push({ user, profile })
+        }
+
+        const demoRp = rpProfiles[0]
+        const demoScanner = scannerProfiles[0]
+        if (!demoRp || !demoScanner) {
+            throw new Error('Demo RP/scanner seeds were not created')
+        }
 
         const ticket = await prisma.ticket.create({
             data: {
                 id: randomUUID(),
                 eventId: event.id,
-                rpId: rpProfile.id,
-                assignmentId: assignment.id,
+                rpId: demoRp.profile.id,
+                assignmentId: demoRp.assignment.id,
                 guestType: TicketType.GENERAL,
                 qrToken: randomUUID(),
                 note: 'Invitado demo',
@@ -262,12 +303,15 @@ export async function seedDatabase(prismaInstance?: PrismaClient) {
                 data: {
                     id: randomUUID(),
                     ticketId: ticket.id,
-                    scannerId: scannerProfile.id,
+                    scannerId: demoScanner.profile.id,
                 },
             })
             .catch(() => undefined)
 
         console.log('Seed data generated with default password:', DEFAULT_PASSWORD)
+        console.log('Event:', event.name)
+        console.log('RPs:', RP_SEEDS.map((seed) => `${seed.name} (${seed.username})`).join(', '))
+        console.log('Scanners:', SCANNER_SEEDS.map((seed) => `${seed.name} (${seed.username})`).join(', '))
 
     } finally {
         if (!prismaInstance && pool) {

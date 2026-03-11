@@ -32,5 +32,11 @@ PORT=4000
 - `GET/POST/PATCH /scanners`
 - `GET/PATCH /settings/guest-types/other-label`
 
-Todos los endpoints requieren JWT (`Authorization: Bearer ...`) excepto el login. El seed crea usuarios demo (`manager.demo`, `rp.demo`, `scanner.demo`, password `changeme123`).
+Todos los endpoints requieren JWT (`Authorization: Bearer ...`) excepto el login. El seed usa password `changeme123` y crea:
+
+- `director.demo`
+- `manager.demo`
+- `rp.demo` + `rp.2` a `rp.8`
+- `scanner.demo` + `scanner.a1.2`, `scanner.a2.1`, `scanner.a2.2`, `scanner.a3.1`, `scanner.a3.2`
+- evento `Drift Day SLP (demo)` con los 8 RPs asignados
 
