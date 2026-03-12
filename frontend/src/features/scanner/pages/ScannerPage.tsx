@@ -24,7 +24,6 @@ const CAMERA_START_CONFIG = {
     const edge = Math.max(180, Math.min(Math.floor(Math.min(viewfinderWidth, viewfinderHeight) * 0.72), 280))
     return { width: edge, height: edge }
   },
-  aspectRatio: 4 / 3,
 } as const
 
 type CameraChoice = {

@@ -84,5 +84,5 @@ export const rpApi = {
           { method },
         ),
   getTicketImage: (ticketId: string) =>
-    rpMockEnabled ? rpMockApi.getTicketImage(ticketId) : coreHttpClient.getBlob(`/tickets/${ticketId}/png`),
+    rpMockEnabled ? rpMockApi.getTicketImage(ticketId) : coreHttpClient.getBlob(`/tickets/${ticketId}/png`, { timeoutMs: 30_000 }),
 }

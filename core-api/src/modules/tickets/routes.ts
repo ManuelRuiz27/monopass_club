@@ -7,6 +7,11 @@ import QRCode from 'qrcode'
 import { Jimp, JimpMime } from 'jimp'
 
 type JimpImage = Awaited<ReturnType<typeof Jimp.read>>
+const DEFAULT_TICKET_BG = 0x0f172aff
+const MAX_TEMPLATE_DATA_URL_BYTES = 5 * 1024 * 1024
+const MAX_TEMPLATE_DIMENSION = 1600
+const REMOTE_TEMPLATE_TIMEOUT_MS = 5_000
+const TICKET_RENDER_TIMEOUT_MS = 12_000
 
 const createTicketSchema = z.object({
   eventId: z.string().uuid(),
@@ -112,7 +117,7 @@ export async function registerTicketRoutes(app: FastifyInstance) {
       throw app.httpErrors.notFound('Ticket no encontrado')
     }
 
-    const pngBuffer = await buildTicketImage(ticket.qrToken, ticket.event)
+    const pngBuffer = await buildTicketImageWithFallback(ticket.qrToken, ticket.event)
 
     reply
       .header('Content-Type', 'image/png')
@@ -152,23 +157,42 @@ async function buildTicketImage(
   return baseImage.getBuffer(JimpMime.png)
 }
 
+async function buildTicketImageWithFallback(
+  qrToken: string,
+  event: {
+    templateImageUrl: string | null
+    qrPositionX: number | null
+    qrPositionY: number | null
+    qrSize: number | null
+  },
+) {
+  try {
+    return await promiseWithTimeout(buildTicketImage(qrToken, event), TICKET_RENDER_TIMEOUT_MS)
+  } catch {
+    return buildTicketImage(qrToken, {
+      ...event,
+      templateImageUrl: null,
+    })
+  }
+}
+
 async function loadBaseImage(templateUrl: string | null): Promise<JimpImage> {
   if (templateUrl) {
     if (templateUrl.startsWith('data:')) {
       const base64 = templateUrl.split(',')[1]
-      if (base64) {
+      if (base64 && estimateBase64Bytes(base64) <= MAX_TEMPLATE_DATA_URL_BYTES) {
         try {
-          return await Jimp.read(Buffer.from(base64, 'base64'))
+          return normalizeBaseImage(await Jimp.read(Buffer.from(base64, 'base64')))
         } catch {
           // fallback to fetch/default below
         }
       }
     } else {
       try {
-        const response = await fetch(templateUrl)
+        const response = await fetch(templateUrl, { signal: AbortSignal.timeout(REMOTE_TEMPLATE_TIMEOUT_MS) })
         if (response.ok) {
           const arrayBuffer = await response.arrayBuffer()
-          return await Jimp.read(Buffer.from(arrayBuffer))
+          return normalizeBaseImage(await Jimp.read(Buffer.from(arrayBuffer)))
         }
       } catch {
         // fallback to default background if fetch fails
@@ -176,7 +200,46 @@ async function loadBaseImage(templateUrl: string | null): Promise<JimpImage> {
     }
   }
 
-  return new Jimp({ width: 1024, height: 1024, color: 0x0f172aff }) as JimpImage
+  return createDefaultBaseImage()
+}
+
+function createDefaultBaseImage() {
+  return new Jimp({ width: 1024, height: 1024, color: DEFAULT_TICKET_BG }) as JimpImage
+}
+
+function estimateBase64Bytes(base64: string) {
+  const padding = base64.endsWith('==') ? 2 : base64.endsWith('=') ? 1 : 0
+  return Math.floor((base64.length * 3) / 4) - padding
+}
+
+function normalizeBaseImage(image: JimpImage) {
+  const largestSide = Math.max(image.width, image.height)
+  if (largestSide <= MAX_TEMPLATE_DIMENSION) {
+    return image as JimpImage
+  }
+
+  const ratio = MAX_TEMPLATE_DIMENSION / largestSide
+  const nextWidth = Math.max(1, Math.round(image.width * ratio))
+  const nextHeight = Math.max(1, Math.round(image.height * ratio))
+  return image.resize({ w: nextWidth, h: nextHeight }) as JimpImage
+}
+
+async function promiseWithTimeout<T>(promise: Promise<T>, timeoutMs: number) {
+  return await new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`Timeout after ${timeoutMs}ms`))
+    }, timeoutMs)
+
+    promise
+      .then((value) => {
+        clearTimeout(timer)
+        resolve(value)
+      })
+      .catch((error: unknown) => {
+        clearTimeout(timer)
+        reject(error)
+      })
+  })
 }
 
 function calculateQrSize(image: JimpImage, desiredSize: number | null) {

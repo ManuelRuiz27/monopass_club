@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { managerApi } from '../api'
 import { useToast } from '@/components/ToastProvider'
 import { Button, PageErrorState, PageLoadingState } from '@/components/ui'
+import { optimizeTemplateImage, readFileAsDataUrl } from '@/lib/templateImage'
 
 const MIN_QR_SIZE = 0.1
 const MAX_QR_SIZE = 0.8
@@ -73,14 +74,16 @@ export function TemplatePage() {
     },
   })
 
-  const handleImageUpload = (file: File | null) => {
+  const handleImageUpload = async (file: File | null) => {
     if (!file) return
     setTemplateFileName(file.name)
-    const reader = new FileReader()
-    reader.onload = () => {
-      setTemplate((previous) => ({ ...previous, templateImageUrl: reader.result as string }))
+    try {
+      const templateImageUrl = await optimizeTemplateImage(file)
+      setTemplate((previous) => ({ ...previous, templateImageUrl }))
+    } catch {
+      const templateImageUrl = await readFileAsDataUrl(file)
+      setTemplate((previous) => ({ ...previous, templateImageUrl }))
     }
-    reader.readAsDataURL(file)
   }
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -220,7 +223,7 @@ export function TemplatePage() {
                     className="manager-template-file__input"
                     type="file"
                     accept="image/*"
-                    onChange={(event) => handleImageUpload(event.target.files?.[0] ?? null)}
+                    onChange={(event) => void handleImageUpload(event.target.files?.[0] ?? null)}
                     disabled={!selectedEventId}
                   />
                 </label>

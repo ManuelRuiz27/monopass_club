@@ -1,5 +1,6 @@
 import { useRef, useState, type FormEvent } from 'react'
 import { Button } from '@/components/ui'
+import { optimizeTemplateImage, readFileAsDataUrl } from '@/lib/templateImage'
 
 const MIN_QR_SIZE = 0.1
 const MAX_QR_SIZE = 0.8
@@ -65,20 +66,22 @@ export function TemplateEditor({
     })
   }
 
-  const handleImageUpload = (file: File | null) => {
+  const handleImageUpload = async (file: File | null) => {
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => {
-      applyTemplate((previous) => ({ ...previous, templateImageUrl: reader.result as string }))
+    try {
+      const templateImageUrl = await optimizeTemplateImage(file)
+      applyTemplate((previous) => ({ ...previous, templateImageUrl }))
+    } catch {
+      const templateImageUrl = await readFileAsDataUrl(file)
+      applyTemplate((previous) => ({ ...previous, templateImageUrl }))
     }
-    reader.readAsDataURL(file)
   }
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault()
     const file = event.dataTransfer.files[0]
     if (file && file.type.startsWith('image/')) {
-      handleImageUpload(file)
+      void handleImageUpload(file)
     }
   }
 
@@ -199,7 +202,7 @@ export function TemplateEditor({
                   className="template-editor__file-input"
                   type="file"
                   accept="image/*"
-                  onChange={(event) => handleImageUpload(event.target.files?.[0] ?? null)}
+                  onChange={(event) => void handleImageUpload(event.target.files?.[0] ?? null)}
                 />
               </label>
             </div>
@@ -212,7 +215,7 @@ export function TemplateEditor({
                   className="template-editor__file-input"
                   type="file"
                   accept="image/*"
-                  onChange={(event) => handleImageUpload(event.target.files?.[0] ?? null)}
+                  onChange={(event) => void handleImageUpload(event.target.files?.[0] ?? null)}
                 />
               </label>
             </div>
