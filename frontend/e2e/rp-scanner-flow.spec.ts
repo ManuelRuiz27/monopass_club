@@ -27,8 +27,8 @@ test.describe('RP & Scanner Flow', () => {
       data: {
         clubId: clubs[0].id,
         name: eventName,
-        startsAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
-        endsAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+        startsAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+        endsAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
       },
     })
     expect(eventResponse.ok()).toBeTruthy()
@@ -53,13 +53,14 @@ test.describe('RP & Scanner Flow', () => {
     await rpPage.fill('input[type="text"]', 'rp.demo')
     await rpPage.fill('input[type="password"]', 'changeme123')
     await rpPage.click('button[type="submit"]')
-    await expect(rpPage).toHaveURL(/\/rp$/)
+    await expect(rpPage).toHaveURL(/\/rp\/events$/)
 
-    const eventCard = rpPage.locator('.event-select-card').filter({ hasText: eventName }).first()
+    const eventCard = rpPage.locator('.rp-event-row').filter({ hasText: eventName }).first()
     await expect(eventCard).toBeVisible()
     await eventCard.click()
+    await expect(rpPage.locator('.rp-event-quick-panel--modal')).toBeVisible()
 
-    await rpPage.getByRole('button', { name: /generar acceso/i }).click()
+    await rpPage.getByRole('button', { name: /generar acceso ahora/i }).click()
     const previewImage = rpPage.locator('[data-testid="ticket-preview"]')
     await expect(previewImage).toBeVisible()
     const qrToken = (await previewImage.getAttribute('data-ticket-id'))?.trim() ?? ''
@@ -108,7 +109,7 @@ test.describe('RP & Scanner Flow', () => {
 
     await managerPage.click('a:has-text("Cortes")')
     await expect(managerPage).toHaveURL(/\/manager\/cuts$/)
-    const managerEventCard = managerPage.locator('.card').filter({ hasText: eventName })
+    const managerEventCard = managerPage.locator('.manager-cuts-event-card').filter({ hasText: eventName })
     await expect(managerEventCard).toBeVisible()
     await expect(managerEventCard).toContainText('Total')
 

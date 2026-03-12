@@ -1,5 +1,5 @@
 ﻿import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { HttpClient } from './httpClient'
+import { HttpClient, HttpError } from './httpClient'
 import { tokenStore } from './tokenStore'
 
 const BASE_URL = 'https://example.com'
@@ -37,6 +37,23 @@ describe('HttpClient', () => {
       },
       body: undefined,
       signal: expect.any(AbortSignal),
+    })
+  })
+
+  it('throws HttpError with status and parsed payload on non-2xx responses', async () => {
+    const client = new HttpClient(BASE_URL)
+    const mockResponse = {
+      ok: false,
+      status: 409,
+      text: async () => JSON.stringify({ reason: 'ALREADY_SCANNED', ticket: { status: 'SCANNED' } }),
+    }
+
+    ;(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockResponse)
+
+    await expect(client.post('/scan/confirm', { qrToken: 'abc', clientRequestId: 'req-1' })).rejects.toMatchObject<HttpError>({
+      name: 'HttpError',
+      status: 409,
+      payload: { reason: 'ALREADY_SCANNED', ticket: { status: 'SCANNED' } },
     })
   })
 })

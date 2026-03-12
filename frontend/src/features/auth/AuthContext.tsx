@@ -34,18 +34,24 @@ function loadSession(): Session | null {
   }
 }
 
+function syncSessionState(session: Session | null) {
+  if (typeof window === 'undefined') return
+
+  if (session?.token) {
+    tokenStore.set({ accessToken: session.token })
+    window.localStorage.setItem(SESSION_KEY, JSON.stringify(session))
+    return
+  }
+
+  tokenStore.clear()
+  window.localStorage.removeItem(SESSION_KEY)
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(() => loadSession())
 
   useEffect(() => {
-    console.log('DEBUG: AuthProvider session effect', session)
-    if (session?.token) {
-      tokenStore.set({ accessToken: session.token })
-      window.localStorage.setItem(SESSION_KEY, JSON.stringify(session))
-    } else {
-      tokenStore.clear()
-      window.localStorage.removeItem(SESSION_KEY)
-    }
+    syncSessionState(session)
   }, [session])
 
   const login = async (credentials: { username: string; password: string }) => {
@@ -56,11 +62,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         userId: credentials.username || 'rp.mock',
         role: mockRole,
       }
+      syncSessionState(response)
       setSession(response)
       return response
     }
 
     const response = await coreHttpClient.post<Session>('/auth/login', credentials)
+    syncSessionState(response)
     setSession(response)
     return response
   }
@@ -73,6 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         userId: trimmedToken || 'rp.mock',
         role: 'RP',
       }
+      syncSessionState(response)
       setSession(response)
       return response
     }
@@ -84,6 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const response = await coreHttpClient.post<Session>('/auth/login-token', { token: trimmed })
+      syncSessionState(response)
       setSession(response)
       return response
     } catch {
@@ -92,12 +102,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         username: trimmed,
         password: trimmed,
       })
+      syncSessionState(response)
       setSession(response)
       return response
     }
   }
 
   const logout = () => {
+    syncSessionState(null)
     setSession(null)
   }
 

@@ -1,10 +1,16 @@
-﻿# Landing Pass Monkey
+# Landing Pass Monkey
 
 Aplicacion de landing separada del frontend operativo principal.
+
+## Documentacion relacionada
+
+La documentacion de estrategia, copy y cambios de landing se concentra en `../docs/landing/`.
+Los planes generales del repo ahora viven en `../docs/plans/`.
 
 ## Objetivo actual
 
 La landing opera en modo prospeccion:
+
 - Captura prospectos para agenda comercial.
 - Guarda el registro en BD via Core API.
 - El equipo comercial contacta al lead para la reunion.
@@ -33,6 +39,7 @@ npm run dev -w landing
 3. Levanta la app: `npm run dev -w landing`.
 
 Mock principal usado en este flujo:
+
 - `POST /landing/leads`
 
 ## Tracking de conversion
@@ -40,6 +47,7 @@ Mock principal usado en este flujo:
 La landing envia eventos a `window.dataLayer` (si existe) y tambien conserva copia local en `window.__landingEventLog` para QA.
 
 Eventos principales de embudo:
+
 - `landing_page_view`
 - `landing_section_view`
 - `lead_form_started`

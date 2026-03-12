@@ -3,6 +3,7 @@ import { gsap } from 'gsap'
 import { Html5Qrcode } from 'html5-qrcode'
 import { scannerApi, type ScannerValidateResponse } from '../api'
 import { Button } from '@/components/ui'
+import { HttpError } from '@/lib/httpClient'
 import { useGsapInteractiveScale } from '@/lib/motion/useGsapInteractiveScale'
 import { usePrefersReducedMotion } from '@/lib/motion/usePrefersReducedMotion'
 
@@ -14,6 +15,12 @@ type Feedback = {
   title: string
   message?: string
   tone: FeedbackTone
+}
+
+type ConfirmErrorPayload = {
+  confirmed?: boolean
+  reason?: 'ALREADY_SCANNED' | 'INVALID_TOKEN' | null
+  ticket?: ScannerValidateResponse['ticket']
 }
 
 const RESET_DELAY_MS = 2600
@@ -220,7 +227,28 @@ export function ScannerPage() {
         })
         isProcessingRef.current = false
         scheduleReset()
-      } catch {
+      } catch (error) {
+        if (error instanceof HttpError) {
+          const payload = error.payload as ConfirmErrorPayload | null
+          if (payload && typeof payload === 'object') {
+            setStatus('INVALID')
+            setFeedback({
+              title: 'Acceso invalido',
+              message:
+                payload.reason === 'ALREADY_SCANNED'
+                  ? 'Este ticket ya fue utilizado.'
+                  : payload.reason === 'INVALID_TOKEN'
+                    ? 'Token invalido.'
+                    : 'No fue posible confirmar.',
+              tone: payload.reason === 'ALREADY_SCANNED' ? 'warning' : 'error',
+            })
+            setTicketData(payload.ticket ?? null)
+            isProcessingRef.current = false
+            scheduleReset()
+            return
+          }
+        }
+
         setSystemIssue('NETWORK')
         isProcessingRef.current = false
       }

@@ -46,10 +46,7 @@ export function LoginPage() {
             alt="Pass Monkey"
           />
           <p className="auth-hero__eyebrow">Pass Monkey Platform</p>
-          <h1 className="auth-hero__title">Control total de accesos para nightlife</h1>
-          <p className="auth-hero__description">
-            La misma UI de landing aplicada al producto: venta por RP, escaneo en puerta y analitica en vivo.
-          </p>
+          <h1 className="auth-hero__title">Control total de accesos para tus eventos</h1>
         </div>
 
         <div className="auth-hero__metrics" aria-label="Puntos clave">
@@ -67,13 +64,8 @@ export function LoginPage() {
           </article>
         </div>
 
-        <ul className="auth-hero__list">
-          <li>QR unico y seguro por invitado</li>
-          <li>Flujo optimizado para puerta</li>
-          <li>Metricas en vivo por evento</li>
-        </ul>
 
-        <p className="auth-hero__footer">MonoPass Club - Plataforma operativa para nightlife</p>
+        <p className="auth-hero__footer">MonoPass Club - Plataforma operativa para tus eventos</p>
       </section>
 
       <section className="auth-panel">

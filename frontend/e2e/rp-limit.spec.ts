@@ -55,17 +55,21 @@ test.describe('RP Limit', () => {
     await rpPage.fill('input[type="text"]', 'rp.demo')
     await rpPage.fill('input[type="password"]', 'changeme123')
     await rpPage.click('button[type="submit"]')
-    await expect(rpPage).toHaveURL(/\/rp$/)
+    await expect(rpPage).toHaveURL(/\/rp\/events$/)
 
-    const eventCard = rpPage.locator('.event-select-card').filter({ hasText: eventName }).first()
+    const eventCard = rpPage.locator('.rp-event-row').filter({ hasText: eventName }).first()
     await expect(eventCard).toBeVisible()
     await eventCard.click()
+    await expect(rpPage.locator('.rp-event-quick-panel--modal')).toBeVisible()
 
-    const generateButton = rpPage.getByRole('button', { name: /generar acceso/i })
-    await generateButton.click()
+    await rpPage.getByRole('button', { name: /generar acceso ahora/i }).click()
     await expect(rpPage.locator('[data-testid="ticket-preview"]')).toBeVisible()
-    await expect(rpPage.getByText(/l[ií]mite de accesos/i)).toBeVisible()
-    await expect(generateButton).toBeDisabled()
+
+    await rpPage.getByRole('button', { name: /generar otro acceso/i }).click()
+    await expect(rpPage).toHaveURL(/\/rp\/events\?assignmentId=/)
+    await expect(rpPage.locator('.rp-event-quick-panel--modal')).toBeVisible()
+    await expect(rpPage.locator('.rp-event-quick-panel__limit')).toBeVisible()
+    await expect(rpPage.getByRole('button', { name: /generar acceso ahora/i })).toBeDisabled()
 
     await rpContext.close()
   })

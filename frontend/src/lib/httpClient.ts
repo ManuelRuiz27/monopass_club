@@ -11,6 +11,18 @@ type RequestOptions = {
   timeoutMs?: number
 }
 
+export class HttpError extends Error {
+  readonly status: number
+  readonly payload: unknown
+
+  constructor(status: number, message: string, payload: unknown) {
+    super(message)
+    this.name = 'HttpError'
+    this.status = status
+    this.payload = payload
+  }
+}
+
 export class HttpClient {
   private readonly baseUrl: string
   private static readonly DEFAULT_TIMEOUT_MS = 15_000
@@ -49,20 +61,23 @@ export class HttpClient {
 
     const errorText = await response.text()
     let message = `Error ${response.status}`
+    let payload: unknown = null
     try {
       const parsed = errorText ? JSON.parse(errorText) : null
+      payload = parsed
       if (parsed && typeof parsed.message === 'string') {
         message = parsed.message
       } else if (errorText) {
         message = errorText
       }
     } catch {
+      payload = errorText || null
       if (errorText) {
         message = errorText
       }
     }
 
-    throw new Error(message || 'Ocurrio un error inesperado')
+    throw new HttpError(response.status, message || 'Ocurrio un error inesperado', payload)
   }
 
   async request<T>(method: HttpMethod, path: string, options: RequestOptions = {}): Promise<T> {

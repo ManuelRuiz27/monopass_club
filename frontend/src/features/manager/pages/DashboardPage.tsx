@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { managerApi } from '../api'
@@ -72,6 +72,7 @@ function useActiveEventsRows(): { data: ActiveEventRow[] | null; isLoading: bool
 }
 
 export function DashboardPage() {
+  const navigate = useNavigate()
   const { data: rows, isLoading, error } = useActiveEventsRows()
 
   if (isLoading) {
@@ -110,7 +111,20 @@ export function DashboardPage() {
               </thead>
               <tbody>
                 {rows.map((row) => (
-                  <tr key={row.id}>
+                  <tr
+                    key={row.id}
+                    className="manager-dashboard-active-events__row"
+                    role="link"
+                    tabIndex={0}
+                    aria-label={`Ver detalle de ${row.name}`}
+                    onClick={() => navigate(`/manager/events/${row.id}`)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault()
+                        navigate(`/manager/events/${row.id}`)
+                      }
+                    }}
+                  >
                     <td>
                       <strong>{row.name}</strong>
                       <p className="text-muted manager-dashboard-active-events__club">{row.clubName}</p>

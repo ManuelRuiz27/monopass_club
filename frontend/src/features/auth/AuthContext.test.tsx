@@ -1,56 +1,61 @@
-import { act, renderHook } from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
-import { AuthProvider, useAuth } from './AuthContext'
-import { coreHttpClient } from '@/lib/httpClient'
-import { tokenStore } from '@/lib/tokenStore'
 
-vi.mock('@/lib/httpClient', () => ({
-  coreHttpClient: {
-    post: vi.fn(),
-  },
-}))
-
-vi.mock('@/lib/tokenStore', () => {
-  const set = vi.fn()
-  const clear = vi.fn()
-  return {
-    tokenStore: {
-      set,
-      clear,
-      getAccessToken: vi.fn(() => null),
-    },
+async function renderAuthHook() {
+  vi.resetModules()
+  const mockedHttp = { post: vi.fn() }
+  const mockedTokenStore = {
+    set: vi.fn(),
+    clear: vi.fn(),
+    getAccessToken: vi.fn(() => null),
   }
-})
 
-const mockedHttp = coreHttpClient as unknown as { post: ReturnType<typeof vi.fn> }
-const mockedTokenStore = tokenStore as unknown as { set: ReturnType<typeof vi.fn>; clear: ReturnType<typeof vi.fn> }
+  vi.doMock('@/lib/httpClient', () => ({
+    coreHttpClient: mockedHttp,
+  }))
+
+  vi.doMock('@/lib/tokenStore', () => ({
+    tokenStore: mockedTokenStore,
+  }))
+
+  const { AuthProvider, useAuth } = await import('./AuthContext')
+
+  return {
+    ...renderHook(() => useAuth(), { wrapper: AuthProvider }),
+    mockedHttp,
+    mockedTokenStore,
+  }
+}
 
 describe('AuthContext', () => {
   beforeEach(() => {
     localStorage.clear()
     vi.clearAllMocks()
+    vi.unstubAllEnvs()
   })
 
-  test('login persiste la sesion y notifica al tokenStore', async () => {
-    const session = { token: 'jwt-token', userId: 'manager-1', role: 'MANAGER' }
-    mockedHttp.post.mockResolvedValue(session)
+  test('login persiste la sesion mockeada de RP y notifica al tokenStore', async () => {
+    vi.stubEnv('VITE_APP_MOCK', 'false')
+    vi.stubEnv('VITE_RP_MOCK', 'true')
 
-    const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider })
+    const { result, mockedHttp, mockedTokenStore } = await renderAuthHook()
 
     await act(async () => {
       await result.current.login({ username: 'manager', password: 'secret' })
     })
 
     expect(result.current.isAuthenticated).toBe(true)
-    expect(localStorage.getItem('monopass_session')).toContain('"token":"jwt-token"')
-    expect(mockedTokenStore.set).toHaveBeenCalledWith({ accessToken: 'jwt-token' })
+    expect(localStorage.getItem('monopass_session')).toContain('"token":"mock-rp-token"')
+    expect(mockedTokenStore.set).toHaveBeenCalledWith({ accessToken: 'mock-rp-token' })
+    expect(mockedHttp.post).not.toHaveBeenCalled()
   })
 
   test('logout limpia la sesion y delega en tokenStore.clear', async () => {
-    const session = { token: 'jwt-token', userId: 'manager-1', role: 'MANAGER' }
-    mockedHttp.post.mockResolvedValue(session)
+    vi.stubEnv('VITE_APP_MOCK', 'false')
+    vi.stubEnv('VITE_RP_MOCK', 'true')
 
-    const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider })
+    const { result, mockedTokenStore } = await renderAuthHook()
+
     await act(async () => {
       await result.current.login({ username: 'manager', password: 'secret' })
     })
@@ -63,14 +68,18 @@ describe('AuthContext', () => {
 
     expect(result.current.isAuthenticated).toBe(false)
     expect(localStorage.getItem('monopass_session')).toBeNull()
-    expect(mockedTokenStore.clear.mock.calls.length).toBe(clearsBeforeLogout + 1)
+    await waitFor(() => {
+      expect(mockedTokenStore.clear.mock.calls.length).toBe(clearsBeforeLogout + 1)
+    })
   })
 
   test('loginWithToken hace fallback a /auth/login cuando /auth/login-token no existe', async () => {
-    const session = { token: 'jwt-token', userId: 'scanner-1', role: 'SCANNER' }
-    mockedHttp.post.mockRejectedValueOnce(new Error('not found')).mockResolvedValueOnce(session)
+    vi.stubEnv('VITE_APP_MOCK', 'false')
+    vi.stubEnv('VITE_RP_MOCK', 'false')
 
-    const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider })
+    const session = { token: 'jwt-token', userId: 'scanner-1', role: 'SCANNER' }
+    const { result, mockedHttp } = await renderAuthHook()
+    mockedHttp.post.mockRejectedValueOnce(new Error('not found')).mockResolvedValueOnce(session)
 
     await act(async () => {
       await result.current.loginWithToken({ token: 'ABC123' })
