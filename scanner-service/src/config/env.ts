@@ -4,7 +4,7 @@ import { z } from 'zod'
 dotenv.config()
 
 const envSchema = z.object({
-  CORE_API_BASE_URL: z.string().url(),
+  CORE_API_BASE_URL: z.string().url().optional(),
   SCANNER_API_KEY: z.string().min(12),
   JWT_SECRET: z.string().min(12).optional(),
   DATABASE_URL: z.string().url(),
