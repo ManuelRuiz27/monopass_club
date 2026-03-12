@@ -3427,7 +3427,7 @@ table tr:hover td {
   width: 100% !important;
   height: 100% !important;
   border: none !important;
-  background: #000 !important;
+  background: transparent !important;
 }
 
 .scanner-stage__reader #reader__scan_region > video,
@@ -3438,7 +3438,7 @@ table tr:hover td {
   width: 100% !important;
   height: 100% !important;
   object-fit: cover !important;
-  background: #000;
+  background: transparent !important;
 }
 
 .scanner-stage__scan-beam {
@@ -3472,7 +3472,7 @@ table tr:hover td {
   aspect-ratio: 1;
   border: 1px dashed rgb(255 255 255 / 20%);
   border-radius: 18px;
-  background: radial-gradient(circle at center, rgb(18 245 255 / 8%), transparent 68%);
+  background: transparent;
 }
 
 .scanner-stage__guide-corner {
