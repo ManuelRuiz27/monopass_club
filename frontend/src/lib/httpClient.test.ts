@@ -1,5 +1,5 @@
 ﻿import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { HttpClient, HttpError } from './httpClient'
+import { HttpClient } from './httpClient'
 import { tokenStore } from './tokenStore'
 
 const BASE_URL = 'https://example.com'
@@ -50,7 +50,7 @@ describe('HttpClient', () => {
 
     ;(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockResponse)
 
-    await expect(client.post('/scan/confirm', { qrToken: 'abc', clientRequestId: 'req-1' })).rejects.toMatchObject<HttpError>({
+    await expect(client.post('/scan/confirm', { qrToken: 'abc', clientRequestId: 'req-1' })).rejects.toMatchObject({
       name: 'HttpError',
       status: 409,
       payload: { reason: 'ALREADY_SCANNED', ticket: { status: 'SCANNED' } },
