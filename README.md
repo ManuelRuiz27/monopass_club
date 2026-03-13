@@ -49,10 +49,12 @@ Usuarios demo sembrados (`changeme123`):
 - `rp.demo`
 - `scanner.demo`
 
-El seed tambien crea el evento `Drift Day SLP (demo)` con:
+El seed tambien crea:
 
-- 6 scanners: `scanner.demo`, `scanner.a1.2`, `scanner.a2.1`, `scanner.a2.2`, `scanner.a3.1`, `scanner.a3.2`
-- 8 puntos de venta RP: `rp.demo`, `rp.2`, `rp.3`, `rp.4`, `rp.5`, `rp.6`, `rp.7`, `rp.8`
+- evento `Drift Day (Venta)` con 3 puntos de venta RP: `rp.demo`, `rp.2`, `rp.3`
+- evento `Drift Day (Scanner)` activo por 2 dias desde la corrida del seed
+- 2 usuarios scanner: `scanner.demo`, `scanner.2`
+- 2 tokens QR demo para probar el scanner
 
 ## Desarrollo local sin Docker
 

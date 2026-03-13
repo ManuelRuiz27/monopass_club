@@ -36,7 +36,9 @@ Todos los endpoints requieren JWT (`Authorization: Bearer ...`) excepto el login
 
 - `director.demo`
 - `manager.demo`
-- `rp.demo` + `rp.2` a `rp.8`
-- `scanner.demo` + `scanner.a1.2`, `scanner.a2.1`, `scanner.a2.2`, `scanner.a3.1`, `scanner.a3.2`
-- evento `Drift Day SLP (demo)` con los 8 RPs asignados
+- `rp.demo`, `rp.2`, `rp.3`
+- `scanner.demo`, `scanner.2`
+- evento `Drift Day (Venta)` con los 3 RPs asignados
+- evento `Drift Day (Scanner)` activo por 2 dias desde la corrida del seed
+- 2 tokens QR demo para probar scanner
 

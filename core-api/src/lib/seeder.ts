@@ -21,23 +21,14 @@ import { hash } from 'bcryptjs'
 const DEFAULT_PASSWORD = 'changeme123'
 
 const SCANNER_SEEDS = [
-    { name: 'A1 - 1', username: 'scanner.demo' },
-    { name: 'A1 - 2', username: 'scanner.a1.2' },
-    { name: 'A2 - 1', username: 'scanner.a2.1' },
-    { name: 'A2 - 2', username: 'scanner.a2.2' },
-    { name: 'A3 - 1', username: 'scanner.a3.1' },
-    { name: 'A3 - 2', username: 'scanner.a3.2' },
+    { name: 'Scanner 1', username: 'scanner.demo' },
+    { name: 'Scanner 2', username: 'scanner.2' },
 ] as const
 
 const RP_SEEDS = [
     { name: 'Punto de venta 1', username: 'rp.demo' },
     { name: 'Punto de venta 2', username: 'rp.2' },
     { name: 'Punto de venta 3', username: 'rp.3' },
-    { name: 'Punto de venta 4', username: 'rp.4' },
-    { name: 'Punto de venta 5', username: 'rp.5' },
-    { name: 'Punto de venta 6', username: 'rp.6' },
-    { name: 'Punto de venta 7', username: 'rp.7' },
-    { name: 'Punto de venta 8', username: 'rp.8' },
 ] as const
 
 export async function seedDatabase(prismaInstance?: PrismaClient) {
@@ -215,13 +206,37 @@ export async function seedDatabase(prismaInstance?: PrismaClient) {
             },
         })
 
-        const event = await prisma.event.create({
+        const now = new Date()
+        const ventaStartsAt = new Date(now)
+        ventaStartsAt.setDate(ventaStartsAt.getDate() + 1)
+        ventaStartsAt.setHours(21, 0, 0, 0)
+
+        const ventaEndsAt = new Date(ventaStartsAt)
+        ventaEndsAt.setHours(ventaEndsAt.getHours() + 6)
+
+        const scannerStartsAt = new Date(now)
+        scannerStartsAt.setHours(0, 0, 0, 0)
+
+        const scannerEndsAt = new Date(scannerStartsAt)
+        scannerEndsAt.setDate(scannerEndsAt.getDate() + 2)
+
+        const ventaEvent = await prisma.event.create({
             data: {
                 id: randomUUID(),
                 clubId: club.id,
-                name: 'Drift Day SLP (demo)',
-                startsAt: new Date(Date.now() + 86400000),
-                endsAt: new Date(Date.now() + 115200000),
+                name: 'Drift Day (Venta)',
+                startsAt: ventaStartsAt,
+                endsAt: ventaEndsAt,
+            },
+        })
+
+        const scannerEvent = await prisma.event.create({
+            data: {
+                id: randomUUID(),
+                clubId: club.id,
+                name: 'Drift Day (Scanner)',
+                startsAt: scannerStartsAt,
+                endsAt: scannerEndsAt,
             },
         })
 
@@ -248,7 +263,7 @@ export async function seedDatabase(prismaInstance?: PrismaClient) {
             const assignment = await prisma.eventRp.create({
                 data: {
                     id: randomUUID(),
-                    eventId: event.id,
+                    eventId: ventaEvent.id,
                     rpId: profile.id,
                     limitAccesses: 100,
                 },
@@ -280,38 +295,49 @@ export async function seedDatabase(prismaInstance?: PrismaClient) {
             scannerProfiles.push({ user, profile })
         }
 
-        const demoRp = rpProfiles[0]
-        const demoScanner = scannerProfiles[0]
-        if (!demoRp || !demoScanner) {
-            throw new Error('Demo RP/scanner seeds were not created')
+        const scannerEventRp = rpProfiles[0]
+        if (!scannerEventRp) {
+            throw new Error('Demo RP seed was not created')
         }
 
-        const ticket = await prisma.ticket.create({
+        const scannerAssignment = await prisma.eventRp.create({
             data: {
                 id: randomUUID(),
-                eventId: event.id,
-                rpId: demoRp.profile.id,
-                assignmentId: demoRp.assignment.id,
-                guestType: TicketType.GENERAL,
-                qrToken: randomUUID(),
-                note: 'Invitado demo',
+                eventId: scannerEvent.id,
+                rpId: scannerEventRp.profile.id,
+                limitAccesses: 2,
             },
         })
 
-        await prisma.ticketScan
-            .create({
-                data: {
-                    id: randomUUID(),
-                    ticketId: ticket.id,
-                    scannerId: demoScanner.profile.id,
-                },
-            })
-            .catch(() => undefined)
+        const scannerTickets = await Promise.all(
+            [
+                { guestType: TicketType.GENERAL, note: 'Token demo scanner 1' },
+                { guestType: TicketType.VIP, note: 'Token demo scanner 2' },
+            ].map((ticketInput) =>
+                prisma.ticket.create({
+                    data: {
+                        id: randomUUID(),
+                        eventId: scannerEvent.id,
+                        rpId: scannerEventRp.profile.id,
+                        assignmentId: scannerAssignment.id,
+                        guestType: ticketInput.guestType,
+                        qrToken: randomUUID(),
+                        note: ticketInput.note,
+                    },
+                }),
+            ),
+        )
 
         console.log('Seed data generated with default password:', DEFAULT_PASSWORD)
-        console.log('Event:', event.name)
-        console.log('RPs:', RP_SEEDS.map((seed) => `${seed.name} (${seed.username})`).join(', '))
+        console.log('Events:', [ventaEvent.name, scannerEvent.name].join(', '))
+        console.log('Venta RPs:', RP_SEEDS.map((seed) => `${seed.name} (${seed.username})`).join(', '))
         console.log('Scanners:', SCANNER_SEEDS.map((seed) => `${seed.name} (${seed.username})`).join(', '))
+        console.log(
+            'Scanner tokens:',
+            scannerTickets
+                .map((ticket, index) => `token${index + 1}=${ticket.qrToken}`)
+                .join(', '),
+        )
 
     } finally {
         if (!prismaInstance && pool) {
