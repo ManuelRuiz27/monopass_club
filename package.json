@@ -19,9 +19,14 @@
     "prisma:generate": "npm run prisma:generate -w core-api",
     "qa:quick": "npm run build -w core-api && npm run build -w scanner-service && npm run build -w frontend && npm exec -w core-api vitest run src/server.test.ts src/modules/rp-portal/rp-portal.routes.test.ts && npm exec -w scanner-service vitest run src/http/routes/scan.test.ts src/http/routes/cuts.test.ts",
     "qa:e2e": "npm run test:e2e -w frontend -- --project=chromium",
-    "qa:all": "npm run qa:quick && npm run qa:e2e"
+    "qa:all": "npm run qa:quick && npm run qa:e2e",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
   },
   "engines": {
     "node": ">=22"
+  },
+  "devDependencies": {
+    "wrangler": "^4.77.0"
   }
 }
